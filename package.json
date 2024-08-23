@@ -5,6 +5,7 @@
   "main": "src/index.ts",
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "prettier": "prettier . --write",
     "test:eslint": "eslint .",
     "test:prettier": "prettier -c .",
     "test": "run-p test:eslint test:prettier"
