@@ -1,0 +1,44 @@
+{
+  "name": "semantic-kernel",
+  "version": "0.0.1",
+  "description": "Semantic Kernel TypeScript",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test:eslint": "eslint .",
+    "test:prettier": "prettier -c .",
+    "test": "run-p test:eslint test:prettier"
+  },
+  "files": [
+    "dist/**/**",
+    "docs/**/**",
+    "!**/*.spec.*",
+    "!**/*.json",
+    "!**/*.tsbuildinfo",
+    "LICENSE",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/afshinm/skjs.git"
+  },
+  "keywords": [
+    "semantic-kernel"
+  ],
+  "author": "Afshin Mehrabani",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/afshinm/skjs/issues"
+  },
+  "homepage": "https://github.com/afshinm/skjs#readme",
+  "devDependencies": {
+    "@eslint/js": "^9.9.0",
+    "@types/eslint__js": "^8.42.3",
+    "@types/node": "^22.5.0",
+    "eslint": "^9.9.0",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^3.3.3",
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^8.2.0"
+  }
+}
