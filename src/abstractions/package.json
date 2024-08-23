@@ -1,0 +1,22 @@
+{
+  "name": "@semantic-kernel/abstractions",
+  "description": "Semantic Kernel Abstractions",
+  "scripts": {
+    "build": "tsup",
+    "clean": "rm -rf dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "devDependencies": {
+    "@semantic-kernel/tsconfig": "*",
+    "tsup": "^8.2.4",
+    "typescript": "^5.5.4"
+  }
+}

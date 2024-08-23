@@ -1,7 +1,5 @@
 {
   "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "./dist",
     "lib": ["es2018"],
     "target": "es2018",
     "module": "CommonJS",
@@ -9,7 +7,6 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "composite": true,
     "noEmitOnError": true,
     "emitDeclarationOnly": true,
     "strict": true,
@@ -23,7 +20,6 @@
     "alwaysStrict": true,
     "preserveConstEnums": true,
     "types": ["node"]
-  },
-  "include": ["src"],
-  "exclude": ["node_modules"]
+  }
 }
+

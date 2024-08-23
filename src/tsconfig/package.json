@@ -1,0 +1,7 @@
+{
+  "name": "@semantic-kernel/tsconfig",
+  "private": true,
+  "files": [
+    "tsconfig.base.json"
+  ]
+}
