@@ -2,13 +2,13 @@ import { InnerContent } from './innerContent';
 import { ModelId } from './modelId';
 
 /**
- * Base type for all AI non-streaming results
+ * Represents a single update to a streaming content.
  */
-export type KernelContent = {
+export type StreamingKernelContent = {
   /**
-   * The MIME type of the content.
+   * In a scenario of multiple choices per request, this represents zero-based index of the choice in the streaming sequence
    */
-  mimeType?: string;
+  choiceIndex: number;
 
   /**
    * The inner content representation. Use this to bypass the current abstraction.

@@ -6,7 +6,7 @@ import { ChatMessageContentItemCollection } from './chatMessageContentItemCollec
 /**
  * Represents chat message content return from a chat completion service.
  */
-export type ChatMessageContent = KernelContent & {
+export interface ChatMessageContent extends KernelContent {
   /**
    * The name of the author of the chat message.
    */
@@ -28,4 +28,4 @@ export type ChatMessageContent = KernelContent & {
    * The property is intended to be used by agents to associate themselves with the messages they generate.
    */
   source?: object;
-};
+}
