@@ -8,6 +8,7 @@
     "declarationMap": true,
     "sourceMap": true,
     "noEmitOnError": true,
+    "esModuleInterop": true,
     "emitDeclarationOnly": true,
     "strict": true,
     "strictBindCallApply": false,
@@ -19,6 +20,6 @@
     "skipLibCheck": true,
     "alwaysStrict": true,
     "preserveConstEnums": true,
-    "types": ["node"]
+    "types": ["node", "jest"]
   }
 }
