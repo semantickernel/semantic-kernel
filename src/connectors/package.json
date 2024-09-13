@@ -1,9 +1,6 @@
 {
-  "name": "@semantic-kernel/abstractions",
-  "description": "Semantic Kernel Abstractions",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
+  "name": "@semantic-kernel/connectors",
+  "description": "Semantic Kernel Connectors",
   "scripts": {
     "build": "tsup",
     "clean": "rm -rf dist",
@@ -12,9 +9,6 @@
     "test:jest": "jest",
     "test": "run-p test:*"
   },
-  "files": [
-    "dist/**/*"
-  ],
   "exports": {
     "./package.json": "./package.json",
     ".": {
@@ -22,6 +16,10 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     }
+  },
+  "dependencies": {
+    "@semantic-kernel/abstractions": "*",
+    "openai": "^4.56.0"
   },
   "devDependencies": {
     "@semantic-kernel/tsconfig": "*",

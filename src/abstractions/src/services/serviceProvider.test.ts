@@ -1,5 +1,5 @@
-import { getServiceProvider } from './serviceProvider';
 import { AIService } from './AIService';
+import { getServiceProvider } from './serviceProvider';
 
 const MockService = (): AIService => {
   return {

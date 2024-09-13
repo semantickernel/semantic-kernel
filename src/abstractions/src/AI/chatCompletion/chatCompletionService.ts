@@ -1,4 +1,6 @@
+import { Kernel } from '../../kernel';
 import { AIService } from '../../services/AIService';
+import { PromptExecutionSettings } from '../promptExecutionSettings';
 import { ChatHistory } from './chatHistory';
 import { ChatMessageContent } from './chatMessageContent';
 import { StreamingChatMessageContent } from './streamingChatMessageContent';

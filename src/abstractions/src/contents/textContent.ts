@@ -9,10 +9,12 @@ export type Encoding = 'utf-8';
  * Represents text content return from a text completion service.
  */
 export type TextContent = KernelContent & {
+  type: 'text';
+
   /**
    * Encoding of the text content.
    */
-  encoding: Encoding;
+  encoding?: Encoding;
 
   /**
    * Text content.

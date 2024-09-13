@@ -14,15 +14,15 @@ export type KernelContent = {
    * The inner content representation. Use this to bypass the current abstraction.
    * The usage of this property is considered "unsafe". Use it only if strictly necessary.
    */
-  innerContent: InnerContent;
+  innerContent?: InnerContent;
 
   /**
    * The model id used to generate the content.
    */
-  modelId: ModelId;
+  modelId?: ModelId;
 
   /**
    * Metadata associated with the content.
    */
-  metadata: Map<string, object>;
+  metadata?: Map<string, object>;
 };
