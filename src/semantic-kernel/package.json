@@ -1,17 +1,16 @@
 {
   "name": "semantic-kernel",
-  "version": "0.0.1",
-  "description": "Semantic Kernel TypeScript",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "turbo build",
-    "prettier": "prettier --write src",
-    "clean": "turbo clean",
-    "test": "turbo test"
+    "build": "tsup",
+    "clean": "rm -rf dist",
+    "test:eslint": "eslint \"src/**/*.ts*\"",
+    "test:prettier": "prettier --check \"src/**/*.ts*\"",
+    "test:jest": "jest",
+    "test": "run-p test:*"
   },
-  "packageManager": "npm@10.5.0",
   "files": [
     "dist/**/**",
     "docs/**/**",
@@ -23,7 +22,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/afshinm/skjs.git"
+    "url": "git+https://github.com/semantickernel/semantic-kernel.git"
   },
   "keywords": [
     "semantic-kernel"
@@ -31,23 +30,15 @@
   "author": "Afshin Mehrabani",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/afshinm/skjs/issues"
+    "url": "https://github.com/semantickernel/semantic-kernel/issues"
   },
-  "homepage": "https://github.com/afshinm/skjs#readme",
+  "homepage": "https://github.com/semantickernel/semantic-kernel#readme",
+  "dependencies": {
+    "@semantic-kernel/abstractions": "*"
+  },
   "devDependencies": {
-    "@eslint/js": "^9.9.0",
-    "@trivago/prettier-plugin-sort-imports": "^4.3.0",
-    "@types/eslint__js": "^8.42.3",
-    "@types/jest": "^29.5.12",
-    "@types/node": "^22.5.0",
-    "eslint": "^9.9.0",
-    "jest": "^29.7.0",
-    "npm-run-all": "^4.1.5",
-    "prettier": "^3.3.3",
-    "ts-jest": "^29.2.5",
-    "ts-node": "^10.9.2",
-    "turbo": "^2.0.14",
-    "typescript": "^5.5.4",
-    "typescript-eslint": "^8.2.0"
+    "@semantic-kernel/tsconfig": "*",
+    "tsup": "^8.2.4",
+    "typescript": "^5.5.4"
   }
 }
