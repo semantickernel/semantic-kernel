@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "build": "turbo build",
+    "build:watch": "turbo watch build",
     "prettier": "prettier --write src",
     "clean": "turbo clean",
     "test": "turbo test"
