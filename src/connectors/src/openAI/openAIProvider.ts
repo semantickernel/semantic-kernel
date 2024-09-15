@@ -1,9 +1,12 @@
+import { createOpenAIChatMessageContent } from './chatCompletion/OpenAIChatMessageContent';
 import { OpenAIPromptExecutionSettings, getOpenAIPromptExecutionSettings } from './openAIPromptExecutionSettings';
-import { ChatHistory, ChatMessageContent, systemChatMessage } from '@semantic-kernel/abstractions';
+import { ChatHistory, ChatMessageContent, Kernel, systemChatMessage } from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
+import { ChatCompletionCreateParamsNonStreaming } from 'openai/resources/chat/completions';
 
 export interface OpenAIProvider {
-  completion(completionParams: OpenAIChatCompletionParams): Promise<ChatMessageContent>;
+  attributes: Map<string, object | null>;
+  completion(completionParams: OpenAIChatCompletionParams): Promise<Array<ChatMessageContent>>;
 }
 
 export type OpenAIProviderParams = {
@@ -16,15 +19,29 @@ export type OpenAIChatCompletionParams = {
   model: string;
   chatHistory: ChatHistory;
   executionSettings?: OpenAIPromptExecutionSettings;
+  kernel?: Kernel;
 };
 
-export const createOpenAI = ({ apiKey, organization, openAIClient }: OpenAIProviderParams) => {
-  const getOrCreateOpenAIClient = () =>
+export const createOpenAI = ({ apiKey, organization, openAIClient }: OpenAIProviderParams): OpenAIProvider => {
+  openAIClient =
     openAIClient ??
     new OpenAI({
       apiKey,
       organization,
     });
+
+  const getToolCallingConfig = (
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    requestIndex: number,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    kernel?: Kernel,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    executionSettings?: OpenAIPromptExecutionSettings
+  ) => {
+    return {
+      autoInvoke: false,
+    };
+  };
 
   const createChatCompletionMessages = (message: ChatMessageContent): OpenAI.Chat.ChatCompletionMessageParam[] => {
     if (message.role === 'system') {
@@ -78,7 +95,7 @@ export const createOpenAI = ({ apiKey, organization, openAIClient }: OpenAIProvi
     model: string,
     chatHistory: ChatHistory,
     promptExecutionSettings?: OpenAIPromptExecutionSettings
-  ): OpenAI.Chat.ChatCompletionCreateParams => {
+  ): ChatCompletionCreateParamsNonStreaming => {
     const executionSettings = getOpenAIPromptExecutionSettings(promptExecutionSettings);
     let messages: OpenAI.Chat.ChatCompletionMessageParam[] = [];
 
@@ -99,12 +116,33 @@ export const createOpenAI = ({ apiKey, organization, openAIClient }: OpenAIProvi
     };
   };
 
-  const completion = async ({ model, chatHistory, executionSettings }: OpenAIChatCompletionParams) => {
-    const client = getOrCreateOpenAIClient();
-    return client.chat.completions.create(createChatCompletionCreateParams(model, chatHistory, executionSettings));
+  const completion = async ({ model, chatHistory, executionSettings, kernel }: OpenAIChatCompletionParams) => {
+    for (let requestIndex = 1; ; requestIndex++) {
+      // TODO record completion activity
+      const toolCallingConfig = getToolCallingConfig(requestIndex, kernel, executionSettings);
+      const chatCompletion = await openAIClient.chat.completions.create(
+        createChatCompletionCreateParams(model, chatHistory, executionSettings)
+      );
+      const chatMessageContent = createOpenAIChatMessageContent(chatCompletion, model);
+
+      // If we don't want to attempt to invoke any functions, just return the result.
+      if (!toolCallingConfig.autoInvoke) {
+        return [chatMessageContent];
+      }
+
+      // Get our single result and extract the function call information. If this isn't a function call, or if it is
+      // but we're unable to find the function or extract the relevant information, just return the single result.
+      // Note that we don't check the FinishReason and instead check whether there are any tool calls, as the service
+      // may return a FinishReason of "stop" even if there are tool calls to be made, in particular if a required tool
+      // is specified.
+      if (chatCompletion.choices[0].message.tool_calls?.length === 0) {
+        return [chatMessageContent];
+      }
+    }
   };
 
   return {
+    attributes: new Map(),
     completion,
   };
 };

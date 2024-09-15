@@ -20,7 +20,7 @@ export type ChatMessageContent = KernelContent &
       }
     | {
         role: 'assistant';
-        items: Array<KernelContent>;
+        items: Array<TextContent>;
       }
     | {
         role: 'tool';

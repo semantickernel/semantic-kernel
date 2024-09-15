@@ -20,7 +20,7 @@ export interface ChatCompletionService extends AIService {
   /**
    * Get streaming chat contents for the chat history provided using the specified settings.
    */
-  getStreamingChatMessageContents(
+  getStreamingChatMessageContents?(
     chatHistory: ChatHistory,
     executionSettings?: PromptExecutionSettings,
     kernel?: Kernel

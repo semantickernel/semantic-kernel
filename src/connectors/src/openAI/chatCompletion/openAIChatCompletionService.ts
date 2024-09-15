@@ -13,13 +13,13 @@ export const openAIChatCompletionService = (
   organization?: string,
   openAIProvider?: OpenAIProvider
 ): ChatCompletionService => {
-  const provider = () => openAIProvider ?? createOpenAI({ apiKey, organization });
+  openAIProvider = openAIProvider ?? createOpenAI({ apiKey, organization });
 
   return {
+    attributes: openAIProvider.attributes,
     serviceKey: 'openAIChatCompletion',
-    getChatMessageContents: async (chatHistory, executionSettings, _) => {
-      const response = await provider().completion({ model, chatHistory, executionSettings });
-      return response;
+    getChatMessageContents: async (chatHistory, executionSettings, kernel) => {
+      return openAIProvider.completion({ model, chatHistory, executionSettings, kernel });
     },
   };
 };
