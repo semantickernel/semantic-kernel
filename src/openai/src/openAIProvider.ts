@@ -31,10 +31,13 @@ export const createOpenAI = ({ apiKey, organization, openAIClient }: OpenAIProvi
     });
 
   const getToolCallingConfig = (
+    // @ts-expect-error todo
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     requestIndex: number,
+    // @ts-expect-error todo
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     kernel?: Kernel,
+    // @ts-expect-error todo
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     executionSettings?: OpenAIPromptExecutionSettings
   ) => {

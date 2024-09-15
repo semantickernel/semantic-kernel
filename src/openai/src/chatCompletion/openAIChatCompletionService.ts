@@ -7,12 +7,17 @@ import { ChatCompletionService } from '@semantic-kernel/abstractions';
  * @param apiKey OpenAI API key.
  * @param organization OpenAI organization (optional).
  */
-export const openAIChatCompletionService = (
-  model: string,
-  apiKey: string,
-  organization?: string,
-  openAIProvider?: OpenAIProvider
-): ChatCompletionService => {
+export const openAIChatCompletionService = ({
+  model,
+  apiKey,
+  organization,
+  openAIProvider,
+}: {
+  model: string;
+  apiKey: string;
+  organization?: string;
+  openAIProvider?: OpenAIProvider;
+}): ChatCompletionService => {
   openAIProvider = openAIProvider ?? createOpenAI({ apiKey, organization });
 
   return {

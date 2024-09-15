@@ -1,6 +1,9 @@
 {
   "name": "@semantic-kernel/openai",
   "description": "Semantic Kernel OpenAI",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsup",
     "clean": "rm -rf dist",
