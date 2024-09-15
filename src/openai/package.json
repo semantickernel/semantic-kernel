@@ -1,6 +1,6 @@
 {
-  "name": "@semantic-kernel/connectors",
-  "description": "Semantic Kernel Connectors",
+  "name": "@semantic-kernel/openai",
+  "description": "Semantic Kernel OpenAI",
   "scripts": {
     "build": "tsup",
     "clean": "rm -rf dist",

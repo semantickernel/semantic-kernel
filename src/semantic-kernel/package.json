@@ -1,5 +1,10 @@
 {
-  "private": true,
+  "name": "semantic-kernel",
+  "version": "0.0.1",
+  "description": "Semantic Kernel TypeScript",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "build": "turbo build",
     "prettier": "prettier --write src",
@@ -7,9 +12,6 @@
     "test": "turbo test"
   },
   "packageManager": "npm@10.5.0",
-  "workspaces": [
-    "src/*"
-  ],
   "files": [
     "dist/**/**",
     "docs/**/**",
