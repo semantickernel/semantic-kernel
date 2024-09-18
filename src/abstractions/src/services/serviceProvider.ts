@@ -1,4 +1,5 @@
-import { AIService } from './AIService';
+import { PromptExecutionSettings, ServiceId } from '../AI';
+import { AIService, getServiceModelId } from './AIService';
 
 /**
  * Represents a service provider.
@@ -8,7 +9,7 @@ export interface ServiceProvider {
    * Gets a service by key.
    * @param serviceKey The key of the service.
    */
-  getService(serviceKey: string): AIService;
+  getServiceByKey(serviceKey: string): AIService;
   /**
    * Gets all services.
    */
@@ -18,12 +19,22 @@ export interface ServiceProvider {
    * @param service The service to add.
    */
   addService(service: AIService): void;
+
+  getService(props: {
+    serviceType: AIService['serviceType'];
+    executionSettings?: Map<ServiceId, PromptExecutionSettings>;
+  }):
+    | {
+        service: AIService;
+        settings?: PromptExecutionSettings;
+      }
+    | undefined;
 }
 
 export const getServiceProvider = (): ServiceProvider => {
   const services: Map<string, AIService> = new Map();
 
-  const getServiceKey = (service: AIService): string => service.serviceKey;
+  const getServiceKey = (service: AIService) => service.serviceKey;
 
   const hasService = (serviceKey: string) => services.has(serviceKey);
 
@@ -41,7 +52,7 @@ export const getServiceProvider = (): ServiceProvider => {
     services.set(serviceKey, service);
   };
 
-  const getService = (serviceKey: string) => {
+  const getServiceByKey = (serviceKey: string) => {
     if (!services.has(serviceKey)) {
       throw new Error(`Service with key ${serviceKey} does not exist.`);
     }
@@ -51,9 +62,63 @@ export const getServiceProvider = (): ServiceProvider => {
 
   const getServices = () => services.entries();
 
+  const getServicesByType = (serviceType: AIService['serviceType']) => {
+    return Array.from(services.values()).filter((service) => service.serviceType === serviceType);
+  };
+
+  const getService = ({
+    serviceType,
+    executionSettings,
+  }: {
+    serviceType: AIService['serviceType'];
+    executionSettings?: Map<ServiceId, PromptExecutionSettings>;
+  }) => {
+    const services = getServicesByType(serviceType);
+
+    if (!services.length) {
+      return undefined;
+    }
+
+    if (!executionSettings || executionSettings.size === 0) {
+      // return the first service if no execution settings are provided
+      return {
+        service: services[0],
+        settings: undefined,
+      };
+    }
+
+    // search by service id first
+    for (const [serviceId, settings] of executionSettings) {
+      const service = services.find((s) => s.serviceKey === serviceId);
+      if (service) {
+        return {
+          service,
+          settings,
+        };
+      }
+    }
+
+    // search by model id next
+    for (const settings of executionSettings.values()) {
+      const modelId = settings.modelId;
+      const service = services.find((s) => getServiceModelId(s) === modelId);
+      if (service) {
+        return {
+          service,
+          settings,
+        };
+      }
+    }
+
+    // TODO: handle default service case
+
+    return undefined;
+  };
+
   return {
-    getService,
+    getServiceByKey,
     getServices,
     addService,
+    getService,
   };
 };

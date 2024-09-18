@@ -1,7 +1,15 @@
+export const ModelIdKey = 'ModelId'; // Key for model ID in AI service attributes
+
+export const EndpointKey = 'Endpoint'; // Key for endpoint in AI service attributes
+
+export type AIServiceType = 'ChatCompletion' | 'TextCompletion';
+
 /**
  *  Represents an AI service.
  */
 export interface AIService {
+  serviceType: AIServiceType;
+
   /**
    * Unique key of the AI service.
    */
@@ -10,5 +18,9 @@ export interface AIService {
   /**
    * Gets the AI service attributes.
    */
-  attributes: Map<string, object | null>;
+  attributes: ReadonlyMap<string, string | number | null | undefined>;
 }
+
+export const getServiceModelId = (service: AIService) => {
+  return service.attributes.get(ModelIdKey);
+};

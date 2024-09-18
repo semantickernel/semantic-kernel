@@ -5,7 +5,7 @@ import OpenAI from 'openai';
 import { ChatCompletionCreateParamsNonStreaming } from 'openai/resources/chat/completions';
 
 export interface OpenAIProvider {
-  attributes: Map<string, object | null>;
+  attributes: ReadonlyMap<string, string | number | null>;
   completion(completionParams: OpenAIChatCompletionParams): Promise<Array<ChatMessageContent>>;
 }
 

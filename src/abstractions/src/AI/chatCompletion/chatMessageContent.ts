@@ -62,3 +62,10 @@ export const systemChatMessage = (content: string): ChatMessageContent => {
     items: { type: 'text', text: content },
   });
 };
+
+export const userChatMessage = (content: string): ChatMessageContent => {
+  return chatMessage({
+    role: 'user',
+    items: [{ type: 'text', text: content }],
+  });
+};

@@ -1,0 +1,32 @@
+{
+  "name": "@semantic-kernel/prompt-templates",
+  "description": "Semantic Kernel Prompt Templates",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "clean": "rm -rf dist",
+    "test:eslint": "eslint \"src/**/*.ts*\"",
+    "test:prettier": "prettier --check \"src/**/*.ts*\"",
+    "test:jest": "jest",
+    "test": "run-p test:*"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "@semantic-kernel/abstractions": "*",
+    "handlebars": "^4.7.8"
+  },
+  "devDependencies": {
+    "@semantic-kernel/tsconfig": "*",
+    "tsup": "^8.2.4",
+    "typescript": "^5.5.4"
+  }
+}

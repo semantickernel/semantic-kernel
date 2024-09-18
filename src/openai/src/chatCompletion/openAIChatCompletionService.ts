@@ -21,8 +21,9 @@ export const openAIChatCompletionService = ({
   openAIProvider = openAIProvider ?? createOpenAI({ apiKey, organization });
 
   return {
-    attributes: openAIProvider.attributes,
+    serviceType: 'ChatCompletion',
     serviceKey: 'openAIChatCompletion',
+    attributes: openAIProvider.attributes,
     getChatMessageContents: async (chatHistory, executionSettings, kernel) => {
       return openAIProvider.completion({ model, chatHistory, executionSettings, kernel });
     },
