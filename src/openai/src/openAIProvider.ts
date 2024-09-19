@@ -174,7 +174,7 @@ export const createOpenAI = ({ apiKey, organization, openAIClient }: OpenAIProvi
       // Note that we don't check the FinishReason and instead check whether there are any tool calls, as the service
       // may return a FinishReason of "stop" even if there are tool calls to be made, in particular if a required tool
       // is specified.
-      if (chatCompletion.choices[0].message.tool_calls?.length === 0) {
+      if (!chatCompletion.choices[0].message.tool_calls) {
         return [chatMessageContent];
       }
     }

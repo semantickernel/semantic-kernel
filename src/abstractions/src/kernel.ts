@@ -1,7 +1,8 @@
-import { ChatMessageContent } from './AI';
+import { ChatMessageContent, PromptExecutionSettings } from './AI';
 import { FunctionInvocationFilter, FunctionResult, KernelFunction, kernelFunctionFromPrompt } from './functions';
 import { KernelPlugins, kernelPlugins } from './functions/kernelPlugins';
 import { AIService, ServiceProvider, getServiceProvider } from './services';
+
 
 /**
  * Represents a kernel.
@@ -22,6 +23,7 @@ export interface Kernel {
     promptTemplate,
   }: {
     promptTemplate: string;
+    executionSettings?: PromptExecutionSettings;
   }): FunctionResult<ChatMessageContent | ChatMessageContent[] | undefined, unknown>;
 }
 
@@ -45,8 +47,8 @@ export function kernel(): Kernel {
     invoke: function <Result, Props>(kernelFunction: KernelFunction<Result, Props>, props: Props) {
       return kernelFunction.invoke(this, props);
     },
-    invokePrompt: function ({ promptTemplate }: { promptTemplate: string }) {
-      const fn = kernelFunctionFromPrompt({ promptTemplate });
+    invokePrompt: function ({ promptTemplate, executionSettings }: { promptTemplate: string, executionSettings?: PromptExecutionSettings }) {
+      const fn = kernelFunctionFromPrompt({ promptTemplate, executionSettings });
       return fn.invoke(this, {});
     },
   };

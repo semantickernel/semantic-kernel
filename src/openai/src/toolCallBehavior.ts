@@ -67,7 +67,17 @@ function kernelFunctions({ autoInvoke }: { autoInvoke: boolean }) {
                   functionName: functionMetadata.name,
                   pluginName: functionMetadata.pluginName,
                 }),
-                parameters: functionMetadata.parameters,
+                parameters: {
+                  type: 'object',
+                  properties: Object.keys(functionMetadata.parameters).reduce((acc, key) => {
+                    return {
+                      ...acc,
+                      [key]: {
+                        type: 'string',
+                      },
+                    };
+                  }, {}),
+                },
               },
             });
           }
