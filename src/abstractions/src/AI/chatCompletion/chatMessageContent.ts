@@ -1,4 +1,4 @@
-import { KernelContent } from '../../contents';
+import { FunctionCallContent, KernelContent } from '../../contents';
 import { Encoding, TextContent } from '../../contents/textContent';
 
 /**
@@ -20,7 +20,7 @@ export type ChatMessageContent = KernelContent &
       }
     | {
         role: 'assistant';
-        items: Array<TextContent>;
+        items: Array<TextContent | FunctionCallContent<unknown>>;
       }
     | {
         role: 'tool';

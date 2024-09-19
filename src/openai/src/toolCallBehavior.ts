@@ -1,14 +1,5 @@
-import { Kernel } from '@semantic-kernel/abstractions';
+import { Kernel, fullyQualifiedName } from '@semantic-kernel/abstractions';
 import { ChatCompletionTool, ChatCompletionToolChoiceOption } from 'openai/resources';
-
-
-/// Gets the separator used between the plugin name and the function name, if a plugin name is present.
-/// <remarks>This separator was previously <c>_</c>, but has been changed to <c>-</c> to better align to the behavior elsewhere in SK and in response
-/// to developers who want to use underscores in their function or plugin names. We plan to make this setting configurable in the future.</remarks>
-const NameSeparator = '-';
-
-const fullyQualifiedName = ({ functionName, pluginName }: { functionName: string; pluginName?: string }) =>
-  !pluginName ? functionName : `${pluginName}${NameSeparator}${functionName}`;
 
 // The default maximum number of tool-call auto-invokes that can be made in a single request.
 export const DefaultMaximumAutoInvokeAttempts = 128;
@@ -73,6 +64,7 @@ function kernelFunctions({ autoInvoke }: { autoInvoke: boolean }) {
                     return {
                       ...acc,
                       [key]: {
+                        // TODO: fix the types here
                         type: 'string',
                       },
                     };
