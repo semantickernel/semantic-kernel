@@ -2,7 +2,8 @@ import { createOpenAIChatMessageContent } from './chatCompletion/OpenAIChatMessa
 import { OpenAIPromptExecutionSettings, getOpenAIPromptExecutionSettings } from './openAIPromptExecutionSettings';
 import { ChatHistory, ChatMessageContent, Kernel, systemChatMessage } from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
-import { ChatCompletionCreateParamsNonStreaming } from 'openai/resources/chat/completions';
+import { ChatCompletionCreateParamsNonStreaming, ChatCompletionTool, ChatCompletionToolChoiceOption } from 'openai/resources/chat/completions';
+
 
 export interface OpenAIProvider {
   attributes: ReadonlyMap<string, string | number | null>;
@@ -31,18 +32,39 @@ export const createOpenAI = ({ apiKey, organization, openAIClient }: OpenAIProvi
     });
 
   const getToolCallingConfig = (
-    // @ts-expect-error todo
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     requestIndex: number,
-    // @ts-expect-error todo
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     kernel?: Kernel,
-    // @ts-expect-error todo
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     executionSettings?: OpenAIPromptExecutionSettings
-  ) => {
+  ): {
+    tools: ChatCompletionTool[] | undefined;
+    choice: ChatCompletionToolChoiceOption | undefined;
+    autoInvoke: boolean;
+  } => {
+
+    if (!executionSettings || !executionSettings.toolCallBehavior) {
+      return {
+        tools: undefined,
+        choice: undefined,
+        autoInvoke: false,
+      }
+    }
+
+    if (requestIndex >= executionSettings.toolCallBehavior.MaximumUseAttempts) {
+      return {
+        tools: [],
+        choice: "none",
+        autoInvoke: false,
+      };
+    }
+
+    const { tools, choice } = executionSettings.toolCallBehavior.configureOptions(kernel);
+
+    const autoInvoke = kernel !== undefined && executionSettings.toolCallBehavior.MaximumAutoInvokeAttempts > 0;
+
     return {
-      autoInvoke: false,
+      tools: tools ?? [],
+      choice: choice ?? "none",
+      autoInvoke,
     };
   };
 
@@ -97,10 +119,13 @@ export const createOpenAI = ({ apiKey, organization, openAIClient }: OpenAIProvi
   const createChatCompletionCreateParams = (
     model: string,
     chatHistory: ChatHistory,
-    promptExecutionSettings?: OpenAIPromptExecutionSettings
+    promptExecutionSettings?: OpenAIPromptExecutionSettings,
+    toolCallingConfig?: ReturnType<typeof getToolCallingConfig>
   ): ChatCompletionCreateParamsNonStreaming => {
     const executionSettings = getOpenAIPromptExecutionSettings(promptExecutionSettings);
     let messages: OpenAI.Chat.ChatCompletionMessageParam[] = [];
+    let tools: ChatCompletionTool[] | undefined;
+    let toolChoice: ChatCompletionToolChoiceOption | undefined;
 
     // Add the system prompt if provided first
     if (executionSettings.chatSystemPrompt && !chatHistory.find((message) => message.role === 'system')) {
@@ -111,11 +136,18 @@ export const createOpenAI = ({ apiKey, organization, openAIClient }: OpenAIProvi
       messages = [...messages, ...createChatCompletionMessages(chatMessage)];
     }
 
+    if (toolCallingConfig) {
+      tools = toolCallingConfig.tools;
+      toolChoice = toolCallingConfig.choice;
+    }
+
     return {
       model,
       temperature: executionSettings.temperature,
       top_p: executionSettings.topP,
       messages,
+      tools,
+      tool_choice: toolChoice,
     };
   };
 
@@ -123,9 +155,13 @@ export const createOpenAI = ({ apiKey, organization, openAIClient }: OpenAIProvi
     for (let requestIndex = 1; ; requestIndex++) {
       // TODO record completion activity
       const toolCallingConfig = getToolCallingConfig(requestIndex, kernel, executionSettings);
-      const chatCompletion = await openAIClient.chat.completions.create(
-        createChatCompletionCreateParams(model, chatHistory, executionSettings)
+      const chatCompletionCreateParams = createChatCompletionCreateParams(
+        model,
+        chatHistory,
+        executionSettings,
+        toolCallingConfig
       );
+      const chatCompletion = await openAIClient.chat.completions.create(chatCompletionCreateParams);
       const chatMessageContent = createOpenAIChatMessageContent(chatCompletion, model);
 
       // If we don't want to attempt to invoke any functions, just return the result.

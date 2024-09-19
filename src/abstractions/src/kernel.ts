@@ -1,9 +1,7 @@
 import { ChatMessageContent } from './AI';
-import { kernelFunctionFromPrompt } from './functions';
-import { FunctionInvocationFilter } from './functions/functionInvocationFilter';
-import { FunctionResult, KernelFunction } from './functions/kernelFunction';
-import { AIService } from './services/AIService';
-import { ServiceProvider, getServiceProvider } from './services/serviceProvider';
+import { FunctionInvocationFilter, FunctionResult, KernelFunction, kernelFunctionFromPrompt } from './functions';
+import { KernelPlugins, kernelPlugins } from './functions/kernelPlugins';
+import { AIService, ServiceProvider, getServiceProvider } from './services';
 
 /**
  * Represents a kernel.
@@ -11,6 +9,7 @@ import { ServiceProvider, getServiceProvider } from './services/serviceProvider'
 export interface Kernel {
   functionInvocationFilters: FunctionInvocationFilter[];
   serviceProvider: ServiceProvider;
+  plugins: KernelPlugins;
 
   /**
    * Adds a service to the kernel.
@@ -33,10 +32,12 @@ export interface Kernel {
 export function kernel(): Kernel {
   const serviceProvider = getServiceProvider();
   const functionInvocationFilters: FunctionInvocationFilter[] = [];
+  const plugins = kernelPlugins();
 
   return {
     functionInvocationFilters,
     serviceProvider,
+    plugins,
     addService: function (service: AIService) {
       serviceProvider.addService(service);
       return this;

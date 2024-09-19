@@ -16,6 +16,9 @@ export type KernelFunctionDescriptor = {
 export type KernelFunctionProps<Props> = { [Key in keyof Props]: KernelFunctionDescriptor };
 
 export type KernelFunctionMetadata<Props> = KernelFunctionDescriptor & {
+  name: string;
+  description?: string;
+  pluginName?: string;
   parameters: KernelFunctionProps<Props>;
 };
 
