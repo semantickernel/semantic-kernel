@@ -1,9 +1,9 @@
-import { FromSchema } from 'json-schema-to-ts';
 import { ChatCompletionService, ChatMessageContent, PromptExecutionSettings, userChatMessage } from '../AI';
 import { Kernel } from '../kernel';
 import { PromptTemplateConfig, stringPromptTemplate } from '../promptTemplate';
 import { AIService } from '../services';
 import { KernelFunction } from './kernelFunction';
+import { FromSchema } from 'json-schema-to-ts';
 
 export type PromptRenderingResult = {
   renderedPrompt: string;
@@ -12,7 +12,7 @@ export type PromptRenderingResult = {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const schema = {
-  type: "object",
+  type: 'object',
 } as const;
 
 export type PromptType = FromSchema<typeof schema>;
@@ -71,9 +71,11 @@ export const kernelFunctionFromPrompt = ({
       const { renderedPrompt, AIService } = await renderPrompt(kernel, props);
 
       if (AIService.serviceType === 'ChatCompletion') {
-        const chatContents = await (AIService as ChatCompletionService).getChatMessageContents([
-          userChatMessage(renderedPrompt),
-        ], executionSettings, kernel);
+        const chatContents = await (AIService as ChatCompletionService).getChatMessageContents(
+          [userChatMessage(renderedPrompt)],
+          executionSettings,
+          kernel
+        );
 
         if (!chatContents || chatContents.length === 0) {
           return {

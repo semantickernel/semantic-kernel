@@ -4,7 +4,14 @@ import {
   getOpenAIChatMessageContentToolCalls,
 } from './chatCompletion/OpenAIChatMessageContent';
 import { OpenAIPromptExecutionSettings, getOpenAIPromptExecutionSettings } from './openAIPromptExecutionSettings';
-import { ChatHistory, ChatMessageContent, Kernel, systemChatMessage } from '@semantic-kernel/abstractions';
+import {
+  ChatHistory,
+  ChatMessageContent,
+  Kernel,
+  fullyQualifiedName,
+  systemChatMessage,
+  toolChatMessage,
+} from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
 import {
   ChatCompletionCreateParamsNonStreaming,
@@ -86,7 +93,19 @@ export const createOpenAI = ({ apiKey, organization, openAIClient }: OpenAIProvi
     }
 
     if (message.role === 'tool') {
-      // TODO
+      const toolCallId = (message.metadata ?? {})['tool_call_id'];
+
+      if (!toolCallId || typeof toolCallId !== 'string') {
+        throw new Error('Tool call ID is required for tool messages and must be a string.');
+      }
+
+      const chatToolMessage: OpenAI.Chat.ChatCompletionToolMessageParam = {
+        role: 'tool',
+        content: message.items.text,
+        tool_call_id: toolCallId,
+      };
+
+      return [chatToolMessage];
     }
 
     if (message.role === 'user') {
@@ -116,7 +135,29 @@ export const createOpenAI = ({ apiKey, organization, openAIClient }: OpenAIProvi
     }
 
     if (message.role === 'assistant') {
-      // TODO
+      const chatSystemMessage: OpenAI.Chat.ChatCompletionAssistantMessageParam = {
+        role: 'assistant',
+        name: message.authorName,
+        tool_calls: getOpenAIChatMessageContentToolCalls(message).map((toolCall) => {
+          if (!toolCall.id) {
+            throw new Error(`ToolCall.Id is not defined for ${toolCall.functionName} in plugin ${toolCall.pluginName}`);
+          }
+
+          return {
+            type: 'function',
+            function: {
+              name: fullyQualifiedName({
+                functionName: toolCall.functionName,
+                pluginName: toolCall.pluginName,
+              }),
+              arguments: JSON.stringify(toolCall.arguments),
+            },
+            id: toolCall.id,
+          };
+        }),
+      };
+
+      return [chatSystemMessage];
     }
 
     throw new Error(`Unsupported chat message role: ${message.role}`);
@@ -146,7 +187,6 @@ export const createOpenAI = ({ apiKey, organization, openAIClient }: OpenAIProvi
       tools = toolCallingConfig.tools;
       toolChoice = toolCallingConfig.choice;
     }
-
 
     return {
       model,
@@ -196,12 +236,25 @@ export const createOpenAI = ({ apiKey, organization, openAIClient }: OpenAIProvi
         const kernelFunction = kernel?.plugins.getFunction(toolCall.functionName, toolCall.pluginName);
 
         if (!kernelFunction) {
+          // TODO: should we add this to ChatHistory instead of throwing? Similar for other use-cases.
           throw new Error(`Unable to find function "${toolCall.functionName}" in plugin "${toolCall.pluginName}".`);
         }
 
-        const result = await kernel?.invoke(kernelFunction, toolCall.arguments);
+        const functionResult = await kernel?.invoke(kernelFunction, toolCall.arguments);
 
-        console.log('result', result);
+        if (!functionResult || !functionResult.value) {
+          throw new Error(
+            `Function "${toolCall.functionName}" in plugin "${toolCall.pluginName}" returned null result.`
+          );
+        }
+
+        // TODO: improve this to process the FunctionResult better
+        // (e.g. consider ChatContent return type, etc.)
+        chatHistory.push(
+          toolChatMessage(String(functionResult.value), {
+            tool_call_id: toolCall.id,
+          })
+        );
       }
     }
   };

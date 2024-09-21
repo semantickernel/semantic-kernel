@@ -24,5 +24,5 @@ export type KernelContent = {
   /**
    * Metadata associated with the content.
    */
-  metadata?: Map<string, object>;
+  metadata?: { [key: string]: string | number | object | undefined | null };
 };

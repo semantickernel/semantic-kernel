@@ -1,7 +1,6 @@
 import { Kernel, fullyQualifiedName } from '@semantic-kernel/abstractions';
 import { ChatCompletionTool, ChatCompletionToolChoiceOption } from 'openai/resources';
 
-
 // The default maximum number of tool-call auto-invokes that can be made in a single request.
 export const DefaultMaximumAutoInvokeAttempts = 128;
 
@@ -51,7 +50,7 @@ function kernelFunctions({ autoInvoke }: { autoInvoke: boolean }) {
           tools = [];
 
           for (const { description, name: functionName, pluginName, parameters } of functionsMetadata) {
-            if (typeof (parameters) !== "object") {
+            if (typeof parameters !== 'object') {
               continue;
             }
 

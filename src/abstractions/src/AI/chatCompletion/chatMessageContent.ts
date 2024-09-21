@@ -24,7 +24,8 @@ export type ChatMessageContent = KernelContent &
       }
     | {
         role: 'tool';
-        items: Array<KernelContent>;
+        // TODO: do we need to support the Array<TextContent> type here?
+        items: TextContent;
       }
   ) & {
     /**
@@ -75,4 +76,18 @@ export const userChatMessage = (content: string): ChatMessageContent => {
     role: 'user',
     items: [{ type: 'text', text: content }],
   });
+};
+
+export const toolChatMessage = (content: string, metadata?: KernelContent['metadata']): ChatMessageContent => {
+  const msg = chatMessage({
+    role: 'tool',
+    items: { type: 'text', text: content },
+  });
+
+  msg.metadata = {
+    ...msg.metadata,
+    ...metadata,
+  };
+
+  return msg;
 };

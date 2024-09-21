@@ -1,5 +1,4 @@
-import { PromptExecutionSettings } from "../AI";
-
+import { PromptExecutionSettings } from '../AI';
 
 export type PromptTemplateConfig = {
   name?: string;
