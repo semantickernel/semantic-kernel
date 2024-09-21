@@ -1,9 +1,16 @@
-import { createOpenAIChatMessageContent } from './chatCompletion/OpenAIChatMessageContent';
+import {
+  OpenAIChatMessageContent,
+  createOpenAIChatMessageContent,
+  getOpenAIChatMessageContentToolCalls,
+} from './chatCompletion/OpenAIChatMessageContent';
 import { OpenAIPromptExecutionSettings, getOpenAIPromptExecutionSettings } from './openAIPromptExecutionSettings';
 import { ChatHistory, ChatMessageContent, Kernel, systemChatMessage } from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
-import { ChatCompletionCreateParamsNonStreaming, ChatCompletionTool, ChatCompletionToolChoiceOption } from 'openai/resources/chat/completions';
-
+import {
+  ChatCompletionCreateParamsNonStreaming,
+  ChatCompletionTool,
+  ChatCompletionToolChoiceOption,
+} from 'openai/resources/chat/completions';
 
 export interface OpenAIProvider {
   attributes: ReadonlyMap<string, string | number | null>;
@@ -40,19 +47,18 @@ export const createOpenAI = ({ apiKey, organization, openAIClient }: OpenAIProvi
     choice: ChatCompletionToolChoiceOption | undefined;
     autoInvoke: boolean;
   } => {
-
     if (!executionSettings || !executionSettings.toolCallBehavior) {
       return {
         tools: undefined,
         choice: undefined,
         autoInvoke: false,
-      }
+      };
     }
 
     if (requestIndex >= executionSettings.toolCallBehavior.MaximumUseAttempts) {
       return {
         tools: [],
-        choice: "none",
+        choice: 'none',
         autoInvoke: false,
       };
     }
@@ -63,7 +69,7 @@ export const createOpenAI = ({ apiKey, organization, openAIClient }: OpenAIProvi
 
     return {
       tools: tools ?? [],
-      choice: choice ?? "none",
+      choice: choice ?? 'none',
       autoInvoke,
     };
   };
@@ -141,6 +147,7 @@ export const createOpenAI = ({ apiKey, organization, openAIClient }: OpenAIProvi
       toolChoice = toolCallingConfig.choice;
     }
 
+
     return {
       model,
       temperature: executionSettings.temperature,
@@ -162,7 +169,7 @@ export const createOpenAI = ({ apiKey, organization, openAIClient }: OpenAIProvi
         toolCallingConfig
       );
       const chatCompletion = await openAIClient.chat.completions.create(chatCompletionCreateParams);
-      const chatMessageContent = createOpenAIChatMessageContent(chatCompletion, model);
+      const chatMessageContent: OpenAIChatMessageContent = createOpenAIChatMessageContent(chatCompletion, model);
 
       // If we don't want to attempt to invoke any functions, just return the result.
       if (!toolCallingConfig.autoInvoke) {
@@ -176,6 +183,25 @@ export const createOpenAI = ({ apiKey, organization, openAIClient }: OpenAIProvi
       // is specified.
       if (!chatCompletion.choices[0].message.tool_calls) {
         return [chatMessageContent];
+      }
+
+      // Add the result message to the caller's chat history;
+      // this is required for the service to understand the tool call responses.
+      chatHistory.push(chatMessageContent);
+
+      const toolCalls = getOpenAIChatMessageContentToolCalls(chatMessageContent);
+      for (let toolCallIndex = 0; toolCallIndex < toolCalls.length; toolCallIndex++) {
+        const toolCall = toolCalls[toolCallIndex];
+
+        const kernelFunction = kernel?.plugins.getFunction(toolCall.functionName, toolCall.pluginName);
+
+        if (!kernelFunction) {
+          throw new Error(`Unable to find function "${toolCall.functionName}" in plugin "${toolCall.pluginName}".`);
+        }
+
+        const result = await kernel?.invoke(kernelFunction, toolCall.arguments);
+
+        console.log('result', result);
       }
     }
   };

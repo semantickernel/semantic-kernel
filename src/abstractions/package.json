@@ -27,5 +27,9 @@
     "@semantic-kernel/tsconfig": "*",
     "tsup": "^8.2.4",
     "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "json-schema-to-ts": "^3.1.1",
+    "zod-to-json-schema": "^3.23.3"
   }
 }

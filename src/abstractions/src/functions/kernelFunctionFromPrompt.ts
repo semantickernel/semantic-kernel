@@ -1,3 +1,4 @@
+import { FromSchema } from 'json-schema-to-ts';
 import { ChatCompletionService, ChatMessageContent, PromptExecutionSettings, userChatMessage } from '../AI';
 import { Kernel } from '../kernel';
 import { PromptTemplateConfig, stringPromptTemplate } from '../promptTemplate';
@@ -9,7 +10,14 @@ export type PromptRenderingResult = {
   AIService: AIService;
 };
 
-export const kernelFunctionFromPrompt = <Props>({
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const schema = {
+  type: "object",
+} as const;
+
+export type PromptType = FromSchema<typeof schema>;
+
+export const kernelFunctionFromPrompt = ({
   promptTemplate,
   executionSettings,
   templateFormat,
@@ -17,7 +25,7 @@ export const kernelFunctionFromPrompt = <Props>({
   promptTemplate: string;
   executionSettings?: PromptExecutionSettings;
   templateFormat?: PromptTemplateConfig['templateFormat'];
-}): KernelFunction<ChatMessageContent | ChatMessageContent[] | undefined, Props> => {
+}): KernelFunction<PromptType, ChatMessageContent | ChatMessageContent[] | undefined, typeof schema> => {
   const promptTemplateConfig: PromptTemplateConfig = {
     // default to the simple stringPromptTemplate if no promptTemplate is provided
     templateFormat: templateFormat ?? 'string',
@@ -36,7 +44,7 @@ export const kernelFunctionFromPrompt = <Props>({
     }
   };
 
-  const renderPrompt = async (kernel: Kernel, props: Props): Promise<PromptRenderingResult> => {
+  const renderPrompt = async (kernel: Kernel, props: PromptType): Promise<PromptRenderingResult> => {
     const promptTemplate = getPromptTemplate();
 
     const { service } =

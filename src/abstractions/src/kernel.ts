@@ -1,8 +1,15 @@
 import { ChatMessageContent, PromptExecutionSettings } from './AI';
-import { FunctionInvocationFilter, FunctionResult, KernelFunction, kernelFunctionFromPrompt } from './functions';
+import {
+  FunctionInvocationFilter,
+  FunctionResult,
+  JsonSchema,
+  KernelFunction,
+  PromptType,
+  kernelFunctionFromPrompt,
+} from './functions';
 import { KernelPlugins, kernelPlugins } from './functions/kernelPlugins';
 import { AIService, ServiceProvider, getServiceProvider } from './services';
-
+import { FromSchema } from 'json-schema-to-ts';
 
 /**
  * Represents a kernel.
@@ -18,13 +25,16 @@ export interface Kernel {
    * @return The kernel.
    */
   addService(service: AIService): Kernel;
-  invoke<Result, Props>(kernelFunction: KernelFunction<Result, Props>, props: Props): FunctionResult<Result, Props>;
+  invoke<Parameters extends JsonSchema, Result, Props = FromSchema<Parameters>>(
+    kernelFunction: KernelFunction<Props, Result, Parameters>,
+    props: Props
+  ): FunctionResult<Result, Props>;
   invokePrompt({
     promptTemplate,
   }: {
     promptTemplate: string;
     executionSettings?: PromptExecutionSettings;
-  }): FunctionResult<ChatMessageContent | ChatMessageContent[] | undefined, unknown>;
+  }): FunctionResult<ChatMessageContent | ChatMessageContent[] | undefined, PromptType>;
 }
 
 /**
@@ -44,10 +54,16 @@ export function kernel(): Kernel {
       serviceProvider.addService(service);
       return this;
     },
-    invoke: function <Result, Props>(kernelFunction: KernelFunction<Result, Props>, props: Props) {
+    invoke: function (kernelFunction, props) {
       return kernelFunction.invoke(this, props);
     },
-    invokePrompt: function ({ promptTemplate, executionSettings }: { promptTemplate: string, executionSettings?: PromptExecutionSettings }) {
+    invokePrompt: function ({
+      promptTemplate,
+      executionSettings,
+    }: {
+      promptTemplate: string;
+      executionSettings?: PromptExecutionSettings;
+    }) {
       const fn = kernelFunctionFromPrompt({ promptTemplate, executionSettings });
       return fn.invoke(this, {});
     },

@@ -20,7 +20,7 @@ export type ChatMessageContent = KernelContent &
       }
     | {
         role: 'assistant';
-        items: Array<TextContent | FunctionCallContent<unknown>>;
+        items: Array<TextContent | FunctionCallContent>;
       }
     | {
         role: 'tool';
@@ -45,7 +45,7 @@ export type ChatMessageContent = KernelContent &
 /**
  * Create a {@link ChatMessageContent} from content or items.
  */
-export const chatMessage = (props: ChatMessageContent): ChatMessageContent => {
+export const chatMessage = (props: ChatMessageContent) => {
   const message: ChatMessageContent = {
     ...{
       encoding: 'utf-8',
@@ -54,6 +54,13 @@ export const chatMessage = (props: ChatMessageContent): ChatMessageContent => {
   };
 
   return message;
+};
+
+export const assistantChatMessage = (props: Extract<ChatMessageContent, { role: 'assistant' }>): ChatMessageContent => {
+  return chatMessage({
+    ...props,
+    role: 'assistant',
+  });
 };
 
 export const systemChatMessage = (content: string): ChatMessageContent => {

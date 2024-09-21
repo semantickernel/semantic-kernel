@@ -16,8 +16,8 @@ export const parseFunctionName = (
 
   if (fullyQualifiedName.indexOf(functionNameSeparator) !== -1) {
     const parts = fullyQualifiedName.split(functionNameSeparator);
-    const functionName = parts[0].trim();
-    const pluginName = parts[1].trim();
+    const pluginName = parts[0].trim();
+    const functionName = parts[1].trim();
 
     return {
       functionName,

@@ -1,10 +1,10 @@
-import { KernelFunction, KernelFunctionMetadata } from './kernelFunction';
+import { JsonSchema, KernelFunction, KernelFunctionMetadata } from './kernelFunction';
 
 export type KernelPlugin = {
   name: string;
   description: string;
   functions: {
-    [functionName: string]: KernelFunction<unknown, unknown>;
+    [functionName: string]: KernelFunction<unknown, unknown, JsonSchema>;
   };
 };
 
@@ -14,5 +14,5 @@ export type KernelPlugin = {
 export const getFunctionsMetadata = (plugin: KernelPlugin) => {
   return Object.values(plugin.functions)
     .filter((fn) => fn.metadata)
-    .map((fn) => fn.metadata as KernelFunctionMetadata<unknown>);
+    .map((fn) => fn.metadata as KernelFunctionMetadata<JsonSchema>);
 };

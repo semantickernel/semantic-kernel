@@ -1,4 +1,5 @@
 import { Kernel } from '../kernel';
+import { FromSchema, JSONSchema } from 'json-schema-to-ts';
 
 export type Fn<Result, Props> = (props: Props) => Result;
 
@@ -9,28 +10,26 @@ export type FunctionResult<Result, Props> = Promise<{
   metadata?: ReadonlyMap<string, unknown>;
 }>;
 
-export type KernelFunctionDescriptor = {
-  describe: string;
-};
+export type JsonSchema = JSONSchema;
 
-export type KernelFunctionProps<Props> = { [Key in keyof Props]: KernelFunctionDescriptor };
+export type KernelFunctionProps<Props> = Props;
 
-export type KernelFunctionMetadata<Props> = KernelFunctionDescriptor & {
+export type KernelFunctionMetadata<Parameters extends JsonSchema> = {
   name: string;
   description?: string;
   pluginName?: string;
-  parameters: KernelFunctionProps<Props>;
+  parameters: Parameters;
 };
 
-export type KernelFunction<Result, Props> = {
+export type KernelFunction<Props, Result, Parameters extends JsonSchema> = {
   invoke: (kernel: Kernel, props: Props) => FunctionResult<Result, Props>;
-  metadata?: KernelFunctionMetadata<Props>;
+  metadata?: KernelFunctionMetadata<Parameters>;
 };
 
-export const kernelFunction = <Result, Props>(
-  fn: Fn<Result, Props>,
-  metadata: KernelFunctionMetadata<Props>
-): KernelFunction<Result, Props> => {
+export const kernelFunction = <Parameters extends JsonSchema, Result, Props = FromSchema<Parameters>>(
+  fn: (props: Props) => Result,
+  metadata: KernelFunctionMetadata<Parameters>
+): KernelFunction<Props, Result, Parameters> => {
   const invoke = async (kernel: Kernel, props: Props): FunctionResult<Result, Props> => {
     const value = await fn(props);
 

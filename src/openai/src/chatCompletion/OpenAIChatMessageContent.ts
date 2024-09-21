@@ -2,12 +2,12 @@ import {
   ChatMessageContent,
   FunctionCallContent,
   TextContent,
-  chatMessage,
+  assistantChatMessage,
   parseFunctionName,
 } from '@semantic-kernel/abstractions';
 import { ChatCompletion } from 'openai/resources';
 
-export type OpenAIChatMessageContent = ChatMessageContent;
+export type OpenAIChatMessageContent = Extract<ChatMessageContent, { role: 'assistant' }>;
 
 export const createOpenAIChatMessageContent = (
   chatCompletion: ChatCompletion,
@@ -17,7 +17,7 @@ export const createOpenAIChatMessageContent = (
   // do we need to change the role to "tool" when there are tool_calls?
   const role = choice.message.role;
   const content = choice.message.content;
-  const items: (TextContent | FunctionCallContent<unknown>)[] = [];
+  const items: Array<TextContent | FunctionCallContent> = [];
 
   if (content) {
     const textContent: TextContent = {
@@ -38,7 +38,7 @@ export const createOpenAIChatMessageContent = (
       const functionArguments = JSON.parse(toolCall.function.arguments);
       const { functionName, pluginName } = parseFunctionName(toolCall.function.name);
 
-      const functionCallContent: FunctionCallContent<typeof functionArguments> = {
+      const functionCallContent: FunctionCallContent = {
         id: toolCall.id,
         functionName,
         pluginName,
@@ -50,10 +50,24 @@ export const createOpenAIChatMessageContent = (
   }
 
   return {
-    ...chatMessage({
+    ...(assistantChatMessage({
       modelId,
       role,
       items,
-    }),
+    }) as OpenAIChatMessageContent),
   };
+};
+
+export const getOpenAIChatMessageContentToolCalls = (chatMessageContent: OpenAIChatMessageContent) => {
+  const toolCalls: FunctionCallContent[] = [];
+
+  for (const item of chatMessageContent.items) {
+    const isFunctionCallContent = (item as FunctionCallContent).functionName !== undefined;
+
+    if (isFunctionCallContent) {
+      toolCalls.push(item as FunctionCallContent);
+    }
+  }
+
+  return toolCalls;
 };
