@@ -1,9 +1,25 @@
-import { OpenAIChatMessageContent, createOpenAIChatMessageContent, getOpenAIChatMessageContentToolCalls } from './chatCompletion/OpenAIChatMessageContent';
+import {
+  OpenAIChatMessageContent,
+  createOpenAIChatMessageContent,
+  getOpenAIChatMessageContentToolCalls,
+} from './chatCompletion/OpenAIChatMessageContent';
 import { OpenAIPromptExecutionSettings, getOpenAIPromptExecutionSettings } from './openAIPromptExecutionSettings';
-import { ChatHistory, ChatMessageContent, Kernel, TextContent, fullyQualifiedName, systemChatMessage, toolChatMessage } from '@semantic-kernel/abstractions';
+import {
+  ChatHistory,
+  ChatMessageContent,
+  Kernel,
+  TextContent,
+  fullyQualifiedName,
+  systemChatMessage,
+  toolChatMessage,
+} from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
-import { ChatCompletionContentPartText, ChatCompletionCreateParamsNonStreaming, ChatCompletionTool, ChatCompletionToolChoiceOption } from 'openai/resources/chat/completions';
-
+import {
+  ChatCompletionContentPartText,
+  ChatCompletionCreateParamsNonStreaming,
+  ChatCompletionTool,
+  ChatCompletionToolChoiceOption,
+} from 'openai/resources/chat/completions';
 
 export interface OpenAIProvider {
   attributes: ReadonlyMap<string, string | number | null>;
@@ -29,7 +45,7 @@ export const createOpenAI = ({ apiKey, organization, openAIClient }: OpenAIProvi
     new OpenAI({
       apiKey,
       organization,
-      dangerouslyAllowBrowser: true
+      dangerouslyAllowBrowser: true,
     });
 
   const getToolCallingConfig = (
