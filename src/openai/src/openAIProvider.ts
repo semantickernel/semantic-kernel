@@ -1,23 +1,9 @@
-import {
-  OpenAIChatMessageContent,
-  createOpenAIChatMessageContent,
-  getOpenAIChatMessageContentToolCalls,
-} from './chatCompletion/OpenAIChatMessageContent';
+import { OpenAIChatMessageContent, createOpenAIChatMessageContent, getOpenAIChatMessageContentToolCalls } from './chatCompletion/OpenAIChatMessageContent';
 import { OpenAIPromptExecutionSettings, getOpenAIPromptExecutionSettings } from './openAIPromptExecutionSettings';
-import {
-  ChatHistory,
-  ChatMessageContent,
-  Kernel,
-  fullyQualifiedName,
-  systemChatMessage,
-  toolChatMessage,
-} from '@semantic-kernel/abstractions';
+import { ChatHistory, ChatMessageContent, Kernel, TextContent, fullyQualifiedName, systemChatMessage, toolChatMessage } from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
-import {
-  ChatCompletionCreateParamsNonStreaming,
-  ChatCompletionTool,
-  ChatCompletionToolChoiceOption,
-} from 'openai/resources/chat/completions';
+import { ChatCompletionContentPartText, ChatCompletionCreateParamsNonStreaming, ChatCompletionTool, ChatCompletionToolChoiceOption } from 'openai/resources/chat/completions';
+
 
 export interface OpenAIProvider {
   attributes: ReadonlyMap<string, string | number | null>;
@@ -43,6 +29,7 @@ export const createOpenAI = ({ apiKey, organization, openAIClient }: OpenAIProvi
     new OpenAI({
       apiKey,
       organization,
+      dangerouslyAllowBrowser: true
     });
 
   const getToolCallingConfig = (
@@ -135,10 +122,32 @@ export const createOpenAI = ({ apiKey, organization, openAIClient }: OpenAIProvi
     }
 
     if (message.role === 'assistant') {
-      const chatSystemMessage: OpenAI.Chat.ChatCompletionAssistantMessageParam = {
+      const messageToolCalls = getOpenAIChatMessageContentToolCalls(message);
+      const chatAssistantMessage: OpenAI.Chat.ChatCompletionAssistantMessageParam = {
         role: 'assistant',
         name: message.authorName,
-        tool_calls: getOpenAIChatMessageContentToolCalls(message).map((toolCall) => {
+      };
+
+      // TODO: fix this TextContent type check
+      if (message.items.length === 1) {
+        if ('type' in message.items[0] && (message.items[0] as TextContent).type === 'text') {
+          chatAssistantMessage.content = (message.items[0] as TextContent).text;
+        }
+      } else {
+        chatAssistantMessage.content = message.items
+          .map((item) => {
+            if ('type' in item && (item as TextContent).type === 'text') {
+              return {
+                type: 'text',
+                text: item.text,
+              };
+            }
+          })
+          .filter((item) => item) as ChatCompletionContentPartText[];
+      }
+
+      if (messageToolCalls.length > 0) {
+        chatAssistantMessage.tool_calls = messageToolCalls.map((toolCall) => {
           if (!toolCall.id) {
             throw new Error(`ToolCall.Id is not defined for ${toolCall.functionName} in plugin ${toolCall.pluginName}`);
           }
@@ -154,10 +163,10 @@ export const createOpenAI = ({ apiKey, organization, openAIClient }: OpenAIProvi
             },
             id: toolCall.id,
           };
-        }),
-      };
+        });
+      }
 
-      return [chatSystemMessage];
+      return [chatAssistantMessage];
     }
 
     throw new Error(`Unsupported chat message role: ${message.role}`);

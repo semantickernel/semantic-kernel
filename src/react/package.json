@@ -1,0 +1,38 @@
+{
+  "name": "@semantic-kernel/react",
+  "description": "Semantic Kernel React",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "clean": "rm -rf dist",
+    "test:eslint": "eslint \"src/**/*.ts*\"",
+    "test:prettier": "prettier --check \"src/**/*.ts*\"",
+    "test:jest": "jest",
+    "test": "run-p test:*"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "@semantic-kernel/abstractions": "*",
+    "@semantic-kernel/openai": "*"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@semantic-kernel/tsconfig": "*",
+    "@types/react": "^18.3.8",
+    "@types/react-dom": "^18.3.0",
+    "tsup": "^8.2.4",
+    "typescript": "^5.5.4"
+  }
+}
