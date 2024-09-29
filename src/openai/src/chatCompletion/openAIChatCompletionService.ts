@@ -1,4 +1,4 @@
-import { OpenAIProvider, createOpenAI } from '../openAIProvider';
+import { OpenAIProvider, openAIProvider } from '../provider/openAIProvider';
 import { ChatCompletionService } from '@semantic-kernel/abstractions';
 
 /**
@@ -11,21 +11,21 @@ export const openAIChatCompletionService = ({
   model,
   apiKey,
   organization,
-  openAIProvider,
+  provider,
 }: {
   model: string;
   apiKey: string;
   organization?: string;
-  openAIProvider?: OpenAIProvider;
+  provider?: OpenAIProvider;
 }): ChatCompletionService => {
-  openAIProvider = openAIProvider ?? createOpenAI({ apiKey, organization });
+  provider = provider ?? openAIProvider({ apiKey, organization });
 
   return {
     serviceType: 'ChatCompletion',
     serviceKey: 'openAIChatCompletion',
-    attributes: openAIProvider.attributes,
+    attributes: provider.attributes,
     getChatMessageContents: async (chatHistory, executionSettings, kernel) => {
-      return openAIProvider.completion({ model, chatHistory, executionSettings, kernel });
+      return provider.completion({ model, chatHistory, executionSettings, kernel });
     },
   };
 };

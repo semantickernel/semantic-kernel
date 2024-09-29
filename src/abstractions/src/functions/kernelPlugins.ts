@@ -1,4 +1,5 @@
-import { JsonSchema, KernelFunction, KernelFunctionMetadata } from './kernelFunction';
+import { JsonSchema } from '../jsonSchema';
+import { KernelFunction, KernelFunctionMetadata } from './kernelFunction';
 import { KernelPlugin, getFunctionsMetadata } from './kernelPlugin';
 
 export type KernelPlugins = {

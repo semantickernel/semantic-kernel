@@ -1,4 +1,4 @@
 export * from './chatCompletion';
 export * from './openAIPromptExecutionSettings';
-export * from './openAIProvider';
+export * from './provider/openAIProvider';
 export * from './toolCallBehavior';

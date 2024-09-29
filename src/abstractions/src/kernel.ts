@@ -2,12 +2,12 @@ import { ChatMessageContent, PromptExecutionSettings } from './AI';
 import {
   FunctionInvocationFilter,
   FunctionResult,
-  JsonSchema,
   KernelFunction,
   PromptType,
   kernelFunctionFromPrompt,
 } from './functions';
 import { KernelPlugins, kernelPlugins } from './functions/kernelPlugins';
+import { JsonSchema } from './jsonSchema';
 import { AIService, ServiceProvider, getServiceProvider } from './services';
 import { FromSchema } from 'json-schema-to-ts';
 
