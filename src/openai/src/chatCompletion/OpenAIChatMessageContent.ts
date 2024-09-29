@@ -3,7 +3,9 @@ import {
   FunctionCallContent,
   TextContent,
   assistantChatMessage,
+  functionCallContent,
   parseFunctionName,
+  textContent,
 } from '@semantic-kernel/abstractions';
 import { ChatCompletion } from 'openai/resources';
 
@@ -20,12 +22,11 @@ export const createOpenAIChatMessageContent = (
   const items: Array<TextContent | FunctionCallContent> = [];
 
   if (content) {
-    const textContent: TextContent = {
-      type: 'text',
-      text: content,
-    };
-
-    items.push(textContent);
+    items.push(
+      textContent({
+        text: content,
+      })
+    );
   }
 
   if (choice.message.tool_calls) {
@@ -38,14 +39,14 @@ export const createOpenAIChatMessageContent = (
       const functionArguments = JSON.parse(toolCall.function.arguments);
       const { functionName, pluginName } = parseFunctionName(toolCall.function.name);
 
-      const functionCallContent: FunctionCallContent = {
-        id: toolCall.id,
-        functionName,
-        pluginName,
-        arguments: functionArguments,
-      };
-
-      items.push(functionCallContent);
+      items.push(
+        functionCallContent({
+          id: toolCall.id,
+          functionName,
+          pluginName,
+          arguments: functionArguments,
+        })
+      );
     }
   }
 
@@ -59,15 +60,5 @@ export const createOpenAIChatMessageContent = (
 };
 
 export const getOpenAIChatMessageContentToolCalls = (chatMessageContent: OpenAIChatMessageContent) => {
-  const toolCalls: FunctionCallContent[] = [];
-
-  for (const item of chatMessageContent.items) {
-    const isFunctionCallContent = (item as FunctionCallContent).functionName !== undefined;
-
-    if (isFunctionCallContent) {
-      toolCalls.push(item as FunctionCallContent);
-    }
-  }
-
-  return toolCalls;
+  return chatMessageContent.items.filter((item) => item.type === 'function');
 };

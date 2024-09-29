@@ -28,6 +28,8 @@ export type ChatMessageContent = KernelContent &
         items: TextContent;
       }
   ) & {
+    type: 'chat';
+
     /**
      * The name of the author of the chat message.
      */
@@ -48,38 +50,65 @@ export type ChatMessageContent = KernelContent &
  */
 export const chatMessage = (props: ChatMessageContent) => {
   const message: ChatMessageContent = {
-    ...{
-      encoding: 'utf-8',
-    },
     ...props,
+    type: 'chat',
+    encoding: 'utf-8',
   };
 
   return message;
 };
 
-export const assistantChatMessage = (props: Extract<ChatMessageContent, { role: 'assistant' }>): ChatMessageContent => {
+/**
+ * Create an assistant {@link ChatMessageContent}.
+ * @param props The chat message properties.
+ * @returns The assistant chat message.
+ */
+export const assistantChatMessage = (
+  props: Omit<Extract<ChatMessageContent, { role: 'assistant' }>, 'type'>
+): ChatMessageContent => {
   return chatMessage({
     ...props,
+    type: 'chat',
     role: 'assistant',
   });
 };
 
+/**
+ * Create a system {@link ChatMessageContent}.
+ * @param content The content of the system message.
+ * @returns The system chat message.
+ */
 export const systemChatMessage = (content: string): ChatMessageContent => {
   return chatMessage({
+    // TODO: fix the "type" to avoid passing it explicitly
+    type: 'chat',
     role: 'system',
     items: { type: 'text', text: content },
   });
 };
 
+/**
+ * Create a user {@link ChatMessageContent}.
+ * @param content The content of the user message.
+ * @returns The user chat message.
+ */
 export const userChatMessage = (content: string): ChatMessageContent => {
   return chatMessage({
+    type: 'chat',
     role: 'user',
     items: [{ type: 'text', text: content }],
   });
 };
 
+/**
+ * Create a tool {@link ChatMessageContent}.
+ * @param content The content of the tool message.
+ * @param metadata The metadata of the tool message.
+ * @returns The tool chat message.
+ */
 export const toolChatMessage = (content: string, metadata?: KernelContent['metadata']): ChatMessageContent => {
   const msg = chatMessage({
+    type: 'chat',
     role: 'tool',
     items: { type: 'text', text: content },
   });

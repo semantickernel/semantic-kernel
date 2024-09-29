@@ -3,6 +3,7 @@ import { getServiceProvider } from './serviceProvider';
 
 const MockService = (): AIService => {
   return {
+    serviceType: 'ChatCompletion',
     serviceKey: 'mockService',
     attributes: new Map(),
   };
@@ -31,10 +32,14 @@ describe('serviceProvider', () => {
       serviceProvider.addService(mockService);
 
       // Act
-      const service = serviceProvider.getService('mockService');
+      const service = serviceProvider.getService({
+        serviceType: 'ChatCompletion',
+      });
 
       // Assert
-      expect(service).toEqual(mockService);
+      expect(service).toEqual({
+        service: mockService,
+      });
     });
   });
 });

@@ -21,3 +21,18 @@ export type TextContent = KernelContent & {
    */
   text: string;
 };
+
+/**
+ * Create a {@link TextContent} from text.
+ * @param props The text content properties.
+ * @returns The text content.
+ */
+export const textContent = (props: Omit<TextContent, 'type'>) => {
+  const message: TextContent = {
+    ...props,
+    type: 'text',
+    encoding: 'utf-8',
+  };
+
+  return message;
+};

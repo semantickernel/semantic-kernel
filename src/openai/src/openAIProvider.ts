@@ -8,14 +8,12 @@ import {
   ChatHistory,
   ChatMessageContent,
   Kernel,
-  TextContent,
   fullyQualifiedName,
   systemChatMessage,
   toolChatMessage,
 } from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
 import {
-  ChatCompletionContentPartText,
   ChatCompletionCreateParamsNonStreaming,
   ChatCompletionTool,
   ChatCompletionToolChoiceOption,
@@ -45,7 +43,6 @@ export const createOpenAI = ({ apiKey, organization, openAIClient }: OpenAIProvi
     new OpenAI({
       apiKey,
       organization,
-      dangerouslyAllowBrowser: true,
     });
 
   const getToolCallingConfig = (
@@ -85,6 +82,7 @@ export const createOpenAI = ({ apiKey, organization, openAIClient }: OpenAIProvi
   };
 
   const createChatCompletionMessages = (message: ChatMessageContent): OpenAI.Chat.ChatCompletionMessageParam[] => {
+    // handle system messages
     if (message.role === 'system') {
       const chatSystemMessage: OpenAI.Chat.ChatCompletionSystemMessageParam = {
         role: 'system',
@@ -95,6 +93,7 @@ export const createOpenAI = ({ apiKey, organization, openAIClient }: OpenAIProvi
       return [chatSystemMessage];
     }
 
+    // handle tool messages
     if (message.role === 'tool') {
       const toolCallId = (message.metadata ?? {})['tool_call_id'];
 
@@ -111,6 +110,7 @@ export const createOpenAI = ({ apiKey, organization, openAIClient }: OpenAIProvi
       return [chatToolMessage];
     }
 
+    // handle user messages
     if (message.role === 'user') {
       if (message.items.length === 1 && message.items[0].type === 'text') {
         const chatUserMessage: OpenAI.Chat.ChatCompletionUserMessageParam = {
@@ -137,6 +137,7 @@ export const createOpenAI = ({ apiKey, organization, openAIClient }: OpenAIProvi
       }
     }
 
+    // handle assistant messages
     if (message.role === 'assistant') {
       const messageToolCalls = getOpenAIChatMessageContentToolCalls(message);
       const chatAssistantMessage: OpenAI.Chat.ChatCompletionAssistantMessageParam = {
@@ -144,22 +145,12 @@ export const createOpenAI = ({ apiKey, organization, openAIClient }: OpenAIProvi
         name: message.authorName,
       };
 
-      // TODO: fix this TextContent type check
       if (message.items.length === 1) {
-        if ('type' in message.items[0] && (message.items[0] as TextContent).type === 'text') {
-          chatAssistantMessage.content = (message.items[0] as TextContent).text;
+        if (message.items[0].type === 'text') {
+          chatAssistantMessage.content = message.items[0].text;
         }
       } else {
-        chatAssistantMessage.content = message.items
-          .map((item) => {
-            if ('type' in item && (item as TextContent).type === 'text') {
-              return {
-                type: 'text',
-                text: item.text,
-              };
-            }
-          })
-          .filter((item) => item) as ChatCompletionContentPartText[];
+        chatAssistantMessage.content = message.items.filter((item) => item).filter((item) => item.type === 'text');
       }
 
       if (messageToolCalls.length > 0) {

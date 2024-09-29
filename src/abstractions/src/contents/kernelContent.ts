@@ -5,6 +5,8 @@ import { ModelId } from './modelId';
  * Base type for all AI non-streaming results
  */
 export type KernelContent = {
+  type: 'chat' | 'text' | 'function';
+
   /**
    * The MIME type of the content.
    */
