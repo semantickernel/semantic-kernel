@@ -1,6 +1,7 @@
 import { FunctionCallContent, KernelContent } from '../../contents';
 import { Encoding, TextContent } from '../../contents/textContent';
 
+
 /**
  * Represents chat message content return from a chat completion service.
  */
@@ -64,7 +65,7 @@ export const chatMessage = (props: ChatMessageContent) => {
  * @returns The assistant chat message.
  */
 export const assistantChatMessage = (
-  props: Omit<Extract<ChatMessageContent, { role: 'assistant' }>, 'type'>
+  props: Omit<Extract<ChatMessageContent, { role: 'assistant' }>, 'type' | 'role'>
 ): ChatMessageContent => {
   return chatMessage({
     ...props,
@@ -113,10 +114,12 @@ export const toolChatMessage = (content: string, metadata?: KernelContent['metad
     items: { type: 'text', text: content },
   });
 
-  msg.metadata = {
-    ...msg.metadata,
-    ...metadata,
-  };
+  if (metadata) {
+    msg.metadata = {
+      ...msg.metadata,
+      ...metadata,
+    };
+  }
 
   return msg;
 };
