@@ -1,9 +1,9 @@
 import { ChatCompletionService, ChatMessageContent, PromptExecutionSettings, userChatMessage } from '../AI';
+import { FromSchema } from '../jsonSchema';
 import { Kernel } from '../kernel';
 import { PromptTemplateConfig, stringPromptTemplate } from '../promptTemplate';
 import { AIService } from '../services';
 import { KernelFunction } from './kernelFunction';
-import { FromSchema } from 'json-schema-to-ts';
 
 export type PromptRenderingResult = {
   renderedPrompt: string;

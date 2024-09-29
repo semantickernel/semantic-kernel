@@ -4,3 +4,4 @@ export * from './kernel';
 export * from './services';
 export * from './functions';
 export * from './promptTemplate';
+export * from './jsonSchema';

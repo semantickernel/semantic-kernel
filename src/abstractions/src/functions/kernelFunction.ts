@@ -1,5 +1,5 @@
+import { FromSchema, JsonSchema } from '../jsonSchema';
 import { Kernel } from '../kernel';
-import { FromSchema, JSONSchema } from 'json-schema-to-ts';
 
 export type Fn<Result, Props> = (props: Props) => Result;
 
@@ -9,8 +9,6 @@ export type FunctionResult<Result, Props> = Promise<{
   renderedPrompt?: string;
   metadata?: ReadonlyMap<string, unknown>;
 }>;
-
-export type JsonSchema = JSONSchema;
 
 export type KernelFunctionProps<Props> = Props;
 
