@@ -1,6 +1,12 @@
 import { FunctionCallContent, TextContent } from '../../contents';
-import { ChatMessageContent, assistantChatMessage, chatMessage, systemChatMessage, toolChatMessage, userChatMessage } from './chatMessageContent';
-
+import {
+  ChatMessageContent,
+  assistantChatMessage,
+  chatMessage,
+  systemChatMessage,
+  toolChatMessage,
+  userChatMessage,
+} from './chatMessageContent';
 
 describe('ChatMessageContent', () => {
   describe('chatMessage', () => {
