@@ -1,7 +1,7 @@
-/// Gets the separator used between the plugin name and the function name, if a plugin name is present.
-/// <remarks>This separator was previously <c>_</c>, but has been changed to <c>-</c> to better align to the behavior elsewhere in SK and in response
-/// to developers who want to use underscores in their function or plugin names. We plan to make this setting configurable in the future.</remarks>
-const NameSeparator = '-';
+/**
+ * The separator used between the plugin name and the function name, if a plugin name is present.
+ */
+export const NameSeparator = '-';
 
 export const parseFunctionName = (
   fullyQualifiedName: string,
