@@ -35,12 +35,10 @@ export const kernelFunctionFromPrompt = ({
 
   const getPromptTemplate = () => {
     switch (promptTemplateConfig.templateFormat) {
-      case 'handlebars':
-        // Handle handlebars template rendering here
-        throw new Error('Handlebars template rendering not implemented');
       case 'string':
-      default:
         return stringPromptTemplate(promptTemplateConfig.template);
+      default:
+        throw new Error(`${promptTemplateConfig.templateFormat} template rendering not implemented`);
     }
   };
 

@@ -1,7 +1,6 @@
 import { Kernel, kernel } from '../kernel';
 import { kernelFunction } from './kernelFunction';
 
-
 describe('kernelFunction', () => {
   describe('creating', () => {
     it('should create a kernel function with no params', () => {
@@ -89,7 +88,7 @@ describe('kernelFunction', () => {
       const props = {};
 
       // Act
-      const result = await kernelFunction(({ p1, p2 }) => `**${p1 ?? "first"} ${p2 ?? "second"}**`, {
+      const result = await kernelFunction(({ p1, p2 }) => `**${p1 ?? 'first'} ${p2 ?? 'second'}**`, {
         name: 'testFunction',
         parameters: {
           type: 'object',
