@@ -21,6 +21,10 @@ export function kernelPlugins(): KernelPlugins {
         throw new Error(`Plugin ${plugin.name} does not contain any functions`);
       }
 
+      if (plugins.some((p) => p.name === plugin.name)) {
+        throw new Error(`Plugin ${plugin.name} has already been added`);
+      }
+
       // Add the plugin name to the metadata of each function
       for (const pluginFunction of Object.values(plugin.functions)) {
         if (pluginFunction.metadata) {
