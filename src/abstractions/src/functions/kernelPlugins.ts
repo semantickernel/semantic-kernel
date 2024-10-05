@@ -17,6 +17,17 @@ export function kernelPlugins(): KernelPlugins {
 
   return {
     addPlugin: function (plugin: KernelPlugin) {
+      if (Object.values(plugin.functions).length === 0) {
+        throw new Error(`Plugin ${plugin.name} does not contain any functions`);
+      }
+
+      // Add the plugin name to the metadata of each function
+      for (const pluginFunction of Object.values(plugin.functions)) {
+        if (pluginFunction.metadata) {
+          pluginFunction.metadata.pluginName = plugin.name;
+        }
+      }
+
       plugins.push(plugin);
       return this;
     },

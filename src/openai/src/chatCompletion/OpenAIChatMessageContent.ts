@@ -7,17 +7,15 @@ import {
   parseFunctionName,
   textContent,
 } from '@semantic-kernel/abstractions';
-import { ChatCompletion } from 'openai/resources';
+import OpenAI from 'openai';
 
 export type OpenAIChatMessageContent = Extract<ChatMessageContent, { role: 'assistant' }>;
 
 export const createOpenAIChatMessageContent = (
-  chatCompletion: ChatCompletion,
+  chatCompletion: OpenAI.ChatCompletion,
   modelId: string
 ): OpenAIChatMessageContent => {
   const choice = chatCompletion.choices[0];
-  // do we need to change the role to "tool" when there are tool_calls?
-  const role = choice.message.role;
   const content = choice.message.content;
   const items: Array<TextContent | FunctionCallContent> = [];
 
@@ -50,10 +48,10 @@ export const createOpenAIChatMessageContent = (
     }
   }
 
+  // OpenAI.ChatCompletion's role is always 'assistant'
   return {
     ...(assistantChatMessage({
       modelId,
-      role,
       items,
     }) as OpenAIChatMessageContent),
   };
