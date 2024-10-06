@@ -1,5 +1,5 @@
 import { Kernel, fullyQualifiedName } from '@semantic-kernel/abstractions';
-import { ChatCompletionTool, ChatCompletionToolChoiceOption } from 'openai/resources';
+import OpenAI from 'openai';
 
 // The default maximum number of tool-call auto-invokes that can be made in a single request.
 export const DefaultMaximumAutoInvokeAttempts = 128;
@@ -7,6 +7,9 @@ export const DefaultMaximumAutoInvokeAttempts = 128;
 // Gets how many requests are part of a single interaction should include this tool in the request.
 export const DefaultMaximumUseAttempts = 2 ^ 32;
 
+/**
+ * Represents a ToolCallBehavior for OpenAI tool calls.
+ */
 export type ToolCallBehavior = {
   /**
    * Gets how many tool call request/response roundtrips are supported with auto-invocation.
@@ -25,8 +28,8 @@ export type ToolCallBehavior = {
    * @returns
    */
   configureOptions: (kernel?: Kernel) => {
-    tools: ChatCompletionTool[] | null;
-    choice: ChatCompletionToolChoiceOption | null;
+    tools: OpenAI.ChatCompletionTool[] | null;
+    choice: OpenAI.ChatCompletionToolChoiceOption | null;
   };
 };
 
@@ -39,8 +42,8 @@ function kernelFunctions({ autoInvoke }: { autoInvoke: boolean }) {
     MaximumUseAttempts: DefaultMaximumUseAttempts,
 
     configureOptions: (kernel?: Kernel) => {
-      let tools: ChatCompletionTool[] | null = null;
-      let choice: ChatCompletionToolChoiceOption | null = null;
+      let tools: OpenAI.ChatCompletionTool[] | null = null;
+      let choice: OpenAI.ChatCompletionToolChoiceOption | null = null;
 
       if (kernel) {
         const functionsMetadata = kernel.plugins.getFunctionsMetadata();
@@ -79,4 +82,10 @@ function kernelFunctions({ autoInvoke }: { autoInvoke: boolean }) {
   return toolCallBehavior;
 }
 
+/**
+ * Gets an instance that will both provide all of the {@link Kernel} plugins' function information
+ * to the model and attempt to automatically handle any function call requests.
+ */
 export const AutoInvokeKernelFunctions = kernelFunctions({ autoInvoke: true });
+
+// TODO: Add EnableFunctions and RequireFunctions tool call behaviors.
