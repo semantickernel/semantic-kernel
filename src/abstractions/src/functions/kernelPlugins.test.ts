@@ -12,7 +12,7 @@ const getMockFunction = (functionName?: string, functionDescription?: string, fu
 };
 
 const getMockPlugin = (
-  pluginFunctions: { [functionName: string]: KernelFunction<unknown, unknown, JsonSchema> },
+  pluginFunctions: KernelFunction<unknown, unknown, JsonSchema>[],
   pluginName?: string,
   pluginDescription?: string
 ): KernelPlugin => {
@@ -28,14 +28,51 @@ const getMockKernelPlugins = () => {
 };
 
 describe('kernelPlugins', () => {
-  describe('kernelPlugins', () => {
+  describe('getPlugins', () => {
     it('should return an object with the correct properties', () => {
       // Arrange
-      // Act
       const result = kernelPlugins();
 
+      // Act
+      const plugins = [...result.getPlugins()];
+
       // Assert
-      expect(result.getPlugins()).toEqual([]);
+      expect(plugins).toHaveLength(0);
+    });
+  });
+
+  describe('getFunctionsMetadata', () => {
+    it('should return all functions metadata', () => {
+      // Arrange
+      const mockKernelPlugins = getMockKernelPlugins();
+
+      // Act
+      mockKernelPlugins.addPlugin(
+        getMockPlugin([
+          getMockFunction('testFunction1', 'testDescription1', { type: 'string' }),
+          getMockFunction('testFunction2', 'testDescription2', { type: 'number' }),
+        ])
+      );
+
+      // Assert
+      expect(mockKernelPlugins.getFunctionsMetadata()).toEqual([
+        {
+          name: 'testFunction1',
+          description: 'testDescription1',
+          pluginName: 'testPlugin',
+          parameters: {
+            type: 'string',
+          },
+        },
+        {
+          name: 'testFunction2',
+          description: 'testDescription2',
+          pluginName: 'testPlugin',
+          parameters: {
+            type: 'number',
+          },
+        },
+      ]);
     });
   });
 
@@ -45,16 +82,12 @@ describe('kernelPlugins', () => {
       const mockKernelPlugins = getMockKernelPlugins();
 
       // Act
-      mockKernelPlugins.addPlugin(
-        getMockPlugin({
-          testFunction1: getMockFunction('testFunction1'),
-          testFunction2: getMockFunction('testFunction2'),
-        })
-      );
+      mockKernelPlugins.addPlugin(getMockPlugin([getMockFunction('testFunction1'), getMockFunction('testFunction2')]));
 
       // Assert
-      expect(mockKernelPlugins.getPlugins()).toHaveLength(1);
-      expect(mockKernelPlugins.getPlugins()[0].name).toEqual('testPlugin');
+      const plugins = [...mockKernelPlugins.getPlugins()];
+      expect(plugins).toHaveLength(1);
+      expect([...plugins][0].name).toEqual('testPlugin');
     });
 
     it('should add a plugin with correct functions', () => {
@@ -63,22 +96,23 @@ describe('kernelPlugins', () => {
 
       // Act
       mockKernelPlugins.addPlugin(
-        getMockPlugin({
-          testFunction1: getMockFunction('testFunction1', 'testDescription1', { type: 'string' }),
-          testFunction2: getMockFunction('testFunction2', 'testDescription2', { type: 'number' }),
-        })
+        getMockPlugin([
+          getMockFunction('testFunction1', 'testDescription1', { type: 'string' }),
+          getMockFunction('testFunction2', 'testDescription2', { type: 'number' }),
+        ])
       );
 
       // Assert
-      const firstPlugin = mockKernelPlugins.getPlugins()[0];
-      expect(Object.values(firstPlugin.functions)).toHaveLength(2);
-      expect(firstPlugin.functions['testFunction1'].metadata).toStrictEqual({
+      const plugins = [...mockKernelPlugins.getPlugins()];
+      const firstPlugin = plugins[0];
+      expect([...firstPlugin.functions.entries()]).toHaveLength(2);
+      expect(firstPlugin.functions.get('testFunction1')?.metadata).toStrictEqual({
         name: 'testFunction1',
         description: 'testDescription1',
         pluginName: 'testPlugin',
         parameters: { type: 'string' },
       });
-      expect(firstPlugin.functions['testFunction2'].metadata).toStrictEqual({
+      expect(firstPlugin.functions.get('testFunction2')?.metadata).toStrictEqual({
         name: 'testFunction2',
         description: 'testDescription2',
         pluginName: 'testPlugin',
@@ -93,7 +127,7 @@ describe('kernelPlugins', () => {
       // Act
       // Assert
       expect(() => {
-        mockKernelPlugins.addPlugin(getMockPlugin({}, 'testPlugin'));
+        mockKernelPlugins.addPlugin(getMockPlugin([], 'testPlugin'));
       }).toThrow();
     });
 
@@ -104,22 +138,12 @@ describe('kernelPlugins', () => {
       // Act
       // Assert
       mockKernelPlugins.addPlugin(
-        getMockPlugin(
-          {
-            testFunction2: getMockFunction('testFunction2', 'testDescription2', { type: 'number' }),
-          },
-          'testPlugin'
-        )
+        getMockPlugin([getMockFunction('testFunction2', 'testDescription2', { type: 'number' })], 'testPlugin')
       );
 
       expect(() => {
         mockKernelPlugins.addPlugin(
-          getMockPlugin(
-            {
-              testFunction2: getMockFunction('testFunction2', 'testDescription2', { type: 'number' }),
-            },
-            'testPlugin'
-          )
+          getMockPlugin([getMockFunction('testFunction2', 'testDescription2', { type: 'number' })], 'testPlugin')
         );
       }).toThrow();
     });
@@ -129,18 +153,14 @@ describe('kernelPlugins', () => {
       const mockKernelPlugins = getMockKernelPlugins();
 
       // Act
-      mockKernelPlugins.addPlugin(
-        getMockPlugin({
-          testFunction1: getMockFunction('testFunction1'),
-          testFunction2: getMockFunction('testFunction2'),
-        })
-      );
+      mockKernelPlugins.addPlugin(getMockPlugin([getMockFunction('testFunction1'), getMockFunction('testFunction2')]));
 
       // Assert
-      const firstPlugin = mockKernelPlugins.getPlugins()[0];
-      expect(Object.values(firstPlugin.functions).map((fn) => fn.metadata?.pluginName)).toEqual([
-        'testPlugin',
-        'testPlugin',
+      const firstPlugin = [...mockKernelPlugins.getPlugins()][0];
+      const firstPluginFunctions = [...firstPlugin.functions.values()];
+      expect(firstPluginFunctions.map((fn) => [fn.metadata?.name, fn.metadata?.pluginName])).toStrictEqual([
+        ['testFunction1', 'testPlugin'],
+        ['testFunction2', 'testPlugin'],
       ]);
     });
   });
@@ -150,18 +170,12 @@ describe('kernelPlugins', () => {
       // Arrange
       const mockKernelPlugins = getMockKernelPlugins();
       const mockPlugin1 = getMockPlugin(
-        {
-          testFunction1: getMockFunction('testFunction1'),
-          testFunction2: getMockFunction('testFunction2'),
-        },
+        [getMockFunction('testFunction1'), getMockFunction('testFunction2')],
         'testPlugin1',
         'testDescription1'
       );
       const mockPlugin2 = getMockPlugin(
-        {
-          testFunction1: getMockFunction('testFunction1'),
-          testFunction2: getMockFunction('testFunction2'),
-        },
+        [getMockFunction('testFunction1'), getMockFunction('testFunction2')],
         'testPlugin2',
         'testDescription2'
       );
@@ -170,7 +184,7 @@ describe('kernelPlugins', () => {
       mockKernelPlugins.addPlugin(mockPlugin2);
 
       // Act
-      const plugins = mockKernelPlugins.getPlugins();
+      const plugins = [...mockKernelPlugins.getPlugins()];
 
       // Assert
       expect(plugins).toHaveLength(2);
@@ -198,7 +212,7 @@ describe('kernelPlugins', () => {
       const stubPluginName = 'testPlugin';
       const stubFunctionName = 'testFunction1';
       const mockKernelPlugins = getMockKernelPlugins();
-      mockKernelPlugins.addPlugin(getMockPlugin({ testFunction1: getMockFunction(stubFunctionName) }, stubPluginName));
+      mockKernelPlugins.addPlugin(getMockPlugin([getMockFunction(stubFunctionName)], stubPluginName));
 
       // Act
       const result = mockKernelPlugins.getFunction('testFunction1', 'not-found');
@@ -212,7 +226,7 @@ describe('kernelPlugins', () => {
       const stubPluginName = 'testPlugin';
       const stubFunctionName = 'testFunction1';
       const mockKernelPlugins = getMockKernelPlugins();
-      mockKernelPlugins.addPlugin(getMockPlugin({ testFunction1: getMockFunction(stubFunctionName) }, stubPluginName));
+      mockKernelPlugins.addPlugin(getMockPlugin([getMockFunction(stubFunctionName)], stubPluginName));
 
       // Act
       const result = mockKernelPlugins.getFunction(stubFunctionName);
@@ -226,7 +240,7 @@ describe('kernelPlugins', () => {
       const stubPluginName = 'testPlugin';
       const stubFunctionName = 'testFunction1';
       const mockKernelPlugins = getMockKernelPlugins();
-      mockKernelPlugins.addPlugin(getMockPlugin({ testFunction1: getMockFunction(stubFunctionName) }, stubPluginName));
+      mockKernelPlugins.addPlugin(getMockPlugin([getMockFunction(stubFunctionName)], stubPluginName));
 
       // Act
       const result = mockKernelPlugins.getFunction(stubFunctionName);
@@ -241,18 +255,18 @@ describe('kernelPlugins', () => {
       // Arrange
       const mockKernelPlugins = getMockKernelPlugins();
       const mockPlugin1 = getMockPlugin(
-        {
-          testFunction1: getMockFunction('testFunction1', 'testDescription1', { type: 'string' }),
-          testFunction2: getMockFunction('testFunction2', 'testDescription2', { type: 'number' }),
-        },
+        [
+          getMockFunction('testFunction1', 'testDescription1', { type: 'string' }),
+          getMockFunction('testFunction2', 'testDescription2', { type: 'number' }),
+        ],
         'testPlugin1',
         'testPluginDescription1'
       );
       const mockPlugin2 = getMockPlugin(
-        {
-          testFunction1: getMockFunction('testFunction3', 'testDescription3', { type: 'boolean' }),
-          testFunction2: getMockFunction('testFunction4', 'testDescription4', { type: 'object' }),
-        },
+        [
+          getMockFunction('testFunction3', 'testDescription3', { type: 'boolean' }),
+          getMockFunction('testFunction4', 'testDescription4', { type: 'object' }),
+        ],
         'testPlugin2',
         'testPluginDescription2'
       );

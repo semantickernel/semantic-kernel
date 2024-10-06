@@ -1,24 +1,24 @@
 import { kernelFunction } from './kernelFunction';
-import { KernelPlugin, getFunctionsMetadata } from './kernelPlugin';
+import { KernelPlugin } from './kernelPlugin';
 
 const getMockPlugin = (): KernelPlugin => {
   return {
     name: 'testPlugin',
     description: 'testDescription',
-    functions: {
-      testFunction1: kernelFunction(() => 'testResult1', {
+    functions: [
+      kernelFunction(() => 'testResult1', {
         name: 'testFunction1',
         parameters: {
           type: 'string',
         },
       }),
-      testFunction2: kernelFunction(() => 'testResult2', {
+      kernelFunction(() => 'testResult2', {
         name: 'testFunction2',
         parameters: {
           type: 'number',
         },
       }),
-    },
+    ],
   };
 };
 

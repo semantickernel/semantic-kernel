@@ -1,19 +1,25 @@
 import { JsonSchema } from '../jsonSchema';
 import { KernelFunction, KernelFunctionMetadata } from './kernelFunction';
 
-export type KernelPlugin = {
+type BaseKernelPlugin = {
   name: string;
   description: string;
-  functions: {
-    [functionName: string]: KernelFunction<unknown, unknown, JsonSchema>;
-  };
 };
 
 /**
- * Gets a collection of KernelFunctionMetadata instances, one for every function in this plugin.
+ * ArrayKernelPlugin represents a plugin that contains an array of functions.
+ *This type is used in {@link KernelPlugins} to represent a plugin.
  */
-export const getFunctionsMetadata = (plugin: KernelPlugin) => {
-  return Object.values(plugin.functions)
-    .filter((fn) => fn.metadata)
-    .map((fn) => fn.metadata as KernelFunctionMetadata<JsonSchema>);
+type ArrayKernelPlugin = BaseKernelPlugin & {
+  functions: Array<KernelFunction<unknown, unknown, JsonSchema, KernelFunctionMetadata<JsonSchema>>>;
+};
+
+export type KernelPlugin = ArrayKernelPlugin;
+
+/**
+ * MapKernelPlugin represents a plugin that contains a map of functions.
+ * This type is the internal representation of a plugin in {@link KernelPlugins}.
+ */
+export type MapKernelPlugin = BaseKernelPlugin & {
+  functions: Map<string, KernelFunction<unknown, unknown, JsonSchema, KernelFunctionMetadata<JsonSchema>>>;
 };

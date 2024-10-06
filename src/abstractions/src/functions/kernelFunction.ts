@@ -19,9 +19,14 @@ export type KernelFunctionMetadata<Parameters extends JsonSchema> = {
   parameters: Parameters;
 };
 
-export type KernelFunction<Props, Result, Parameters extends JsonSchema> = {
+export type KernelFunction<
+  Props,
+  Result,
+  Parameters extends JsonSchema,
+  Metadata = KernelFunctionMetadata<Parameters>,
+> = {
   invoke: (kernel: Kernel, props: Props) => FunctionResult<Result, Props>;
-  metadata?: KernelFunctionMetadata<Parameters>;
+  metadata?: Metadata;
 };
 
 export const kernelFunction = <Parameters extends JsonSchema, Result, Props = FromSchema<Parameters>>(
