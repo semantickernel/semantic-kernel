@@ -5,7 +5,7 @@ import OpenAI from 'openai';
 export const DefaultMaximumAutoInvokeAttempts = 128;
 
 // Gets how many requests are part of a single interaction should include this tool in the request.
-export const DefaultMaximumUseAttempts = 2 ^ 32;
+export const DefaultMaximumUseAttempts = 2 ** 32;
 
 /**
  * Represents a ToolCallBehavior for OpenAI tool calls.
@@ -36,7 +36,7 @@ export type ToolCallBehavior = {
 /**
  * Represents a ToolCallBehavior that will provide to the model all available functions from a provided by the client.
  */
-function kernelFunctions({ autoInvoke }: { autoInvoke: boolean }) {
+const kernelFunctions = ({ autoInvoke }: { autoInvoke: boolean }) => {
   const toolCallBehavior: ToolCallBehavior = {
     MaximumAutoInvokeAttempts: autoInvoke ? DefaultMaximumAutoInvokeAttempts : 0,
     MaximumUseAttempts: DefaultMaximumUseAttempts,
@@ -80,7 +80,7 @@ function kernelFunctions({ autoInvoke }: { autoInvoke: boolean }) {
   };
 
   return toolCallBehavior;
-}
+};
 
 /**
  * Gets an instance that will both provide all of the {@link Kernel} plugins' function information
