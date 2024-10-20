@@ -112,7 +112,14 @@ export class FunctionCallsProcessor {
     errorMessage?: string;
   }) {
     result = result ?? errorMessage ?? '';
-    const message = toolChatMessage(result, { tool_call_id: functionCall.id });
+
+    const message = toolChatMessage({
+      callId: functionCall.id,
+      result,
+      functionName: functionCall.functionName,
+      pluginName: functionCall.pluginName,
+    });
+
     chatHistory.push(message);
   }
 

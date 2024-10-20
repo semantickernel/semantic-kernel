@@ -1,4 +1,5 @@
 import { FunctionCallContent, KernelContent } from '../../contents';
+import { FunctionResultContent } from '../../contents/functionResultContent';
 import { Encoding, TextContent } from '../../contents/textContent';
 
 /**
@@ -24,8 +25,7 @@ export type ChatMessageContent = KernelContent &
       }
     | {
         role: 'tool';
-        // TODO: do we need to support the Array<TextContent> type here?
-        items: TextContent;
+        items: FunctionResultContent<unknown>;
       }
   ) & {
     type: 'chat';
@@ -102,23 +102,19 @@ export const userChatMessage = (content: string): ChatMessageContent => {
 
 /**
  * Create a tool {@link ChatMessageContent}.
- * @param content The content of the tool message.
+ * @param props The tool message properties.
  * @param metadata The metadata of the tool message.
  * @returns The tool chat message.
  */
-export const toolChatMessage = (content: string, metadata?: KernelContent['metadata']): ChatMessageContent => {
+export const toolChatMessage = <T>(props: Omit<FunctionResultContent<T>, 'type'>): ChatMessageContent => {
   const msg = chatMessage({
     type: 'chat',
     role: 'tool',
-    items: { type: 'text', text: content },
+    items: {
+      type: 'functionResult',
+      ...props,
+    },
   });
-
-  if (metadata) {
-    msg.metadata = {
-      ...msg.metadata,
-      ...metadata,
-    };
-  }
 
   return msg;
 };

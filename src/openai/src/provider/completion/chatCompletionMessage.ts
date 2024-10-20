@@ -17,15 +17,25 @@ export const createChatCompletionMessages = (message: ChatMessageContent): OpenA
 
   // handle tool messages
   if (message.role === 'tool') {
-    const toolCallId = (message.metadata ?? {})['tool_call_id'];
+    const toolCallId = message.items.callId;
 
     if (!toolCallId || typeof toolCallId !== 'string') {
       throw new Error('Tool call ID is required for tool messages and must be a string.');
     }
 
+    let content = '';
+
+    if (message.items.result) {
+      if (typeof message.items.result === 'string') {
+        content = message.items.result;
+      }
+
+      // TODO: handle the case Array<string> for message.items.result
+    }
+
     const chatToolMessage: OpenAI.Chat.ChatCompletionToolMessageParam = {
       role: 'tool',
-      content: message.items.text,
+      content,
       tool_call_id: toolCallId,
     };
 
