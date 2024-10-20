@@ -1,4 +1,4 @@
-import { OpenAIProvider, openAIProvider } from '../provider/openAIProvider';
+import { OpenAIProvider } from '../provider/openAIProvider';
 import { ChatCompletionService } from '@semantic-kernel/abstractions';
 
 /**
@@ -18,7 +18,7 @@ export const openAIChatCompletionService = ({
   organization?: string;
   provider?: OpenAIProvider;
 }): ChatCompletionService => {
-  provider = provider ?? openAIProvider({ apiKey, organization });
+  provider = provider ?? new OpenAIProvider(apiKey, organization);
 
   return {
     serviceType: 'ChatCompletion',
