@@ -1,10 +1,10 @@
+import { openAIParseFunctionName } from '../functionName';
 import {
   ChatMessageContent,
   FunctionCallContent,
   TextContent,
   assistantChatMessage,
   functionCallContent,
-  parseFunctionName,
   textContent,
 } from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
@@ -35,7 +35,7 @@ export const createOpenAIChatMessageContent = (
       }
 
       const functionArguments = JSON.parse(toolCall.function.arguments);
-      const { functionName, pluginName } = parseFunctionName(toolCall.function.name);
+      const { functionName, pluginName } = openAIParseFunctionName(toolCall.function.name);
 
       items.push(
         functionCallContent({

@@ -1,12 +1,8 @@
-import {
-  OpenAIChatMessageContent,
-  createOpenAIChatMessageContent,
-  getOpenAIChatMessageContentToolCalls,
-} from '../../chatCompletion';
+import { OpenAIChatMessageContent, createOpenAIChatMessageContent } from '../../chatCompletion';
+import { openAIFullyQualifiedName } from '../../functionName';
 import { OpenAIPromptExecutionSettings } from '../../openAIPromptExecutionSettings';
 import { createChatCompletionCreateParams } from './chatCompletionParams';
-import { getToolCallingConfig } from './toolCallingConfig';
-import { ChatHistory, Kernel, toolChatMessage } from '@semantic-kernel/abstractions';
+import { ChatHistory, FunctionCallContent, FunctionCallsProcessor, Kernel } from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
 
 export type OpenAIChatCompletionParams = {
@@ -16,24 +12,55 @@ export type OpenAIChatCompletionParams = {
   kernel?: Kernel;
 };
 
+const checkIfFunctionAdvertised = (functionCallContent: FunctionCallContent, tools?: OpenAI.ChatCompletionTool[]) => {
+  if (!tools) {
+    return false;
+  }
+
+  for (const tool of tools) {
+    if (tool.type !== 'function') {
+      continue;
+    }
+
+    if (
+      tool.function.name ===
+      openAIFullyQualifiedName({
+        functionName: functionCallContent.functionName,
+        pluginName: functionCallContent.pluginName,
+      })
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
 export const completion = async (
   openAIClient: OpenAI,
   { model, chatHistory, executionSettings, kernel }: OpenAIChatCompletionParams
 ) => {
+  const functionCallsProcessor = new FunctionCallsProcessor();
+
   for (let requestIndex = 1; ; requestIndex++) {
     // TODO record completion activity
-    const toolCallingConfig = getToolCallingConfig(requestIndex, kernel, executionSettings);
+    const functionCallingConfig = executionSettings?.functionChoiceBehavior?.getConfiguredOptions({
+      requestSequenceIndex: requestIndex,
+      chatHistory,
+      kernel,
+    });
+    //const toolCallingConfig = getToolCallingConfig(requestIndex, kernel, executionSettings);
     const chatCompletionCreateParams = createChatCompletionCreateParams(
       model,
       chatHistory,
       executionSettings,
-      toolCallingConfig
+      functionCallingConfig
     );
     const chatCompletion = await openAIClient.chat.completions.create(chatCompletionCreateParams);
     const chatMessageContent: OpenAIChatMessageContent = createOpenAIChatMessageContent(chatCompletion, model);
 
     // If we don't want to attempt to invoke any functions, just return the result.
-    if (!toolCallingConfig.autoInvoke) {
+    if (!functionCallingConfig?.autoInvoke) {
       return [chatMessageContent];
     }
 
@@ -46,34 +73,13 @@ export const completion = async (
       return [chatMessageContent];
     }
 
-    // Add the result message to the caller's chat history;
-    // this is required for the service to understand the tool call responses.
-    chatHistory.push(chatMessageContent);
-
-    const toolCalls = getOpenAIChatMessageContentToolCalls(chatMessageContent);
-    for (let toolCallIndex = 0; toolCallIndex < toolCalls.length; toolCallIndex++) {
-      const toolCall = toolCalls[toolCallIndex];
-
-      const kernelFunction = kernel?.plugins.getFunction(toolCall.functionName, toolCall.pluginName);
-
-      if (!kernelFunction) {
-        // TODO: should we add this to ChatHistory instead of throwing? Similar for other use-cases.
-        throw new Error(`Unable to find function "${toolCall.functionName}" in plugin "${toolCall.pluginName}".`);
-      }
-
-      const functionResult = await kernel?.invoke(kernelFunction, toolCall.arguments);
-
-      if (!functionResult || !functionResult.value) {
-        throw new Error(`Function "${toolCall.functionName}" in plugin "${toolCall.pluginName}" returned null result.`);
-      }
-
-      // TODO: improve this to process the FunctionResult better
-      // (e.g. consider ChatContent return type, etc.)
-      chatHistory.push(
-        toolChatMessage(String(functionResult.value), {
-          tool_call_id: toolCall.id,
-        })
-      );
-    }
+    await functionCallsProcessor.ProcessFunctionCalls({
+      chatMessageContent,
+      chatHistory,
+      requestIndex,
+      checkIfFunctionAdvertised: (functionCallContent) =>
+        checkIfFunctionAdvertised(functionCallContent, chatCompletionCreateParams.tools),
+      kernel,
+    });
   }
 };

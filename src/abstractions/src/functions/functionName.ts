@@ -1,7 +1,7 @@
 /**
  * The separator used between the plugin name and the function name, if a plugin name is present.
  */
-export const NameSeparator = '-';
+export const NameSeparator = '.';
 
 export const parseFunctionName = (
   fullyQualifiedName: string,
@@ -31,5 +31,12 @@ export const parseFunctionName = (
   };
 };
 
-export const fullyQualifiedName = ({ functionName, pluginName }: { functionName: string; pluginName?: string }) =>
-  !pluginName ? functionName : `${pluginName}${NameSeparator}${functionName}`;
+export const fullyQualifiedName = ({
+  functionName,
+  pluginName,
+  nameSeparator,
+}: {
+  functionName: string;
+  pluginName?: string;
+  nameSeparator?: string;
+}) => (!pluginName ? functionName : `${pluginName}${nameSeparator ?? NameSeparator}${functionName}`);

@@ -1,4 +1,5 @@
 import { ModelId } from '../contents/modelId';
+import { FunctionChoiceBehavior } from './functionChoiceBehaviors/functionChoiceBehavior';
 
 /**
  * Gets the default service identifier.
@@ -37,4 +38,9 @@ export interface PromptExecutionSettings {
    * Avoid using this property if possible. Instead, use one of the classes that extends {@link PromptExecutionSettings}.
    */
   extensionData?: Map<string, object>;
+
+  /**
+   * Gets or sets the behavior defining the way functions are chosen by LLM and how they are invoked by AI connectors.
+   */
+  functionChoiceBehavior?: FunctionChoiceBehavior;
 }

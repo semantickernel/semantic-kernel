@@ -1,4 +1,3 @@
-import { ToolCallBehavior } from './toolCallBehavior';
 import { PromptExecutionSettings, defaultServiceId } from '@semantic-kernel/abstractions';
 import { ResponseFormatJSONSchema } from 'openai/resources';
 
@@ -23,7 +22,6 @@ export interface OpenAIPromptExecutionSettings extends PromptExecutionSettings {
    * Defaults to "Assistant is a large language model."
    */
   chatSystemPrompt?: string;
-  toolCallBehavior?: ToolCallBehavior;
 }
 
 const defaultOpenAIPromptExecutionSettings: OpenAIPromptExecutionSettings = {

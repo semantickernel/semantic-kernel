@@ -1,7 +1,7 @@
+import { openAIFullyQualifiedName } from '../../functionName';
 import { OpenAIPromptExecutionSettings, getOpenAIPromptExecutionSettings } from '../../openAIPromptExecutionSettings';
 import { createChatCompletionMessages } from './chatCompletionMessage';
-import { getToolCallingConfig } from './toolCallingConfig';
-import { ChatHistory, systemChatMessage } from '@semantic-kernel/abstractions';
+import { ChatHistory, FunctionChoiceBehaviorConfiguration, systemChatMessage } from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
 import {
   ChatCompletionCreateParamsNonStreaming,
@@ -13,7 +13,7 @@ export const createChatCompletionCreateParams = (
   model: string,
   chatHistory: ChatHistory,
   promptExecutionSettings?: OpenAIPromptExecutionSettings,
-  toolCallingConfig?: ReturnType<typeof getToolCallingConfig>
+  functionChoiceBehaviorConfiguration?: FunctionChoiceBehaviorConfiguration
 ): ChatCompletionCreateParamsNonStreaming => {
   const executionSettings = getOpenAIPromptExecutionSettings(promptExecutionSettings);
   let messages: OpenAI.Chat.ChatCompletionMessageParam[] = [];
@@ -29,9 +29,29 @@ export const createChatCompletionCreateParams = (
     messages = [...messages, ...createChatCompletionMessages(chatMessage)];
   }
 
-  if (toolCallingConfig) {
-    tools = toolCallingConfig.tools;
-    toolChoice = toolCallingConfig.choice;
+  if (functionChoiceBehaviorConfiguration?.functions) {
+    tools = [];
+    for (const kernelFunction of functionChoiceBehaviorConfiguration.functions) {
+      const { name: functionName, pluginName, parameters, description } = kernelFunction.metadata ?? {};
+
+      if (typeof parameters !== 'object' || !functionName) {
+        continue;
+      }
+
+      tools.push({
+        type: 'function',
+        function: {
+          description,
+          name: openAIFullyQualifiedName({
+            functionName,
+            pluginName,
+          }),
+          parameters,
+        },
+      });
+    }
+
+    toolChoice = functionChoiceBehaviorConfiguration.choice;
   }
 
   return {

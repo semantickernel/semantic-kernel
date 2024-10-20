@@ -1,3 +1,4 @@
+import { ChatMessageContent } from '../AI';
 import { KernelContent } from './kernelContent';
 
 export type FunctionCallContent = KernelContent & {
@@ -15,4 +16,10 @@ export const functionCallContent = (props: Omit<FunctionCallContent, 'type'>) =>
   };
 
   return message;
+};
+
+export const getFunctionCalls = (chatMessageContent: ChatMessageContent) => {
+  if (chatMessageContent.items instanceof Array) {
+    return chatMessageContent.items.filter((item) => item.type === 'function') as FunctionCallContent[];
+  }
 };
