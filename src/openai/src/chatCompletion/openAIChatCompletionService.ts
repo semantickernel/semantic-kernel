@@ -1,31 +1,52 @@
 import { OpenAIProvider } from '../provider/openAIProvider';
-import { ChatCompletionService } from '@semantic-kernel/abstractions';
+import {
+  ChatCompletionService,
+  ChatHistory,
+  ChatMessageContent,
+  Kernel,
+  PromptExecutionSettings,
+} from '@semantic-kernel/abstractions';
 
 /**
- * Get the OpenAI chat completion service.
- * @param model OpenAI model id.
- * @param apiKey OpenAI API key.
- * @param organization OpenAI organization (optional).
+ * OpenAI chat completion service.
  */
-export const openAIChatCompletionService = ({
-  model,
-  apiKey,
-  organization,
-  provider,
-}: {
-  model: string;
-  apiKey: string;
-  organization?: string;
-  provider?: OpenAIProvider;
-}): ChatCompletionService => {
-  provider = provider ?? new OpenAIProvider(apiKey, organization);
+export class OpenAIChatCompletionService implements ChatCompletionService {
+  public readonly serviceType = 'ChatCompletion';
+  public readonly serviceKey = 'openAIChatCompletion';
+  public readonly attributes: Map<string, string>;
+  private readonly provider: OpenAIProvider;
+  private readonly model: string;
 
-  return {
-    serviceType: 'ChatCompletion',
-    serviceKey: 'openAIChatCompletion',
-    attributes: provider.attributes,
-    getChatMessageContents: async (chatHistory, executionSettings, kernel) => {
-      return provider.completion({ model, chatHistory, executionSettings, kernel });
-    },
-  };
-};
+  /**
+   * Get the OpenAI chat completion service.
+   *
+   * @param params Chat completion parameters.
+   * @param param.model OpenAI model id.
+   * @param param.apiKey OpenAI API key.
+   * @param param.organization OpenAI organization (optional).
+   * @param param.provider OpenAI provider (optional).
+   */
+  public constructor({
+    model,
+    apiKey,
+    organization,
+    provider,
+  }: {
+    model: string;
+    apiKey: string;
+    organization?: string;
+    provider?: OpenAIProvider;
+  }) {
+    this.model = model;
+    this.provider = provider ?? new OpenAIProvider(apiKey, organization);
+    this.attributes = this.provider.attributes ?? new Map();
+  }
+
+  getChatMessageContents(
+    chatHistory: ChatHistory,
+    executionSettings?: PromptExecutionSettings,
+    kernel?: Kernel
+  ): Promise<ChatMessageContent[]> {
+    return this.provider.completion({ model: this.model, chatHistory, executionSettings, kernel });
+  }
+}

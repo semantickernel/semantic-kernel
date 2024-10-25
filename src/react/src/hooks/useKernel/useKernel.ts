@@ -1,8 +1,12 @@
-import { openAIChatCompletionService } from '@semantic-kernel/openai';
+import { OpenAIChatCompletionService } from '@semantic-kernel/openai';
 import { useEffect, useState } from 'react';
 import { Kernel, kernel } from 'semantic-kernel';
 
-export type useKernelProps = Parameters<typeof openAIChatCompletionService>[0];
+export type useKernelProps = {
+  model: string;
+  apiKey: string;
+  organization?: string;
+};
 
 export const useKernel = (props: useKernelProps) => {
   const [sk, setSK] = useState<Kernel | undefined>();
@@ -16,7 +20,7 @@ export const useKernel = (props: useKernelProps) => {
   useEffect(() => {
     if (!sk) return;
 
-    sk.addService(openAIChatCompletionService(props));
+    sk.addService(new OpenAIChatCompletionService(props));
   }, [sk]);
 
   return {
