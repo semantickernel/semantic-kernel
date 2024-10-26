@@ -14,30 +14,31 @@ export class OpenAIChatCompletionService implements ChatCompletionService {
   public readonly serviceType = 'ChatCompletion';
   public readonly serviceKey = 'openAIChatCompletion';
   private readonly provider: OpenAIProvider;
-  private readonly model: string;
 
   /**
    * Get the OpenAI chat completion service.
    *
    * @param params Chat completion parameters.
-   * @param param.model OpenAI model id.
-   * @param param.apiKey OpenAI API key.
-   * @param param.organization OpenAI organization (optional).
-   * @param param.provider OpenAI provider (optional).
+   * @param params.model OpenAI model id.
+   * @param params.apiKey OpenAI API key.
+   * @param params.endpoint OpenAI endpoint (optional).
+   * @param params.organization OpenAI organization (optional).
+   * @param params.provider OpenAI provider (optional).
    */
   public constructor({
     model,
     apiKey,
+    endpoint,
     organization,
     provider,
   }: {
     model: string;
     apiKey: string;
+    endpoint?: string;
     organization?: string;
     provider?: OpenAIProvider;
   }) {
-    this.model = model;
-    this.provider = provider ?? new OpenAIProvider({ apiKey, organization });
+    this.provider = provider ?? new OpenAIProvider({ model, apiKey, endpoint, organization });
   }
 
   public get attributes() {
@@ -49,6 +50,6 @@ export class OpenAIChatCompletionService implements ChatCompletionService {
     executionSettings?: PromptExecutionSettings,
     kernel?: Kernel
   ): Promise<ChatMessageContent[]> {
-    return this.provider.completion({ model: this.model, chatHistory, executionSettings, kernel });
+    return this.provider.completion({ chatHistory, executionSettings, kernel });
   }
 }
