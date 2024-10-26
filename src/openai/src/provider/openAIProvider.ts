@@ -1,12 +1,6 @@
 import { OpenAIChatCompletion, OpenAIChatCompletionParams } from './completion';
 import OpenAI from 'openai';
 
-export type OpenAIProviderParams = {
-  apiKey: string;
-  organization?: string;
-  openAIClient?: OpenAI;
-};
-
 export class OpenAIProvider {
   private readonly openAIClient: OpenAI;
   private readonly openAIChatCompletion: OpenAIChatCompletion;
@@ -16,7 +10,15 @@ export class OpenAIProvider {
    * @param param0 OpenAI provider parameters.
    * @returns The OpenAI provider.
    */
-  public constructor(apiKey: string, organization?: string, openAIClient?: OpenAI) {
+  public constructor({
+    apiKey,
+    organization,
+    openAIClient,
+  }: {
+    apiKey: string;
+    organization?: string;
+    openAIClient?: OpenAI;
+  }) {
     this.openAIClient =
       openAIClient ??
       new OpenAI({

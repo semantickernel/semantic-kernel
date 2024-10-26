@@ -1,8 +1,14 @@
+import { OpenAIFunctionNameSeparator } from '../../OpenAIFunction';
 import { OpenAIChatMessageContent, createOpenAIChatMessageContent } from '../../chatCompletion';
-import { openAIFullyQualifiedName } from '../../functionName';
 import { OpenAIPromptExecutionSettings } from '../../openAIPromptExecutionSettings';
 import { createChatCompletionCreateParams } from './chatCompletionParams';
-import { ChatHistory, FunctionCallContent, FunctionCallsProcessor, Kernel } from '@semantic-kernel/abstractions';
+import {
+  ChatHistory,
+  FunctionCallContent,
+  FunctionCallsProcessor,
+  Kernel,
+  fullyQualifiedName,
+} from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
 
 export type OpenAIChatCompletionParams = {
@@ -84,9 +90,10 @@ export class OpenAIChatCompletion {
 
       if (
         tool.function.name ===
-        openAIFullyQualifiedName({
+        fullyQualifiedName({
           functionName: functionCallContent.functionName,
           pluginName: functionCallContent.pluginName,
+          nameSeparator: OpenAIFunctionNameSeparator,
         })
       ) {
         return true;

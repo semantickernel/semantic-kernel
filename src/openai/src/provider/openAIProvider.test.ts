@@ -1,4 +1,4 @@
-import { openAIProvider } from './openAIProvider';
+import { openAIProvider } from './OpenAIProvider';
 
 describe('openAIProvider', () => {
   it('should return a new OpenAI provider', () => {

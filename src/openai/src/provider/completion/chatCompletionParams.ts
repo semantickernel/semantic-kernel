@@ -1,7 +1,12 @@
-import { openAIFullyQualifiedName } from '../../functionName';
+import { OpenAIFunctionNameSeparator } from '../../OpenAIFunction';
 import { OpenAIPromptExecutionSettings, getOpenAIPromptExecutionSettings } from '../../openAIPromptExecutionSettings';
 import { createChatCompletionMessages } from './chatCompletionMessage';
-import { ChatHistory, FunctionChoiceBehaviorConfiguration, systemChatMessage } from '@semantic-kernel/abstractions';
+import {
+  ChatHistory,
+  FunctionChoiceBehaviorConfiguration,
+  fullyQualifiedName,
+  systemChatMessage,
+} from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
 import {
   ChatCompletionCreateParamsNonStreaming,
@@ -42,9 +47,10 @@ export const createChatCompletionCreateParams = (
         type: 'function',
         function: {
           description,
-          name: openAIFullyQualifiedName({
+          name: fullyQualifiedName({
             functionName,
             pluginName,
+            nameSeparator: OpenAIFunctionNameSeparator,
           }),
           parameters,
         },

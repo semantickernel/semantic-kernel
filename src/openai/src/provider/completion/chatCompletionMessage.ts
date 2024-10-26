@@ -1,6 +1,6 @@
+import { OpenAIFunctionNameSeparator } from '../../OpenAIFunction';
 import { getOpenAIChatMessageContentToolCalls } from '../../chatCompletion';
-import { openAIFullyQualifiedName } from '../../functionName';
-import { ChatMessageContent } from '@semantic-kernel/abstractions';
+import { ChatMessageContent, fullyQualifiedName } from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
 
 export const createChatCompletionMessages = (message: ChatMessageContent): OpenAI.Chat.ChatCompletionMessageParam[] => {
@@ -94,9 +94,10 @@ export const createChatCompletionMessages = (message: ChatMessageContent): OpenA
         return {
           type: 'function',
           function: {
-            name: openAIFullyQualifiedName({
+            name: fullyQualifiedName({
               functionName: toolCall.functionName,
               pluginName: toolCall.pluginName,
+              nameSeparator: OpenAIFunctionNameSeparator,
             }),
             arguments: JSON.stringify(toolCall.arguments),
           },

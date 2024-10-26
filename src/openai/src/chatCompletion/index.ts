@@ -1,2 +1,2 @@
-export * from './openAIChatCompletionService';
+export * from './OpenAIChatCompletionService';
 export * from './OpenAIChatMessageContent';

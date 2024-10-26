@@ -1,4 +1,4 @@
-import { OpenAIProvider } from '../provider/openAIProvider';
+import { OpenAIProvider } from '../provider/OpenAIProvider';
 import {
   ChatCompletionService,
   ChatHistory,
@@ -13,7 +13,6 @@ import {
 export class OpenAIChatCompletionService implements ChatCompletionService {
   public readonly serviceType = 'ChatCompletion';
   public readonly serviceKey = 'openAIChatCompletion';
-  public readonly attributes: Map<string, string>;
   private readonly provider: OpenAIProvider;
   private readonly model: string;
 
@@ -38,8 +37,11 @@ export class OpenAIChatCompletionService implements ChatCompletionService {
     provider?: OpenAIProvider;
   }) {
     this.model = model;
-    this.provider = provider ?? new OpenAIProvider(apiKey, organization);
-    this.attributes = this.provider.attributes ?? new Map();
+    this.provider = provider ?? new OpenAIProvider({ apiKey, organization });
+  }
+
+  public get attributes() {
+    return this.provider.attributes;
   }
 
   getChatMessageContents(
