@@ -50,6 +50,6 @@ export class OpenAIChatCompletionService implements ChatCompletionService {
     executionSettings?: PromptExecutionSettings,
     kernel?: Kernel
   ): Promise<ChatMessageContent[]> {
-    return this.provider.completion({ chatHistory, executionSettings, kernel });
+    return this.provider.getChatMessageContents({ chatHistory, executionSettings, kernel });
   }
 }

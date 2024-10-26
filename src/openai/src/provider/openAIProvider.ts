@@ -2,6 +2,9 @@ import { OpenAIChatCompletion, OpenAIChatCompletionParams } from './completion';
 import { EndpointKey, ModelIdKey } from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
 
+/**
+ * OpenAI provider which provides access to the OpenAI API including chat completions, etc.
+ */
 export class OpenAIProvider {
   private readonly openAIClient: OpenAI;
   private readonly openAIChatCompletion: OpenAIChatCompletion;
@@ -38,6 +41,7 @@ export class OpenAIProvider {
     openAIClient?: OpenAI;
   }) {
     this._model = model;
+    this.addAttribute(ModelIdKey, this._model);
 
     this.endpoint = endpoint ?? this.OpenAIV1Endpoint;
     this.addAttribute(EndpointKey, this.endpoint);
@@ -50,12 +54,10 @@ export class OpenAIProvider {
         baseURL: this.endpoint,
       });
 
-    this.addAttribute(ModelIdKey, model);
-
     this.openAIChatCompletion = new OpenAIChatCompletion(this.openAIClient);
   }
 
-  public async completion(completionParams: Omit<OpenAIChatCompletionParams, 'model'>) {
+  public async getChatMessageContents(completionParams: Omit<OpenAIChatCompletionParams, 'model'>) {
     return this.openAIChatCompletion.getChatMessageContent({
       ...completionParams,
       model: this._model,
