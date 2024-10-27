@@ -1,5 +1,5 @@
 import { OpenAIFunctionNameSeparator } from '../../OpenAIFunction';
-import { OpenAIChatMessageContent, createOpenAIChatMessageContent } from '../../chatCompletion';
+import { OpenAIChatMessageContent } from '../../chatCompletion';
 import { OpenAIPromptExecutionSettings } from '../../openAIPromptExecutionSettings';
 import { createChatCompletionCreateParams } from './chatCompletionParams';
 import {
@@ -48,7 +48,7 @@ export class OpenAIChatCompletion {
         functionCallingConfig
       );
       const chatCompletion = await this.openAIClient.chat.completions.create(chatCompletionCreateParams);
-      const chatMessageContent: OpenAIChatMessageContent = createOpenAIChatMessageContent(chatCompletion, model);
+      const chatMessageContent = new OpenAIChatMessageContent({ chatCompletion, model });
 
       // If we don't want to attempt to invoke any functions, just return the result.
       if (!functionCallingConfig?.autoInvoke) {

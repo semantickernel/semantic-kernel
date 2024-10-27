@@ -1,18 +1,16 @@
-import { KernelContent } from './kernelContent';
+import { KernelContent } from './KernelContent';
 
-export type FunctionResultContent<T> = KernelContent & {
-  type: 'functionResult';
+export class FunctionResultContent<T> extends KernelContent {
   callId?: string;
   pluginName?: string;
   functionName?: string;
   result?: T;
-};
 
-export const functionResultContent = <T>(props: Omit<FunctionResultContent<T>, 'type'>) => {
-  const message: FunctionResultContent<T> = {
-    ...props,
-    type: 'functionResult',
-  };
-
-  return message;
-};
+  constructor(props: { callId?: string; pluginName?: string; functionName?: string; result?: T }) {
+    super();
+    this.callId = props.callId;
+    this.pluginName = props.pluginName;
+    this.functionName = props.functionName;
+    this.result = props.result;
+  }
+}

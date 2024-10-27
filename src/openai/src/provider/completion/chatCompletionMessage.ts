@@ -1,6 +1,10 @@
 import { OpenAIFunctionNameSeparator } from '../../OpenAIFunction';
-import { getOpenAIChatMessageContentToolCalls } from '../../chatCompletion';
-import { ChatMessageContent, fullyQualifiedName } from '@semantic-kernel/abstractions';
+import {
+  ChatMessageContent,
+  FunctionCallContent,
+  TextContent,
+  fullyQualifiedName,
+} from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
 
 export const createChatCompletionMessages = (message: ChatMessageContent): OpenAI.Chat.ChatCompletionMessageParam[] => {
@@ -9,7 +13,7 @@ export const createChatCompletionMessages = (message: ChatMessageContent): OpenA
     const chatSystemMessage: OpenAI.Chat.ChatCompletionSystemMessageParam = {
       role: 'system',
       name: message.authorName,
-      content: message.items.text,
+      content: (message as ChatMessageContent<'system'>).items.text,
     };
 
     return [chatSystemMessage];
@@ -17,7 +21,8 @@ export const createChatCompletionMessages = (message: ChatMessageContent): OpenA
 
   // handle tool messages
   if (message.role === 'tool') {
-    const toolCallId = message.items.callId;
+    const items = (message as ChatMessageContent<'tool'>).items;
+    const toolCallId = items.callId;
 
     if (!toolCallId || typeof toolCallId !== 'string') {
       throw new Error('Tool call ID is required for tool messages and must be a string.');
@@ -25,9 +30,9 @@ export const createChatCompletionMessages = (message: ChatMessageContent): OpenA
 
     let content = '';
 
-    if (message.items.result) {
-      if (typeof message.items.result === 'string') {
-        content = message.items.result;
+    if (items.result) {
+      if (typeof items.result === 'string') {
+        content = items.result;
       }
 
       // TODO: handle the case Array<string> for message.items.result
@@ -44,45 +49,52 @@ export const createChatCompletionMessages = (message: ChatMessageContent): OpenA
 
   // handle user messages
   if (message.role === 'user') {
-    if (message.items.length === 1 && message.items[0].type === 'text') {
+    const items = (message as ChatMessageContent<'user'>).items;
+
+    if (items.length === 1 && items[0] instanceof TextContent) {
       const chatUserMessage: OpenAI.Chat.ChatCompletionUserMessageParam = {
         role: 'user',
-        content: message.items[0].text,
+        content: items[0].text,
       };
 
       return [chatUserMessage];
     }
 
-    for (const item of message.items) {
-      if (item.type === 'text') {
+    for (const item of items) {
+      if (item instanceof TextContent) {
         const chatUserMessage: OpenAI.Chat.ChatCompletionUserMessageParam = {
           role: 'user',
           content: item.text,
         };
 
         return [chatUserMessage];
-      } else if (item.type === 'image') {
-        // TODO
       } else {
-        throw new Error(`Unsupported chat item type: ${item.type}`);
+        throw new Error(`Unsupported chat item type: ${item}`);
       }
     }
   }
 
   // handle assistant messages
   if (message.role === 'assistant') {
-    const messageToolCalls = getOpenAIChatMessageContentToolCalls(message);
+    const items = (message as ChatMessageContent<'assistant'>).items;
+    const messageToolCalls = FunctionCallContent.getFunctionCalls(message);
+
     const chatAssistantMessage: OpenAI.Chat.ChatCompletionAssistantMessageParam = {
       role: 'assistant',
       name: message.authorName,
     };
 
-    if (message.items.length === 1) {
-      if (message.items[0].type === 'text') {
-        chatAssistantMessage.content = message.items[0].text;
+    if (items.length === 1) {
+      if (items[0] instanceof TextContent) {
+        chatAssistantMessage.content = items[0].text;
       }
     } else {
-      chatAssistantMessage.content = message.items.filter((item) => item).filter((item) => item.type === 'text');
+      chatAssistantMessage.content = items
+        .filter((item) => item)
+        .filter((item) => item instanceof TextContent)
+        .map((item) => {
+          return { text: item.text, type: 'text' };
+        });
     }
 
     if (messageToolCalls.length > 0) {

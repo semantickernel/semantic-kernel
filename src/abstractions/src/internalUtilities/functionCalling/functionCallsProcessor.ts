@@ -1,7 +1,7 @@
-import { ChatHistory, ChatMessageContent, toolChatMessage } from '../../AI/chatCompletion';
+import { ChatHistory, ChatMessageContent } from '../../AI/chatCompletion';
 import { FunctionChoiceBehavior } from '../../AI/functionChoiceBehaviors/functionChoiceBehavior';
 import { FunctionChoiceBehaviorConfiguration } from '../../AI/functionChoiceBehaviors/functionChoiceBehaviorConfiguration';
-import { FunctionCallContent, getFunctionCalls } from '../../contents';
+import { FunctionCallContent, FunctionResultContent } from '../../contents';
 import { Kernel } from '../../kernel';
 
 /**
@@ -45,7 +45,7 @@ export class FunctionCallsProcessor {
     checkIfFunctionAdvertised: (functionCallContent: FunctionCallContent) => boolean;
     kernel?: Kernel;
   }): Promise<ChatMessageContent | undefined> {
-    const functionCalls = getFunctionCalls(chatMessageContent);
+    const functionCalls = FunctionCallContent.getFunctionCalls(chatMessageContent);
 
     if (!functionCalls) {
       return undefined;
@@ -113,11 +113,14 @@ export class FunctionCallsProcessor {
   }) {
     result = result ?? errorMessage ?? '';
 
-    const message = toolChatMessage({
-      callId: functionCall.id,
-      result,
-      functionName: functionCall.functionName,
-      pluginName: functionCall.pluginName,
+    const message = new ChatMessageContent<'tool'>({
+      role: 'tool',
+      items: new FunctionResultContent({
+        callId: functionCall.id,
+        result,
+        functionName: functionCall.functionName,
+        pluginName: functionCall.pluginName,
+      }),
     });
 
     chatHistory.push(message);

@@ -6,7 +6,7 @@ import {
   systemChatMessage,
   toolChatMessage,
   userChatMessage,
-} from './chatMessageContent';
+} from './ChatMessageContent';
 
 describe('ChatMessageContent', () => {
   describe('chatMessage', () => {

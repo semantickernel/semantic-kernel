@@ -1,4 +1,4 @@
-import { ChatMessageContent } from './chatMessageContent';
+import { ChatMessageContent } from './ChatMessageContent';
 
 /**
  * Provides a history of chat messages from a chat conversation.

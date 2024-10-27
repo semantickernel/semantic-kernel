@@ -1,5 +1,5 @@
-export * from './chatCompletionService';
+export * from './ChatCompletionService';
 export * from './chatHistory';
-export * from './chatMessageContent';
+export * from './ChatMessageContent';
 
 export * from './streamingChatMessageContent';

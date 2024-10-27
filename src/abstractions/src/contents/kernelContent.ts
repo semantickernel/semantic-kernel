@@ -4,8 +4,8 @@ import { ModelId } from './modelId';
 /**
  * Base type for all AI non-streaming results
  */
-export type KernelContent = {
-  type: 'chat' | 'text' | 'function' | 'functionResult';
+export abstract class KernelContent {
+  // type: 'chat' | 'text' | 'function' | 'functionResult';
 
   /**
    * The MIME type of the content.
@@ -21,10 +21,10 @@ export type KernelContent = {
   /**
    * The model id used to generate the content.
    */
-  modelId?: ModelId;
+  model?: ModelId;
 
   /**
    * Metadata associated with the content.
    */
   metadata?: { [key: string]: string | number | object | undefined | null };
-};
+}

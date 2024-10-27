@@ -5,6 +5,7 @@ import {
   ChatMessageContent,
   Kernel,
   PromptExecutionSettings,
+  TextContent,
 } from '@semantic-kernel/abstractions';
 
 /**
@@ -45,11 +46,25 @@ export class OpenAIChatCompletionService implements ChatCompletionService {
     return this.provider.attributes;
   }
 
-  getChatMessageContents(
-    chatHistory: ChatHistory,
-    executionSettings?: PromptExecutionSettings,
-    kernel?: Kernel
-  ): Promise<ChatMessageContent[]> {
+  getChatMessageContents({
+    prompt,
+    chatHistory,
+    executionSettings,
+    kernel,
+  }: {
+    prompt?: string;
+    chatHistory?: ChatHistory;
+    executionSettings?: PromptExecutionSettings;
+    kernel?: Kernel;
+  }): Promise<ChatMessageContent[]> {
+    if (prompt) {
+      chatHistory = [new ChatMessageContent<'user'>({ role: 'user', items: [new TextContent({ text: prompt })] })];
+    }
+
+    if (!chatHistory) {
+      throw new Error('Either prompt or chatHistory is required for chat completion.');
+    }
+
     return this.provider.getChatMessageContents({ chatHistory, executionSettings, kernel });
   }
 }

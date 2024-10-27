@@ -1,1 +1,1 @@
-export * from './functionCallsProcessor';
+export * from './FunctionCallsProcessor';

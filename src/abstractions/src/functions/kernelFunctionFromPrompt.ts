@@ -1,4 +1,5 @@
-import { ChatCompletionService, ChatMessageContent, PromptExecutionSettings, userChatMessage } from '../AI';
+import { ChatCompletionService, ChatMessageContent, PromptExecutionSettings } from '../AI';
+// import { TextContent } from '../contents';
 import { FromSchema } from '../jsonSchema';
 import { Kernel } from '../kernel';
 import { PromptTemplateConfig, stringPromptTemplate } from '../promptTemplate';
@@ -69,11 +70,12 @@ export const kernelFunctionFromPrompt = ({
       const { renderedPrompt, AIService } = await renderPrompt(kernel, props);
 
       if (AIService.serviceType === 'ChatCompletion') {
-        const chatContents = await (AIService as ChatCompletionService).getChatMessageContents(
-          [userChatMessage(renderedPrompt)],
+        const chatContents = await (AIService as ChatCompletionService).getChatMessageContents({
+          //[new ChatMessageContent({ role: 'user', items: [new TextContent({ text: renderedPrompt })] })],
+          prompt: renderedPrompt,
           executionSettings,
-          kernel
-        );
+          kernel,
+        });
 
         if (!chatContents || chatContents.length === 0) {
           return {

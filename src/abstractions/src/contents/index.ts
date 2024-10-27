@@ -1,3 +1,4 @@
-export * from './kernelContent';
-export * from './textContent';
-export * from './functionCallContent';
+export * from './KernelContent';
+export * from './TextContent';
+export * from './FunctionCallContent';
+export * from './FunctionResultContent';

@@ -1,4 +1,4 @@
-import { functionCallContent } from './functionCallContent';
+import { FunctionCallContent } from './FunctionCallContent';
 
 describe('functionCallContent', () => {
   it('should be able to create a function call content', () => {
@@ -6,11 +6,10 @@ describe('functionCallContent', () => {
     const functionName = 'test';
 
     // Act
-    const result = functionCallContent({ functionName });
+    const result = new FunctionCallContent({ functionName });
 
     // Assert
     expect(result).toEqual({
-      type: 'function',
       functionName,
     });
   });
@@ -21,11 +20,10 @@ describe('functionCallContent', () => {
     const args = { arg1: 'val1', arg2: 'val2' };
 
     // Act
-    const result = functionCallContent({ functionName, arguments: args });
+    const result = new FunctionCallContent({ functionName, arguments: args });
 
     // Assert
     expect(result).toEqual({
-      type: 'function',
       functionName,
       arguments: args,
     });

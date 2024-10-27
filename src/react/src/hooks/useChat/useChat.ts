@@ -1,5 +1,5 @@
 import { useKernel, useKernelProps } from '../useKernel';
-import { ChatCompletionService, ChatHistory, userChatMessage } from '@semantic-kernel/abstractions';
+import { ChatCompletionService, ChatHistory, ChatMessageContent, TextContent } from '@semantic-kernel/abstractions';
 import { useEffect, useState } from 'react';
 
 type useChatProps = useKernelProps;
@@ -29,10 +29,19 @@ export const useChat = (props: useChatProps) => {
       return;
     }
 
-    const newChatHistory = [...chatHistory, userChatMessage(prompt)];
+    const newChatHistory = [
+      ...chatHistory,
+      new ChatMessageContent<'user'>({
+        role: 'user',
+        items: [new TextContent({ text: prompt })],
+      }),
+    ];
     setChatHistory(newChatHistory);
 
-    const chatMessageContents = await chatCompletionService.getChatMessageContents(newChatHistory, undefined, kernel);
+    const chatMessageContents = await chatCompletionService.getChatMessageContents({
+      chatHistory: newChatHistory,
+      kernel,
+    });
 
     for (const chatMessageContent of chatMessageContents) {
       setChatHistory((chatHistory) => [...chatHistory, chatMessageContent]);
