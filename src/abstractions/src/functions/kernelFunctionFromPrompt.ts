@@ -46,10 +46,10 @@ export const kernelFunctionFromPrompt = ({
     const promptTemplate = getPromptTemplate();
 
     const { service } =
-      kernel.serviceProvider.getService({
+      kernel.services.getService({
         serviceType: 'ChatCompletion',
       }) ||
-      kernel.serviceProvider.getService({
+      kernel.services.getService({
         serviceType: 'TextCompletion',
       }) ||
       {};

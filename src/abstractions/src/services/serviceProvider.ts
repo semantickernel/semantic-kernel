@@ -20,7 +20,13 @@ export interface ServiceProvider {
    */
   addService(service: AIService): void;
 
-  getService(props: {
+  /**
+   * Get service of a specific type.
+   * @param params Parameters for getting the service.
+   * @param params.serviceType The type of service to get.
+   * @param params.executionSettings Execution settings for the service.
+   */
+  getService(params: {
     serviceType: AIService['serviceType'];
     executionSettings?: Map<ServiceId, PromptExecutionSettings>;
   }):
@@ -31,49 +37,52 @@ export interface ServiceProvider {
     | undefined;
 }
 
-export const getServiceProvider = (): ServiceProvider => {
-  const services: Map<string, AIService> = new Map();
+/**
+ * Represents a service provider that uses a map to store services.
+ */
+export class MapServiceProvider implements ServiceProvider {
+  private readonly services: Map<string, AIService> = new Map();
 
-  const getServiceKey = (service: AIService) => service.serviceKey;
+  private getServiceKey = (service: AIService) => service.serviceKey;
 
-  const hasService = (serviceKey: string) => services.has(serviceKey);
+  private hasService = (serviceKey: string) => this.services.has(serviceKey);
 
-  const addService = (service: AIService) => {
-    const serviceKey = getServiceKey(service);
+  private getServicesByType = (serviceType: AIService['serviceType']) => {
+    return Array.from(this.services.values()).filter((service) => service.serviceType === serviceType);
+  };
+
+  addService = (service: AIService) => {
+    const serviceKey = this.getServiceKey(service);
 
     if (!serviceKey) {
       throw new Error('Service key is not defined.');
     }
 
-    if (hasService(serviceKey)) {
+    if (this.hasService(serviceKey)) {
       throw new Error(`Service with key ${serviceKey} already exists.`);
     }
 
-    services.set(serviceKey, service);
+    this.services.set(serviceKey, service);
   };
 
-  const getServiceByKey = (serviceKey: string) => {
-    if (!services.has(serviceKey)) {
+  getServiceByKey = (serviceKey: string) => {
+    if (!this.services.has(serviceKey)) {
       throw new Error(`Service with key ${serviceKey} does not exist.`);
     }
 
-    return services.get(serviceKey)!;
+    return this.services.get(serviceKey)!;
   };
 
-  const getServices = () => services.entries();
+  getServices = () => this.services.entries();
 
-  const getServicesByType = (serviceType: AIService['serviceType']) => {
-    return Array.from(services.values()).filter((service) => service.serviceType === serviceType);
-  };
-
-  const getService = ({
+  getService = ({
     serviceType,
     executionSettings,
   }: {
     serviceType: AIService['serviceType'];
     executionSettings?: Map<ServiceId, PromptExecutionSettings>;
   }) => {
-    const services = getServicesByType(serviceType);
+    const services = this.getServicesByType(serviceType);
 
     if (!services.length) {
       return undefined;
@@ -114,11 +123,4 @@ export const getServiceProvider = (): ServiceProvider => {
 
     return undefined;
   };
-
-  return {
-    getServiceByKey,
-    getServices,
-    addService,
-    getService,
-  };
-};
+}

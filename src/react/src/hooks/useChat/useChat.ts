@@ -12,7 +12,7 @@ export const useChat = (props: useChatProps) => {
   useEffect(() => {
     if (!kernel) return;
 
-    const chatCompletionService = kernel.serviceProvider.getService({
+    const chatCompletionService = kernel.services.getService({
       serviceType: 'ChatCompletion',
     })?.service as ChatCompletionService;
 

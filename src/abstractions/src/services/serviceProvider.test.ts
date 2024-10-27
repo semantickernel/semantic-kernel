@@ -1,6 +1,6 @@
 import { PromptExecutionSettings, ServiceId } from '../AI';
 import { AIService, AIServiceType, ModelIdKey } from './AIService';
-import { getServiceProvider } from './serviceProvider';
+import { MapServiceProvider } from './ServiceProvider';
 
 const MockService = (serviceType?: AIServiceType, serviceKey?: string, modelId?: string): AIService => {
   return {
@@ -10,11 +10,11 @@ const MockService = (serviceType?: AIServiceType, serviceKey?: string, modelId?:
   };
 };
 
-describe('serviceProvider', () => {
+describe('MapServiceProvider', () => {
   describe('addService', () => {
     it('should add a service', () => {
       // Arrange
-      const serviceProvider = getServiceProvider();
+      const serviceProvider = new MapServiceProvider();
       const mockService = MockService();
 
       // Act
@@ -26,7 +26,7 @@ describe('serviceProvider', () => {
 
     it('should not add the same serviceKey twice', () => {
       // Arrange
-      const serviceProvider = getServiceProvider();
+      const serviceProvider = new MapServiceProvider();
       const mockService = MockService();
 
       // Act
@@ -42,7 +42,7 @@ describe('serviceProvider', () => {
   describe('getServiceByKey', () => {
     it('should throw an error when service is not defined', () => {
       // Arrange
-      const serviceProvider = getServiceProvider();
+      const serviceProvider = new MapServiceProvider();
 
       // Act
       const action = () => serviceProvider.getServiceByKey('ChatCompletion1');
@@ -53,7 +53,7 @@ describe('serviceProvider', () => {
 
     it('should get a service', () => {
       // Arrange
-      const serviceProvider = getServiceProvider();
+      const serviceProvider = new MapServiceProvider();
       const mockService = MockService();
       serviceProvider.addService(mockService);
 
@@ -68,7 +68,7 @@ describe('serviceProvider', () => {
   describe('getService', () => {
     it('should return undefined when service is not defined', () => {
       // Arrange
-      const serviceProvider = getServiceProvider();
+      const serviceProvider = new MapServiceProvider();
 
       // Act
       const service = serviceProvider.getService({
@@ -81,7 +81,7 @@ describe('serviceProvider', () => {
 
     it('should get a service without ExecutionSettings', () => {
       // Arrange
-      const serviceProvider = getServiceProvider();
+      const serviceProvider = new MapServiceProvider();
       const mockService = MockService();
       serviceProvider.addService(mockService);
 
@@ -103,7 +103,7 @@ describe('serviceProvider', () => {
       const stubPromptExecutionSettings = { modelId: 'gpt' };
       const stubExecutionSettings = new Map<ServiceId, PromptExecutionSettings>();
       stubExecutionSettings.set(stubServiceKey, stubPromptExecutionSettings);
-      const serviceProvider = getServiceProvider();
+      const serviceProvider = new MapServiceProvider();
 
       const mockService1 = MockService('ChatCompletion', 'mockService1');
       serviceProvider.addService(mockService1);
@@ -129,7 +129,7 @@ describe('serviceProvider', () => {
       const stubPromptExecutionSettings = { modelId: 'gpt' };
       const stubExecutionSettings = new Map<ServiceId, PromptExecutionSettings>();
       stubExecutionSettings.set('randomService', stubPromptExecutionSettings);
-      const serviceProvider = getServiceProvider();
+      const serviceProvider = new MapServiceProvider();
 
       const mockService1 = MockService('ChatCompletion', 'mockService1');
       serviceProvider.addService(mockService1);
