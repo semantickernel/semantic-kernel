@@ -1,4 +1,4 @@
-import { PromptExecutionSettings } from '../AI';
+// import { PromptExecutionSettings } from '../AI';
 
 export type PromptTemplateConfig = {
   name?: string;
@@ -7,5 +7,5 @@ export type PromptTemplateConfig = {
   template: string;
   inputVariables: string[];
   allowDangerouslySetContent?: boolean;
-  executionSettings?: Map<string, PromptExecutionSettings>;
+  // executionSettings?: Map<string, PromptExecutionSettings>;
 };

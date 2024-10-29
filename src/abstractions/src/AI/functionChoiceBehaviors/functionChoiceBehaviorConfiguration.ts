@@ -5,5 +5,5 @@ import { FunctionChoice } from './functionChoice';
 export interface FunctionChoiceBehaviorConfiguration {
   choice: FunctionChoice;
   autoInvoke: boolean;
-  functions: Array<KernelFunction<unknown, unknown, JsonSchema>> | undefined;
+  functions: Array<KernelFunction<JsonSchema, unknown>> | undefined;
 }

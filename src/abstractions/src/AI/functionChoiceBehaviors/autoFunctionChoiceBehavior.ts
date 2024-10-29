@@ -8,7 +8,7 @@ export class AutoFunctionChoiceBehavior extends FunctionChoiceBehavior {
   private readonly autoInvoke: boolean;
   public readonly functions: Array<string> | undefined;
 
-  constructor(functions?: Array<KernelFunction<unknown, unknown, JsonSchema>>, autoInvoke: boolean = true) {
+  constructor(functions?: Array<KernelFunction<JsonSchema, unknown>>, autoInvoke: boolean = true) {
     super(functions);
     this.functions = functions
       ?.map(
