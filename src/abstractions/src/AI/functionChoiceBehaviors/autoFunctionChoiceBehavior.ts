@@ -1,5 +1,4 @@
 import { KernelFunction, fullyQualifiedName } from '../../functions';
-// import { JsonSchema } from '../../jsonSchema';
 import { Kernel } from '../../kernel';
 import { FunctionChoiceBehavior } from './functionChoiceBehavior';
 import { FunctionChoiceBehaviorConfiguration } from './functionChoiceBehaviorConfiguration';
