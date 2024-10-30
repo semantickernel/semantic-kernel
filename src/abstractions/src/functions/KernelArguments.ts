@@ -1,13 +1,15 @@
 import { PromptExecutionSettings, defaultServiceId } from '../AI';
 import { FromSchema, JsonSchema } from '../jsonSchema';
 
-
-export class KernelArguments<Parameters extends JsonSchema, Args = FromSchema<Parameters>> {
-  private readonly _arguments: Args;
+export class KernelArguments<
+  Schema extends JsonSchema | unknown = unknown,
+  Args = Schema extends JsonSchema ? FromSchema<Schema> : Record<string, object>,
+> {
+  public arguments: Args;
   private _executionSettings?: Map<string, PromptExecutionSettings>;
 
   public constructor({ args, executionSettings }: { args: Args; executionSettings?: PromptExecutionSettings[] }) {
-    this._arguments = args;
+    this.arguments = args;
 
     if (executionSettings) {
       const newExecutionSettings = new Map<string, PromptExecutionSettings>();
@@ -40,9 +42,5 @@ export class KernelArguments<Parameters extends JsonSchema, Args = FromSchema<Pa
     }
 
     this._executionSettings = settings;
-  }
-
-  public get count(): number {
-    return this._arguments ? Object.keys(this._arguments).length : 0;
   }
 }

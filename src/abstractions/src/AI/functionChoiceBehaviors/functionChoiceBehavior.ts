@@ -1,18 +1,18 @@
 import { KernelFunction, parseFunctionName } from '../../functions';
-import { JsonSchema } from '../../jsonSchema';
+// import { JsonSchema } from '../../jsonSchema';
 import { Kernel } from '../../kernel';
 import { ChatHistory } from '../chatCompletion';
 import { AutoFunctionChoiceBehavior } from './autoFunctionChoiceBehavior';
 import { FunctionChoiceBehaviorConfiguration } from './functionChoiceBehaviorConfiguration';
 
 export abstract class FunctionChoiceBehavior {
-  protected _functions: Array<KernelFunction<JsonSchema, unknown>> | undefined;
+  protected _functions: Array<KernelFunction> | undefined;
 
-  protected constructor(functions?: Array<KernelFunction<JsonSchema, unknown>>) {
+  protected constructor(functions?: Array<KernelFunction>) {
     this._functions = functions;
   }
 
-  static Auto(functions?: Array<KernelFunction<JsonSchema, unknown>>, autoInvoke: boolean = true) {
+  static Auto(functions?: Array<KernelFunction>, autoInvoke: boolean = true) {
     return new AutoFunctionChoiceBehavior(functions, autoInvoke);
   }
 
@@ -26,12 +26,12 @@ export abstract class FunctionChoiceBehavior {
     functionFQNs?: string[],
     kernel?: Kernel,
     autoInvoke?: boolean
-  ): Array<KernelFunction<JsonSchema, unknown>> | undefined {
+  ): Array<KernelFunction> | undefined {
     if (autoInvoke && !kernel) {
       throw new Error('Auto-invocation is not supported when no kernel is provided.');
     }
 
-    const availableFunctions: Array<KernelFunction<JsonSchema, unknown>> = [];
+    const availableFunctions: Array<KernelFunction> = [];
 
     if (functionFQNs && functionFQNs.length > 0) {
       for (const functionFQN of functionFQNs) {

@@ -5,7 +5,6 @@ import { JsonSchema } from './jsonSchema';
 import { AIService, MapServiceProvider, ServiceProvider } from './services';
 import { FromSchema } from 'json-schema-to-ts';
 
-
 /**
  * Represents a kernel.
  */
@@ -83,13 +82,13 @@ export class Kernel {
    * @param params.executionSettings The execution settings for the prompt.
    * @returns The result of the prompt.
    */
-  public async invokePrompt<Parameters extends JsonSchema, Props = FromSchema<Parameters>>({
+  public async invokePrompt<Parameters extends JsonSchema = { type: 'object' }, Props = FromSchema<Parameters>>({
     promptTemplate,
     args,
   }: {
     promptTemplate: string;
-    args?: KernelArguments<Parameters, Props>
-  })  {
+    args?: KernelArguments<Parameters, Props>;
+  }) {
     const fn = new KernelFunctionFromPrompt({
       promptTemplateConfig: {
         template: promptTemplate,

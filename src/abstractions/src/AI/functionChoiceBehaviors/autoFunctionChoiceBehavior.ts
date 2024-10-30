@@ -1,14 +1,14 @@
 import { KernelFunction, fullyQualifiedName } from '../../functions';
-import { JsonSchema } from '../../jsonSchema';
+// import { JsonSchema } from '../../jsonSchema';
 import { Kernel } from '../../kernel';
 import { FunctionChoiceBehavior } from './functionChoiceBehavior';
 import { FunctionChoiceBehaviorConfiguration } from './functionChoiceBehaviorConfiguration';
 
 export class AutoFunctionChoiceBehavior extends FunctionChoiceBehavior {
   private readonly autoInvoke: boolean;
-  public readonly functions: Array<string> | undefined;
+  private readonly functions: Array<string> | undefined;
 
-  constructor(functions?: Array<KernelFunction<JsonSchema, unknown>>, autoInvoke: boolean = true) {
+  constructor(functions?: Array<KernelFunction>, autoInvoke: boolean = true) {
     super(functions);
     this.functions = functions
       ?.map(

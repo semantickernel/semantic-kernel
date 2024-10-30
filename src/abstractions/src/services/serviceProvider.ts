@@ -1,9 +1,8 @@
-import { PromptExecutionSettings } from '../AI';
+import { PromptExecutionSettings, defaultServiceId } from '../AI';
 import { KernelFunction } from '../functions';
 import { KernelArguments } from '../functions/KernelArguments';
 import { JsonSchema } from '../jsonSchema';
 import { AIService, getServiceModelId } from './AIService';
-
 
 /**
  * Represents a service provider.
@@ -109,8 +108,14 @@ export class MapServiceProvider implements ServiceProvider {
       };
     }
 
+    let defaultExecutionSettings: PromptExecutionSettings | undefined;
+
     // search by service id first
     for (const [serviceId, _executionSettings] of executionSettings) {
+      if (!serviceId || serviceId === defaultServiceId) {
+        defaultExecutionSettings = _executionSettings;
+      }
+
       const service = services.find((s) => s.serviceKey === serviceId);
       if (service) {
         return {
@@ -132,8 +137,14 @@ export class MapServiceProvider implements ServiceProvider {
       }
     }
 
-    // TODO: handle default service case
+    // search by default service id last
+    if (defaultExecutionSettings) {
+      return {
+        service: services[0],
+        executionSettings: defaultExecutionSettings,
+      };
+    }
 
     return undefined;
-  };
+  }
 }

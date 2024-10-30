@@ -2,15 +2,11 @@ import { JsonSchema } from '../jsonSchema';
 import { KernelFunction, KernelFunctionMetadata } from './kernelFunction';
 import { KernelPlugin, MapKernelPlugin } from './kernelPlugin';
 
-
 export type KernelPlugins = {
   addPlugin: (plugin: KernelPlugin) => KernelPlugins;
   getPlugins: () => Iterable<MapKernelPlugin>;
   getFunctionsMetadata: () => KernelFunctionMetadata<JsonSchema>[];
-  getFunction: <Parameters extends JsonSchema, Result>(
-    functionName: string,
-    pluginName?: string
-  ) => KernelFunction<Parameters, Result, unknown> | undefined;
+  getFunction: (functionName: string, pluginName?: string) => KernelFunction | undefined;
 };
 
 /**
@@ -68,13 +64,13 @@ export class MapKernelPlugins implements KernelPlugins {
     );
   }
 
-  getFunction<Parameters extends JsonSchema, Result>(functionName: string, pluginName?: string) {
+  getFunction(functionName: string, pluginName?: string) {
     if (pluginName) {
       // Search a specific plugin
       const plugin = this.plugins.get(pluginName);
 
       if (plugin) {
-        const fn = plugin.functions.get(functionName)as KernelFunction<Parameters, Result, unknown>;
+        const fn = plugin.functions.get(functionName);
 
         if (fn) {
           return fn;
@@ -83,7 +79,7 @@ export class MapKernelPlugins implements KernelPlugins {
     } else {
       // Search all plugins
       for (const plugin of this.plugins.values()) {
-        const fn = plugin.functions.get(functionName) as KernelFunction<Parameters, Result, unknown>;
+        const fn = plugin.functions.get(functionName);
 
         if (fn) {
           return fn;

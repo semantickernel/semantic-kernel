@@ -1,5 +1,6 @@
 import { OpenAIFunctionNameSeparator } from '../OpenAIFunction';
 import { ChatMessageContent, FunctionCallContent, TextContent, parseFunctionName } from '@semantic-kernel/abstractions';
+import { KernelArguments } from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
 
 export class OpenAIChatMessageContent extends ChatMessageContent<'assistant'> {
@@ -31,7 +32,7 @@ export class OpenAIChatMessageContent extends ChatMessageContent<'assistant'> {
             id: toolCall.id,
             functionName,
             pluginName,
-            arguments: functionArguments,
+            arguments: new KernelArguments({ args: functionArguments }),
           })
         );
       }

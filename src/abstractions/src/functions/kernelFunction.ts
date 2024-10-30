@@ -3,7 +3,6 @@ import { FromSchema, JsonSchema } from '../jsonSchema';
 import { Kernel } from '../kernel';
 import { KernelArguments } from './KernelArguments';
 
-
 export type Fn<Result, Props> = (props: Props) => Result;
 
 export type FunctionResult<Result, Props> = {
@@ -15,7 +14,7 @@ export type FunctionResult<Result, Props> = {
 
 export type KernelFunctionProps<Props> = Props;
 
-export type KernelFunctionMetadata<Parameters extends JsonSchema> = {
+export type KernelFunctionMetadata<Parameters> = {
   name: string;
   description?: string;
   pluginName?: string;
@@ -32,15 +31,19 @@ export type KernelFunctionMetadata<Parameters extends JsonSchema> = {
 //   metadata?: Metadata;
 // };
 
-export abstract class KernelFunction<Parameters extends JsonSchema, Result, Props = FromSchema<Parameters>> {
-  public readonly metadata: KernelFunctionMetadata<Parameters>;
+export abstract class KernelFunction<
+  Schema extends JsonSchema | unknown = unknown,
+  Result = unknown,
+  Props = Schema extends JsonSchema ? FromSchema<Schema> : Record<string, object>,
+> {
+  public readonly metadata: KernelFunctionMetadata<Schema>;
   private readonly _executionSettings?: Map<string, PromptExecutionSettings>;
 
   constructor({
     metadata,
     executionSettings,
   }: {
-    metadata: KernelFunctionMetadata<Parameters>;
+    metadata: KernelFunctionMetadata<Schema>;
     executionSettings?: Map<string, PromptExecutionSettings>;
   }) {
     this.metadata = metadata;
@@ -53,10 +56,10 @@ export abstract class KernelFunction<Parameters extends JsonSchema, Result, Prop
 
   protected abstract invokeCore(
     kernel: Kernel,
-    args?: KernelArguments<Parameters, Props>
+    args?: KernelArguments<Schema, Props>
   ): Promise<FunctionResult<Result, Props>>;
 
-  invoke = async (kernel: Kernel, args?: KernelArguments<Parameters, Props>): Promise<FunctionResult<Result, Props>> => {
+  invoke = async (kernel: Kernel, args?: KernelArguments<Schema, Props>): Promise<FunctionResult<Result, Props>> => {
     const value = await this.invokeCore(kernel, args);
 
     kernel.functionInvocationFilters.forEach((filter) => {
@@ -78,7 +81,7 @@ export abstract class KernelFunction<Parameters extends JsonSchema, Result, Prop
 //     additionalProperties: false,
 //   },
 // });
-// 
+//
 // abc.invoke(new Kernel(), { loc: 'Dublin' });
 
 // export const kernelFunction = <Parameters extends JsonSchema, Result, Props = FromSchema<Parameters>>(
@@ -87,17 +90,17 @@ export abstract class KernelFunction<Parameters extends JsonSchema, Result, Prop
 // ): KernelFunction<Props, Result, Parameters> => {
 //   const invoke = async (kernel: Kernel, props: Props): FunctionResult<Result, Props> => {
 //     const value = await fn(props);
-// 
+//
 //     kernel.functionInvocationFilters.forEach((filter) => {
 //       filter.onFunctionInvocationFilter(kernel, fn, value);
 //     });
-// 
+//
 //     return {
 //       function: fn,
 //       value,
 //     };
 //   };
-// 
+//
 //   return {
 //     invoke,
 //     metadata,

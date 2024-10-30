@@ -7,10 +7,9 @@ import { AIService } from '../services';
 import { KernelArguments } from './KernelArguments';
 import { KernelFunction } from './kernelFunction';
 
-
 export type PromptRenderingResult = {
   renderedPrompt: string;
-  executionSettings?: PromptExecutionSettings,
+  executionSettings?: PromptExecutionSettings;
   AIService: AIService;
 };
 
@@ -129,7 +128,7 @@ export class KernelFunctionFromPrompt extends KernelFunction<
 //     template: promptTemplate,
 //     inputVariables: [],
 //   };
-// 
+//
 //   const getPromptTemplate = () => {
 //     switch (promptTemplateConfig.templateFormat) {
 //       case 'string':
@@ -138,10 +137,10 @@ export class KernelFunctionFromPrompt extends KernelFunction<
 //         throw new Error(`${promptTemplateConfig.templateFormat} template rendering not implemented`);
 //     }
 //   };
-// 
+//
 //   const renderPrompt = async (kernel: Kernel, props: PromptType): Promise<PromptRenderingResult> => {
 //     const promptTemplate = getPromptTemplate();
-// 
+//
 //     const { service } =
 //       kernel.services.getService({
 //         serviceType: 'ChatCompletion',
@@ -150,21 +149,21 @@ export class KernelFunctionFromPrompt extends KernelFunction<
 //         serviceType: 'TextCompletion',
 //       }) ||
 //       {};
-// 
+//
 //     if (!service) {
 //       throw new Error('AIService not found in kernel');
 //     }
-// 
+//
 //     return {
 //       renderedPrompt: await promptTemplate.render(kernel, props),
 //       AIService: service,
 //     };
 //   };
-// 
+//
 //   return {
 //     invoke: async (kernel, props) => {
 //       const { renderedPrompt, AIService } = await renderPrompt(kernel, props);
-// 
+//
 //       if (AIService.serviceType === 'ChatCompletion') {
 //         const chatContents = await (AIService as ChatCompletionService).getChatMessageContents({
 //           //[new ChatMessageContent({ role: 'user', items: [new TextContent({ text: renderedPrompt })] })],
@@ -172,27 +171,27 @@ export class KernelFunctionFromPrompt extends KernelFunction<
 //           executionSettings,
 //           kernel,
 //         });
-// 
+//
 //         if (!chatContents || chatContents.length === 0) {
 //           return {
 //             value: undefined,
 //             renderedPrompt: renderedPrompt,
 //           };
 //         }
-// 
+//
 //         if (chatContents.length === 1) {
 //           return {
 //             value: chatContents[0],
 //             renderedPrompt: renderedPrompt,
 //           };
 //         }
-// 
+//
 //         return {
 //           value: chatContents,
 //           renderedPrompt: renderedPrompt,
 //         };
 //       }
-// 
+//
 //       throw new Error(`Unsupported AI service type: ${AIService.serviceType}`);
 //     },
 //   };
