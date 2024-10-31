@@ -3,15 +3,17 @@ import { OpenAIPromptExecutionSettings, getOpenAIPromptExecutionSettings } from 
 import { createChatCompletionMessages } from './chatCompletionMessage';
 import {
   ChatHistory,
+  ChatMessageContent,
   FunctionChoiceBehaviorConfiguration,
+  TextContent,
   fullyQualifiedName,
-  systemChatMessage,
 } from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
 import {
   ChatCompletionCreateParamsNonStreaming,
   ChatCompletionTool,
   ChatCompletionToolChoiceOption,
+  FunctionParameters,
 } from 'openai/resources';
 
 export const createChatCompletionCreateParams = (
@@ -27,7 +29,15 @@ export const createChatCompletionCreateParams = (
 
   // Add the system prompt if provided first
   if (executionSettings.chatSystemPrompt && !chatHistory.find((message) => message.role === 'system')) {
-    messages = [...messages, ...createChatCompletionMessages(systemChatMessage(executionSettings.chatSystemPrompt))];
+    messages = [
+      ...messages,
+      ...createChatCompletionMessages(
+        new ChatMessageContent({
+          role: 'system',
+          items: new TextContent({ text: executionSettings.chatSystemPrompt }),
+        })
+      ),
+    ];
   }
 
   for (const chatMessage of chatHistory) {
@@ -37,9 +47,9 @@ export const createChatCompletionCreateParams = (
   if (functionChoiceBehaviorConfiguration?.functions) {
     tools = [];
     for (const kernelFunction of functionChoiceBehaviorConfiguration.functions) {
-      const { name: functionName, pluginName, parameters, description } = kernelFunction.metadata ?? {};
+      const { name: functionName, pluginName, schema, description } = kernelFunction.metadata ?? {};
 
-      if (typeof parameters !== 'object' || !functionName) {
+      if (!functionName) {
         continue;
       }
 
@@ -52,7 +62,7 @@ export const createChatCompletionCreateParams = (
             pluginName,
             nameSeparator: OpenAIFunctionNameSeparator,
           }),
-          parameters,
+          parameters: schema as FunctionParameters,
         },
       });
     }

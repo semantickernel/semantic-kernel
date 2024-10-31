@@ -31,7 +31,7 @@ export class KernelFunctionFromPrompt extends KernelFunction<
       metadata: {
         name: promptTemplateConfig.name ?? KernelFunctionFromPrompt.createRandomFunctionName(),
         description: promptTemplateConfig.description,
-        parameters: {},
+        schema: {},
       },
     });
 

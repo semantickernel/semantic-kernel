@@ -14,11 +14,11 @@ export type FunctionResult<Result, Args> = {
 
 export type KernelFunctionProps<Props> = Props;
 
-export type KernelFunctionMetadata<Parameters> = {
+export type KernelFunctionMetadata<Schema extends JsonSchema | unknown> = {
   name: string;
   description?: string;
   pluginName?: string;
-  parameters: Parameters;
+  schema?: Schema;
 };
 
 export abstract class KernelFunction<
