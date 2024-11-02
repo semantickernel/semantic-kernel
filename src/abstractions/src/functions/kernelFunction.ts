@@ -26,8 +26,8 @@ export abstract class KernelFunction<
   Result = unknown,
   Args = Schema extends JsonSchema ? FromSchema<Schema> : Record<string, object>,
 > {
-  public readonly metadata: KernelFunctionMetadata<Schema>;
-  public readonly _executionSettings?: Map<string, PromptExecutionSettings>;
+  private readonly _metadata: KernelFunctionMetadata<Schema>;
+  private readonly _executionSettings?: Map<string, PromptExecutionSettings>;
 
   constructor({
     metadata,
@@ -36,12 +36,16 @@ export abstract class KernelFunction<
     metadata: KernelFunctionMetadata<Schema>;
     executionSettings?: Map<string, PromptExecutionSettings>;
   }) {
-    this.metadata = metadata;
+    this._metadata = metadata;
     this._executionSettings = executionSettings;
   }
 
   public get executionSettings(): Map<string, PromptExecutionSettings> | undefined {
     return this._executionSettings;
+  }
+
+  public get metadata(): KernelFunctionMetadata<Schema> {
+    return this._metadata;
   }
 
   protected abstract invokeCore(
