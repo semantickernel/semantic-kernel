@@ -1,4 +1,7 @@
-import { PromptExecutionSettings, ServiceId } from '../AI';
+import { PromptExecutionSettings, defaultServiceId } from '../AI';
+import { KernelFunction } from '../functions';
+import { KernelArguments } from '../functions/KernelArguments';
+import { JsonSchema } from '../jsonSchema';
 import { AIService, getServiceModelId } from './AIService';
 
 /**
@@ -28,11 +31,12 @@ export interface ServiceProvider {
    */
   getService(params: {
     serviceType: AIService['serviceType'];
-    executionSettings?: Map<ServiceId, PromptExecutionSettings>;
+    kernelFunction?: KernelFunction<JsonSchema, unknown>;
+    kernelArguments?: KernelArguments<JsonSchema>;
   }):
     | {
         service: AIService;
-        settings?: PromptExecutionSettings;
+        executionSettings?: PromptExecutionSettings;
       }
     | undefined;
 }
@@ -75,13 +79,21 @@ export class MapServiceProvider implements ServiceProvider {
 
   getServices = () => this.services.entries();
 
-  getService = ({
+  getService({
     serviceType,
-    executionSettings,
+    kernelFunction,
+    kernelArguments,
   }: {
     serviceType: AIService['serviceType'];
-    executionSettings?: Map<ServiceId, PromptExecutionSettings>;
-  }) => {
+    kernelFunction?: KernelFunction<JsonSchema, unknown>;
+    kernelArguments?: KernelArguments<JsonSchema>;
+  }):
+    | {
+        service: AIService;
+        executionSettings?: PromptExecutionSettings;
+      }
+    | undefined {
+    const executionSettings = kernelFunction?.executionSettings ?? kernelArguments?.executionSettings;
     const services = this.getServicesByType(serviceType);
 
     if (!services.length) {
@@ -92,35 +104,47 @@ export class MapServiceProvider implements ServiceProvider {
       // return the first service if no execution settings are provided
       return {
         service: services[0],
-        settings: undefined,
+        executionSettings: undefined,
       };
     }
 
+    let defaultExecutionSettings: PromptExecutionSettings | undefined;
+
     // search by service id first
-    for (const [serviceId, settings] of executionSettings) {
+    for (const [serviceId, _executionSettings] of executionSettings) {
+      if (!serviceId || serviceId === defaultServiceId) {
+        defaultExecutionSettings = _executionSettings;
+      }
+
       const service = services.find((s) => s.serviceKey === serviceId);
       if (service) {
         return {
           service,
-          settings,
+          executionSettings: _executionSettings,
         };
       }
     }
 
     // search by model id next
-    for (const settings of executionSettings.values()) {
-      const modelId = settings.modelId;
+    for (const _executionSettings of executionSettings.values()) {
+      const modelId = _executionSettings.modelId;
       const service = services.find((s) => getServiceModelId(s) === modelId);
       if (service) {
         return {
           service,
-          settings,
+          executionSettings: _executionSettings,
         };
       }
     }
 
-    // TODO: handle default service case
+    // search by default service id last
+    if (defaultExecutionSettings) {
+      return {
+        service: services[0],
+        executionSettings: defaultExecutionSettings,
+      };
+    }
 
     return undefined;
-  };
+  }
 }

@@ -1,14 +1,9 @@
-import { ChatMessageContent, PromptExecutionSettings } from './AI';
-import {
-  FunctionInvocationFilter,
-  FunctionResult,
-  KernelFunction,
-  KernelPlugin,
-  PromptType,
-  kernelFunctionFromPrompt,
-} from './functions';
+import { PromptExecutionSettings } from './AI';
+import { FunctionInvocationFilter, KernelFunction, KernelFunctionFromPrompt, KernelPlugin } from './functions';
+import { KernelArguments } from './functions/KernelArguments';
 import { KernelPlugins, MapKernelPlugins } from './functions/KernelPlugins';
 import { JsonSchema } from './jsonSchema';
+import { PromptTemplateFormat } from './promptTemplate';
 import { AIService, MapServiceProvider, ServiceProvider } from './services';
 import { FromSchema } from 'json-schema-to-ts';
 
@@ -71,33 +66,64 @@ export class Kernel {
 
   /**
    * Invokes a kernel function.
-   * @param kernelFunction The kernel function to invoke.
-   * @param props The properties to pass to the kernel function.
+   * @param params The parameters for the kernel function.
+   * @param params.kernelFunction The kernel function to invoke.
+   * @param params.kernelArguments The KernelArguments to pass to the kernel function (optional).
+   * @param params.arguments The arguments to pass to the kernel function (optional).
+   * @param params.executionSettings The execution settings to pass to the kernel function (optional).
    * @returns The result of the kernel function.
    */
-  public invoke<Parameters extends JsonSchema, Result, Props = FromSchema<Parameters>>(
-    kernelFunction: KernelFunction<Props, Result, Parameters>,
-    props: Props
-  ) {
-    return kernelFunction.invoke(this, props);
+  public async invoke<Schema extends JsonSchema, Result, Args = FromSchema<Schema>>({
+    kernelFunction,
+    kernelArguments,
+    ...props
+  }: {
+    kernelFunction: KernelFunction<Schema, Result, Args>;
+    kernelArguments?: KernelArguments<Schema, Args>;
+    arguments?: Args;
+    executionSettings?: Map<string, PromptExecutionSettings> | PromptExecutionSettings[] | PromptExecutionSettings;
+  }) {
+    if (!kernelArguments) {
+      kernelArguments = new KernelArguments(props);
+    }
+
+    return kernelFunction.invoke(this, kernelArguments);
   }
 
   /**
    * Invokes a prompt.
    * @param params The parameters for the prompt.
-   * @param params.promptTemplate The prompt template.
-   * @param params.executionSettings The execution settings for the prompt.
+   * @param params.promptTemplate The template for the prompt.
+   * @param params.name The name of the kernel function (optional).
+   * @param params.description The description of the kernel function (optional).
+   * @param params.templateFormat The format of the template (optional).
+   * @param params.inputVariables The input variables for the prompt (optional).
+   * @param params.allowDangerouslySetContent Whether to allow dangerously set content (optional).
+   * @param params.kernelArguments The KernelArguments to pass to the kernel function (optional).
+   * @param params.arguments The arguments to pass to the kernel function (optional).
+   * @param params.executionSettings The execution settings to pass to the kernel function (optional).
    * @returns The result of the prompt.
    */
-  public invokePrompt({
+  public async invokePrompt<Schema extends JsonSchema, Args = FromSchema<Schema>>({
     promptTemplate,
-    executionSettings,
+    ...props
   }: {
     promptTemplate: string;
-    executionSettings?: PromptExecutionSettings;
-  }): FunctionResult<ChatMessageContent | ChatMessageContent[] | undefined, PromptType> {
-    const fn = kernelFunctionFromPrompt({ promptTemplate, executionSettings });
-    return fn.invoke(this, {});
+    name?: string;
+    description?: string;
+    templateFormat?: PromptTemplateFormat;
+    inputVariables?: string[];
+    allowDangerouslySetContent?: boolean;
+    kernelArguments?: KernelArguments<Schema, Args>;
+    arguments?: Args;
+    executionSettings?: Map<string, PromptExecutionSettings> | PromptExecutionSettings[] | PromptExecutionSettings;
+  }) {
+    const fn = KernelFunctionFromPrompt.create({
+      template: promptTemplate,
+      ...props,
+    });
+
+    return this.invoke({ kernelFunction: fn, ...props });
   }
 }
 
