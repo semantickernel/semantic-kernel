@@ -1,3 +1,4 @@
+import { PromptExecutionSettings } from './AI';
 import { FunctionInvocationFilter, KernelFunction, KernelFunctionFromPrompt, KernelPlugin } from './functions';
 import { KernelArguments } from './functions/KernelArguments';
 import { KernelPlugins, MapKernelPlugins } from './functions/KernelPlugins';
@@ -64,30 +65,46 @@ export class Kernel {
 
   /**
    * Invokes a kernel function.
-   * @param kernelFunction The kernel function to invoke.
-   * @param props The properties to pass to the kernel function.
+   * @param params The parameters for the kernel function.
+   * @param params.kernelFunction The kernel function to invoke.
+   * @param params.kernelArguments The KernelArguments to pass to the kernel function (optional).
+   * @param params.arguments The arguments to pass to the kernel function (optional).
+   * @param params.executionSettings The execution settings to pass to the kernel function (optional).
    * @returns The result of the kernel function.
    */
-  public async invoke<Parameters extends JsonSchema, Result, Props = FromSchema<Parameters>>(
-    kernelFunction: KernelFunction<Parameters, Result, Props>,
-    args?: KernelArguments<Parameters, Props>
-  ) {
-    return await kernelFunction.invoke(this, args);
+  public async invoke<Schema extends JsonSchema, Result, Args = FromSchema<Schema>>({
+    kernelFunction,
+    kernelArguments,
+    ...props
+  }: {
+    kernelFunction: KernelFunction<Schema, Result, Args>;
+    kernelArguments?: KernelArguments<Schema, Args>;
+    arguments?: Args;
+    executionSettings?: Map<string, PromptExecutionSettings> | PromptExecutionSettings[] | PromptExecutionSettings;
+  }) {
+    if (!kernelArguments) {
+      kernelArguments = new KernelArguments(props);
+    }
+
+    return kernelFunction.invoke(this, kernelArguments);
   }
 
   /**
    * Invokes a prompt.
    * @param params The parameters for the prompt.
-   * @param params.promptTemplate The prompt template.
-   * @param params.executionSettings The execution settings for the prompt.
+   * @param params.kernelArguments The KernelArguments to pass to the kernel function (optional).
+   * @param params.arguments The arguments to pass to the kernel function (optional).
+   * @param params.executionSettings The execution settings to pass to the kernel function (optional).
    * @returns The result of the prompt.
    */
-  public async invokePrompt<Parameters extends JsonSchema = { type: 'object' }, Props = FromSchema<Parameters>>({
+  public async invokePrompt<Schema extends JsonSchema, Args = FromSchema<Schema>>({
     promptTemplate,
-    args,
+    ...props
   }: {
     promptTemplate: string;
-    args?: KernelArguments<Parameters, Props>;
+    kernelArguments?: KernelArguments<Schema, Args>;
+    arguments?: Args;
+    executionSettings?: Map<string, PromptExecutionSettings> | PromptExecutionSettings[] | PromptExecutionSettings;
   }) {
     const fn = new KernelFunctionFromPrompt({
       promptTemplateConfig: {
@@ -97,7 +114,7 @@ export class Kernel {
       },
     });
 
-    return await this.invoke(fn, args);
+    return this.invoke({ kernelFunction: fn, ...props });
   }
 }
 
