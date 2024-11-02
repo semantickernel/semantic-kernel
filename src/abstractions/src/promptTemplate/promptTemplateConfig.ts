@@ -1,11 +1,10 @@
-// import { PromptExecutionSettings } from '../AI';
+export type PromptTemplateFormat = 'handlebars' | 'string';
 
 export type PromptTemplateConfig = {
   name?: string;
   description?: string;
-  templateFormat: 'handlebars' | 'string';
+  templateFormat: PromptTemplateFormat;
   template: string;
-  inputVariables: string[];
+  inputVariables?: string[];
   allowDangerouslySetContent?: boolean;
-  // executionSettings?: Map<string, PromptExecutionSettings>;
 };

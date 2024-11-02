@@ -3,6 +3,7 @@ import { FunctionInvocationFilter, KernelFunction, KernelFunctionFromPrompt, Ker
 import { KernelArguments } from './functions/KernelArguments';
 import { KernelPlugins, MapKernelPlugins } from './functions/KernelPlugins';
 import { JsonSchema } from './jsonSchema';
+import { PromptTemplateFormat } from './promptTemplate';
 import { AIService, MapServiceProvider, ServiceProvider } from './services';
 import { FromSchema } from 'json-schema-to-ts';
 
@@ -92,6 +93,12 @@ export class Kernel {
   /**
    * Invokes a prompt.
    * @param params The parameters for the prompt.
+   * @param params.promptTemplate The template for the prompt.
+   * @param params.name The name of the kernel function (optional).
+   * @param params.description The description of the kernel function (optional).
+   * @param params.templateFormat The format of the template (optional).
+   * @param params.inputVariables The input variables for the prompt (optional).
+   * @param params.allowDangerouslySetContent Whether to allow dangerously set content (optional).
    * @param params.kernelArguments The KernelArguments to pass to the kernel function (optional).
    * @param params.arguments The arguments to pass to the kernel function (optional).
    * @param params.executionSettings The execution settings to pass to the kernel function (optional).
@@ -102,16 +109,18 @@ export class Kernel {
     ...props
   }: {
     promptTemplate: string;
+    name?: string;
+    description?: string;
+    templateFormat?: PromptTemplateFormat;
+    inputVariables?: string[];
+    allowDangerouslySetContent?: boolean;
     kernelArguments?: KernelArguments<Schema, Args>;
     arguments?: Args;
     executionSettings?: Map<string, PromptExecutionSettings> | PromptExecutionSettings[] | PromptExecutionSettings;
   }) {
-    const fn = new KernelFunctionFromPrompt({
-      promptTemplateConfig: {
-        template: promptTemplate,
-        templateFormat: 'string',
-        inputVariables: [],
-      },
+    const fn = KernelFunctionFromPrompt.create({
+      template: promptTemplate,
+      ...props,
     });
 
     return this.invoke({ kernelFunction: fn, ...props });
