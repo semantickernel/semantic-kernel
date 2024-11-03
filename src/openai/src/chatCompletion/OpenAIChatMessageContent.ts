@@ -32,7 +32,7 @@ export class OpenAIChatMessageContent extends ChatMessageContent<'assistant'> {
             id: toolCall.id,
             functionName,
             pluginName,
-            arguments: new KernelArguments({ args: functionArguments }),
+            arguments: new KernelArguments({ arguments: functionArguments }),
           })
         );
       }

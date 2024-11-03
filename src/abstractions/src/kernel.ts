@@ -2,10 +2,8 @@ import { PromptExecutionSettings } from './AI';
 import { FunctionInvocationFilter, KernelFunction, KernelFunctionFromPrompt, KernelPlugin } from './functions';
 import { KernelArguments } from './functions/KernelArguments';
 import { KernelPlugins, MapKernelPlugins } from './functions/KernelPlugins';
-import { JsonSchema } from './jsonSchema';
 import { PromptTemplateFormat } from './promptTemplate';
 import { AIService, MapServiceProvider, ServiceProvider } from './services';
-import { FromSchema } from 'json-schema-to-ts';
 
 /**
  * Represents a kernel.
@@ -73,7 +71,7 @@ export class Kernel {
    * @param params.executionSettings The execution settings to pass to the kernel function (optional).
    * @returns The result of the kernel function.
    */
-  public async invoke<Schema extends JsonSchema, Result, Args = FromSchema<Schema>>({
+  public async invoke<Schema, Result, Args>({
     kernelFunction,
     kernelArguments,
     ...props
@@ -104,7 +102,7 @@ export class Kernel {
    * @param params.executionSettings The execution settings to pass to the kernel function (optional).
    * @returns The result of the prompt.
    */
-  public async invokePrompt<Schema extends JsonSchema, Args = FromSchema<Schema>>({
+  public async invokePrompt<Schema, Args>({
     promptTemplate,
     ...props
   }: {
@@ -118,12 +116,12 @@ export class Kernel {
     arguments?: Args;
     executionSettings?: Map<string, PromptExecutionSettings> | PromptExecutionSettings[] | PromptExecutionSettings;
   }) {
-    const fn = KernelFunctionFromPrompt.create({
+    const kernelFunctionFromPrompt = KernelFunctionFromPrompt.create({
       template: promptTemplate,
       ...props,
     });
 
-    return this.invoke({ kernelFunction: fn, ...props });
+    return this.invoke({ kernelFunction: kernelFunctionFromPrompt, ...props });
   }
 }
 

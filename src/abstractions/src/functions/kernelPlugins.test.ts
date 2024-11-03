@@ -1,7 +1,7 @@
 import { JsonSchema } from '../jsonSchema';
+import { KernelPlugin } from './KernelPlugin';
 import { kernelPlugins } from './KernelPlugins';
 import { KernelFunction, kernelFunction } from './kernelFunction';
-import { KernelPlugin } from './kernelPlugin';
 
 const getMockFunction = (functionName?: string, functionDescription?: string, functionParameters?: JsonSchema) => {
   return kernelFunction(() => 'testResult', {

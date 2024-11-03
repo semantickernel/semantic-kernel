@@ -1,4 +1,5 @@
 import { Kernel, kernel } from '../kernel';
+import { KernelArguments } from './KernelArguments';
 import { kernelFunction } from './kernelFunction';
 
 describe('kernelFunction', () => {
@@ -31,12 +32,10 @@ describe('kernelFunction', () => {
       const fn = () => 'testResult';
       const metadata = {
         name: 'testFunction',
-        parameters: {},
       };
-      const props = {};
 
       // Act
-      const result = await kernelFunction(fn, metadata).invoke(sk, props);
+      const result = await kernelFunction(fn, metadata).invoke(sk);
 
       // Assert
       expect(result).toEqual({
@@ -47,15 +46,19 @@ describe('kernelFunction', () => {
 
     it('should invoke a function with non-object one param', async () => {
       // Arrange
-      const props = 'testValue';
+      const kernelArguments = new KernelArguments({ arguments: 'testValue' });
 
       // Act
       const result = await kernelFunction((value) => `**${value}**`, {
         name: 'testFunction',
-        parameters: {
+        schema: {
           type: 'string',
         } as const,
-      }).invoke(sk, props);
+      }).invoke(sk, kernelArguments);
+
+      kernelFunction((value) => `**${value}**`, {
+        name: 'testFunction',
+      });
 
       // Assert
       expect(result.value).toEqual('**testValue**');
@@ -63,21 +66,20 @@ describe('kernelFunction', () => {
 
     it('should invoke a function with one param', async () => {
       // Arrange
-      const fn = (props: { value: string }) => `**${props.value}**`;
-      const props = { value: 'testValue' };
+      const kernelArguments = new KernelArguments({ arguments: { value: 'testValue' } });
 
       // Act
-      const result = await kernelFunction(fn, {
+      const result = await kernelFunction(({ value }) => `**${value}**`, {
         name: 'testFunction',
-        parameters: {
+        schema: {
           type: 'object',
-          parameters: {
+          properties: {
             value: {
               type: 'string',
             },
           },
         },
-      }).invoke(sk, props);
+      }).invoke(sk, kernelArguments);
 
       // Assert
       expect(result.value).toEqual('**testValue**');
@@ -85,12 +87,12 @@ describe('kernelFunction', () => {
 
     it('should invoke a function with two optional params', async () => {
       // Arrange
-      const props = {};
+      const kernelArguments = new KernelArguments({ arguments: {} });
 
       // Act
       const result = await kernelFunction(({ p1, p2 }) => `**${p1 ?? 'first'} ${p2 ?? 'second'}**`, {
         name: 'testFunction',
-        parameters: {
+        schema: {
           type: 'object',
           properties: {
             p1: {
@@ -101,7 +103,7 @@ describe('kernelFunction', () => {
             },
           },
         },
-      }).invoke(sk, props);
+      }).invoke(sk, kernelArguments);
 
       // Assert
       expect(result.value).toEqual('**first second**');
@@ -109,12 +111,12 @@ describe('kernelFunction', () => {
 
     it('should invoke a function with one required and one optional property', async () => {
       // Arrange
-      const props = { p1: 'hello' };
+      const props = new KernelArguments({ arguments: { p1: 'hello' } });
 
       // Act
       const result = await kernelFunction(({ p1, p2 }) => `**${p1} ${p2}**`, {
         name: 'testFunction',
-        parameters: {
+        schema: {
           type: 'object',
           properties: {
             p1: {
@@ -134,12 +136,12 @@ describe('kernelFunction', () => {
 
     it('should invoke a function with required mixed string and number datatypes', async () => {
       // Arrange
-      const props = { p1: 'hello', p2: 42 };
+      const props = new KernelArguments({ arguments: { p1: 'hello', p2: 42 } });
 
       // Act
       const result = await kernelFunction(({ p1, p2 }) => `**${p1} ${p2}**`, {
         name: 'testFunction',
-        parameters: {
+        schema: {
           type: 'object',
           properties: {
             p1: {
@@ -159,12 +161,12 @@ describe('kernelFunction', () => {
 
     it('should invoke a function with mixed optional number datatypes', async () => {
       // Arrange
-      const props = { p1: 41, p2: 42 };
+      const props = new KernelArguments({ arguments: { p1: 41, p2: 42 } });
 
       // Act
       const result = await kernelFunction(({ p1, p2 }) => Math.min(p1 ?? 0, p2 ?? 0), {
         name: 'testFunction',
-        parameters: {
+        schema: {
           type: 'object',
           properties: {
             p1: {
@@ -183,12 +185,12 @@ describe('kernelFunction', () => {
 
     it('should invoke a function with nested parameters', async () => {
       // Arrange
-      const props = { p1: 41, nested_p1: { p2: 42 } };
+      const props = new KernelArguments({ arguments: { p1: 41, nested_p1: { p2: 42 } } });
 
       // Act
       const result = await kernelFunction(({ p1, nested_p1 }) => Math.max(p1, nested_p1.p2), {
         name: 'testFunction',
-        parameters: {
+        schema: {
           type: 'object',
           properties: {
             p1: {
@@ -238,7 +240,7 @@ describe('kernelFunction', () => {
       });
 
       // Act
-      await kernelFunction(fn, metadata).invoke(sk, {});
+      await kernelFunction(fn, metadata).invoke(sk);
 
       // Assert
       expect(filterCallsHistory).toHaveLength(2);

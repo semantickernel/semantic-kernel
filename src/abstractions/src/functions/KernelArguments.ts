@@ -12,10 +12,10 @@ export class KernelArguments<
   private _executionSettings?: Map<string, PromptExecutionSettings>;
 
   public constructor({
-    args,
+    arguments: args,
     executionSettings,
   }: {
-    args?: Args;
+    arguments?: Args;
     executionSettings?: Map<string, PromptExecutionSettings> | PromptExecutionSettings[] | PromptExecutionSettings;
   }) {
     this._arguments = args;
