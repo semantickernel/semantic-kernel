@@ -117,7 +117,7 @@ export class Kernel {
     executionSettings?: Map<string, PromptExecutionSettings> | PromptExecutionSettings[] | PromptExecutionSettings;
   }) {
     const kernelFunctionFromPrompt = KernelFunctionFromPrompt.create({
-      template: promptTemplate,
+      promptTemplate,
       ...props,
     });
 

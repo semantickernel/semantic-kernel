@@ -53,7 +53,7 @@ export class KernelFunctionFromPrompt extends KernelFunction<
     templateFormat,
     ...props
   }: {
-    template: string;
+    promptTemplate: string;
     name?: string;
     description?: string;
     templateFormat?: PromptTemplateFormat;
@@ -65,6 +65,7 @@ export class KernelFunctionFromPrompt extends KernelFunction<
         name: name ?? KernelFunctionFromPrompt.createRandomFunctionName(),
         description: description ?? 'Generic function, unknown purpose',
         templateFormat: templateFormat ?? 'string',
+        template: props.promptTemplate,
         ...props,
       },
     });
