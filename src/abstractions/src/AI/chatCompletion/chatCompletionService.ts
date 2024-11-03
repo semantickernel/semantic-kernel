@@ -1,9 +1,9 @@
 import { Kernel } from '../../kernel';
 import { AIService } from '../../services/AIService';
-import { PromptExecutionSettings } from '../promptExecutionSettings';
+import { PromptExecutionSettings } from '../PromptExecutionSettings';
+import { ChatHistory } from './ChatHistory';
 import { ChatMessageContent } from './ChatMessageContent';
-import { ChatHistory } from './chatHistory';
-import { StreamingChatMessageContent } from './streamingChatMessageContent';
+import { StreamingChatMessageContent } from './StreamingChatMessageContent';
 
 /**
  * Interface for chat completion services.

@@ -1,7 +1,7 @@
 import { KernelFunction, parseFunctionName } from '../../functions';
 // import { JsonSchema } from '../../jsonSchema';
 import { Kernel } from '../../kernel';
-import { ChatHistory } from '../chatCompletion';
+import { ChatHistory } from '../ChatCompletion';
 import { AutoFunctionChoiceBehavior } from './autoFunctionChoiceBehavior';
 import { FunctionChoiceBehaviorConfiguration } from './functionChoiceBehaviorConfiguration';
 

@@ -1,30 +1,21 @@
 import { FunctionCallContent, TextContent } from '../../contents';
-import {
-  ChatMessageContent,
-  assistantChatMessage,
-  chatMessage,
-  systemChatMessage,
-  toolChatMessage,
-  userChatMessage,
-} from './ChatMessageContent';
+import { ChatMessageContent } from './ChatMessageContent';
 
 describe('ChatMessageContent', () => {
   describe('chatMessage', () => {
     it('should be able to create a chat message', () => {
       // Arrange
       const props: ChatMessageContent = {
-        type: 'chat',
         role: 'user',
-        items: [{ type: 'text', text: 'test' }],
+        items: [new TextContent({ text: 'test' })],
       };
 
       // Act
-      const result = chatMessage(props);
+      const result = new ChatMessageContent(props);
 
       // Assert
       expect(result).toEqual({
         ...props,
-        type: 'chat',
         encoding: 'utf-8',
       });
     });
@@ -33,19 +24,15 @@ describe('ChatMessageContent', () => {
   describe('assistantChatMessage', () => {
     it('should be able to create an assistant chat message with an array of TextContent', () => {
       // Arrange
-      const items: TextContent[] = [
-        { type: 'text', text: 'test' },
-        { type: 'text', text: 'test2' },
-      ];
+      const items: TextContent[] = [new TextContent({ text: 'test' }), new TextContent({ text: 'test2' })];
 
       // Act
-      const result = assistantChatMessage({ items });
+      const result = new ChatMessageContent<'assistant'>({ role: 'assistant', items });
 
       // Assert
       expect(result).toEqual({
         items,
         role: 'assistant',
-        type: 'chat',
         encoding: 'utf-8',
       });
     });
@@ -53,12 +40,13 @@ describe('ChatMessageContent', () => {
     it('should be able to create an assistant chat message with an array of FunctionCallContent', () => {
       // Arrange
       const items: FunctionCallContent[] = [
-        { type: 'function', functionName: 'test' },
-        { type: 'function', functionName: 'test2' },
+        new FunctionCallContent({ functionName: 'test' }),
+        new FunctionCallContent({ functionName: 'test2' }),
       ];
 
       // Act
-      const result = assistantChatMessage({
+      const result = new ChatMessageContent<'assistant'>({
+        role: 'assistant',
         items,
       });
 
@@ -78,7 +66,10 @@ describe('ChatMessageContent', () => {
       const content = 'test';
 
       // Act
-      const result = systemChatMessage(content);
+      const result = new ChatMessageContent<'system'>({
+        role: 'system',
+        items: new TextContent({ text: content }),
+      });
 
       // Assert
       expect(result).toEqual({
@@ -96,7 +87,10 @@ describe('ChatMessageContent', () => {
       const content = 'test';
 
       // Act
-      const result = userChatMessage(content);
+      const result = new ChatMessageContent<'user'>({
+        role: 'user',
+        items: [new TextContent({ text: content })],
+      });
 
       // Assert
       expect(result).toEqual({
@@ -114,7 +108,10 @@ describe('ChatMessageContent', () => {
       const content = 'test';
 
       // Act
-      const result = toolChatMessage(content);
+      const result = new ChatMessageContent<'tool'>({
+        role: 'tool',
+        items: new TextContent({ text: content }),
+      });
 
       // Assert
       expect(result).toEqual({
@@ -131,7 +128,11 @@ describe('ChatMessageContent', () => {
       const metadata = { type: 'test' };
 
       // Act
-      const result = toolChatMessage(content, metadata);
+      const result = new ChatMessageContent<'tool'>({
+        role: 'tool',
+        items: new TextContent({ text: content }),
+        metadata,
+      });
 
       // Assert
       expect(result).toEqual({

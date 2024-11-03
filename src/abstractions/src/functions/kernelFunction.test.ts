@@ -1,6 +1,6 @@
 import { Kernel, kernel } from '../kernel';
 import { KernelArguments } from './KernelArguments';
-import { kernelFunction } from './kernelFunction';
+import { kernelFunction } from './KernelFunction';
 
 describe('kernelFunction', () => {
   describe('creating', () => {

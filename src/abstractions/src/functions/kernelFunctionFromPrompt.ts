@@ -4,7 +4,7 @@ import { Kernel } from '../kernel';
 import { PromptTemplateConfig, PromptTemplateFormat, stringPromptTemplate } from '../promptTemplate';
 import { AIService } from '../services';
 import { KernelArguments } from './KernelArguments';
-import { KernelFunction } from './kernelFunction';
+import { KernelFunction } from './KernelFunction';
 
 export type PromptRenderingResult = {
   renderedPrompt: string;

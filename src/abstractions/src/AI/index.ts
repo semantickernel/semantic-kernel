@@ -1,3 +1,3 @@
-export * from './chatCompletion';
-export * from './promptExecutionSettings';
-export * from './functionChoiceBehaviors';
+export * from './ChatCompletion';
+export * from './PromptExecutionSettings';
+export * from './FunctionChoiceBehaviors';

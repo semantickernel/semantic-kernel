@@ -1,18 +1,18 @@
 import { JsonSchema } from '../jsonSchema';
+import { KernelFunction, kernelFunction } from './KernelFunction';
 import { KernelPlugin } from './KernelPlugin';
-import { kernelPlugins } from './KernelPlugins';
-import { KernelFunction, kernelFunction } from './kernelFunction';
+import { MapKernelPlugins } from './KernelPlugins';
 
-const getMockFunction = (functionName?: string, functionDescription?: string, functionParameters?: JsonSchema) => {
+const getMockFunction = (functionName?: string, functionDescription?: string, schema?: JsonSchema) => {
   return kernelFunction(() => 'testResult', {
     name: functionName ?? 'testFunction',
     description: functionDescription ?? 'testDescription',
-    parameters: functionParameters ?? {},
+    schema: schema,
   });
 };
 
 const getMockPlugin = (
-  pluginFunctions: KernelFunction<unknown, unknown, JsonSchema>[],
+  pluginFunctions: KernelFunction[],
   pluginName?: string,
   pluginDescription?: string
 ): KernelPlugin => {
@@ -23,18 +23,16 @@ const getMockPlugin = (
   };
 };
 
-const getMockKernelPlugins = () => {
-  return kernelPlugins();
-};
+const getMockKernelPlugins = () => new MapKernelPlugins();
 
 describe('kernelPlugins', () => {
   describe('getPlugins', () => {
     it('should return an object with the correct properties', () => {
       // Arrange
-      const result = kernelPlugins();
+      const kernelPlugins = new MapKernelPlugins();
 
       // Act
-      const plugins = [...result.getPlugins()];
+      const plugins = [...kernelPlugins.getPlugins()];
 
       // Assert
       expect(plugins).toHaveLength(0);
@@ -60,7 +58,7 @@ describe('kernelPlugins', () => {
           name: 'testFunction1',
           description: 'testDescription1',
           pluginName: 'testPlugin',
-          parameters: {
+          schema: {
             type: 'string',
           },
         },
@@ -68,7 +66,7 @@ describe('kernelPlugins', () => {
           name: 'testFunction2',
           description: 'testDescription2',
           pluginName: 'testPlugin',
-          parameters: {
+          schema: {
             type: 'number',
           },
         },
@@ -110,13 +108,13 @@ describe('kernelPlugins', () => {
         name: 'testFunction1',
         description: 'testDescription1',
         pluginName: 'testPlugin',
-        parameters: { type: 'string' },
+        schema: { type: 'string' },
       });
       expect(firstPlugin.functions.get('testFunction2')?.metadata).toStrictEqual({
         name: 'testFunction2',
         description: 'testDescription2',
         pluginName: 'testPlugin',
-        parameters: { type: 'number' },
+        schema: { type: 'number' },
       });
     });
 
@@ -284,25 +282,25 @@ describe('kernelPlugins', () => {
           name: 'testFunction1',
           description: 'testDescription1',
           pluginName: 'testPlugin1',
-          parameters: { type: 'string' },
+          schema: { type: 'string' },
         },
         {
           name: 'testFunction2',
           description: 'testDescription2',
           pluginName: 'testPlugin1',
-          parameters: { type: 'number' },
+          schema: { type: 'number' },
         },
         {
           name: 'testFunction3',
           description: 'testDescription3',
           pluginName: 'testPlugin2',
-          parameters: { type: 'boolean' },
+          schema: { type: 'boolean' },
         },
         {
           name: 'testFunction4',
           description: 'testDescription4',
           pluginName: 'testPlugin2',
-          parameters: { type: 'object' },
+          schema: { type: 'object' },
         },
       ]);
     });

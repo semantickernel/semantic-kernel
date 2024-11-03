@@ -1,7 +1,7 @@
 import { JsonSchema } from '../jsonSchema';
 import { Kernel } from '../kernel';
 import { KernelArguments } from './KernelArguments';
-import { FunctionResult } from './kernelFunction';
+import { FunctionResult } from './KernelFunction';
 
 export interface FunctionInvocationFilter {
   onFunctionInvocationFilter<Result, Props>(props: {

@@ -1,5 +1,5 @@
-import { ModelId } from '../contents/modelId';
-import { FunctionChoiceBehavior } from './functionChoiceBehaviors/functionChoiceBehavior';
+import { ModelId } from '../contents/ModelId';
+import { FunctionChoiceBehavior } from './FunctionChoiceBehaviors/functionChoiceBehavior';
 
 /**
  * Gets the default service identifier.

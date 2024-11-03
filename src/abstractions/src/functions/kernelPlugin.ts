@@ -1,5 +1,4 @@
-import { JsonSchema } from '../jsonSchema';
-import { KernelFunction } from './kernelFunction';
+import { KernelFunction } from './KernelFunction';
 
 type BaseKernelPlugin = {
   name: string;
@@ -11,7 +10,7 @@ type BaseKernelPlugin = {
  *This type is used in {@link KernelPlugins} to represent a plugin.
  */
 type ArrayKernelPlugin = BaseKernelPlugin & {
-  functions: Array<KernelFunction<JsonSchema, unknown>>;
+  functions: Array<KernelFunction>;
 };
 
 export type KernelPlugin = ArrayKernelPlugin;
@@ -21,5 +20,5 @@ export type KernelPlugin = ArrayKernelPlugin;
  * This type is the internal representation of a plugin in {@link KernelPlugins}.
  */
 export type MapKernelPlugin = BaseKernelPlugin & {
-  functions: Map<string, KernelFunction<JsonSchema, unknown>>;
+  functions: Map<string, KernelFunction>;
 };

@@ -1,5 +1,5 @@
-import { InnerContent } from './innerContent';
-import { ModelId } from './modelId';
+import { InnerContent } from './InnerContent';
+import { ModelId } from './ModelId';
 
 /**
  * Base type for all AI non-streaming results

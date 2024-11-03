@@ -1,5 +1,5 @@
 import { Encoding } from '../../contents';
-import { StreamingKernelContent } from '../../contents/streamingKernelContent';
+import { StreamingKernelContent } from '../../contents/StreamingKernelContent';
 
 /**
  * Abstraction of chat message content chunks when using streaming from {@link IChatCompletionService} interface.
