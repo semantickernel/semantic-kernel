@@ -1,7 +1,7 @@
-import { KernelFunction, fullyQualifiedName } from '../../functions';
+import { FunctionName, KernelFunction } from '../../functions';
 import { Kernel } from '../../kernel';
-import { FunctionChoiceBehavior } from './functionChoiceBehavior';
-import { FunctionChoiceBehaviorConfiguration } from './functionChoiceBehaviorConfiguration';
+import { FunctionChoiceBehavior } from './FunctionChoiceBehavior';
+import { FunctionChoiceBehaviorConfiguration } from './FunctionChoiceBehaviorConfiguration';
 
 export class AutoFunctionChoiceBehavior extends FunctionChoiceBehavior {
   private readonly autoInvoke: boolean;
@@ -11,7 +11,9 @@ export class AutoFunctionChoiceBehavior extends FunctionChoiceBehavior {
     super(functions);
     this.functions = functions
       ?.map(
-        (f) => f.metadata && fullyQualifiedName({ functionName: f.metadata.name, pluginName: f.metadata.pluginName })
+        (f) =>
+          f.metadata &&
+          FunctionName.fullyQualifiedName({ functionName: f.metadata.name, pluginName: f.metadata.pluginName })
       )
       .filter((fqn) => fqn) as Array<string>;
     this.autoInvoke = autoInvoke;

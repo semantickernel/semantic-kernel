@@ -6,8 +6,8 @@ import {
   ChatHistory,
   FunctionCallContent,
   FunctionCallsProcessor,
+  FunctionName,
   Kernel,
-  fullyQualifiedName,
 } from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
 
@@ -90,7 +90,7 @@ export class OpenAIChatCompletion {
 
       if (
         tool.function.name ===
-        fullyQualifiedName({
+        FunctionName.fullyQualifiedName({
           functionName: functionCallContent.functionName,
           pluginName: functionCallContent.pluginName,
           nameSeparator: OpenAIFunctionNameSeparator,

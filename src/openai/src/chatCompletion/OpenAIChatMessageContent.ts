@@ -1,5 +1,5 @@
 import { OpenAIFunctionNameSeparator } from '../OpenAIFunction';
-import { ChatMessageContent, FunctionCallContent, TextContent, parseFunctionName } from '@semantic-kernel/abstractions';
+import { ChatMessageContent, FunctionCallContent, FunctionName, TextContent } from '@semantic-kernel/abstractions';
 import { KernelArguments } from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
 
@@ -25,7 +25,7 @@ export class OpenAIChatMessageContent extends ChatMessageContent<'assistant'> {
         }
 
         const functionArguments = JSON.parse(toolCall.function.arguments);
-        const { functionName, pluginName } = parseFunctionName(toolCall.function.name, OpenAIFunctionNameSeparator);
+        const { functionName, pluginName } = FunctionName.parse(toolCall.function.name, OpenAIFunctionNameSeparator);
 
         items.push(
           new FunctionCallContent({

@@ -1,13 +1,13 @@
-import { NameSeparator, fullyQualifiedName, parseFunctionName } from './functionName';
+import { FunctionName } from './functionName';
 
-describe('functionName', () => {
-  describe('parseFunctionName', () => {
+describe('FunctionName', () => {
+  describe('parse', () => {
     it('should be able to parse a function name without a plugin name', () => {
       // Arrange
       const fullyQualifiedName = 'test';
 
       // Act
-      const result = parseFunctionName(fullyQualifiedName);
+      const result = FunctionName.parse(fullyQualifiedName);
 
       // Assert
       expect(result).toEqual({
@@ -21,7 +21,7 @@ describe('functionName', () => {
       const fullyQualifiedName = 'plugin-test';
 
       // Act
-      const result = parseFunctionName(fullyQualifiedName, '-');
+      const result = FunctionName.parse(fullyQualifiedName, '-');
 
       // Assert
       expect(result).toEqual({
@@ -37,7 +37,7 @@ describe('functionName', () => {
       const functionName = 'test';
 
       // Act
-      const result = fullyQualifiedName({ functionName });
+      const result = FunctionName.fullyQualifiedName({ functionName });
 
       // Assert
       expect(result).toEqual(functionName);
@@ -49,10 +49,10 @@ describe('functionName', () => {
       const pluginName = 'plugin';
 
       // Act
-      const result = fullyQualifiedName({ functionName, pluginName });
+      const result = FunctionName.fullyQualifiedName({ functionName, pluginName });
 
       // Assert
-      expect(result).toEqual(`${pluginName}${NameSeparator}${functionName}`);
+      expect(result).toEqual(`${pluginName}${FunctionName.NameSeparator}${functionName}`);
     });
   });
 });

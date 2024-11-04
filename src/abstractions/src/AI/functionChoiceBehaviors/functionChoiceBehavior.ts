@@ -1,9 +1,8 @@
-import { KernelFunction, parseFunctionName } from '../../functions';
-// import { JsonSchema } from '../../jsonSchema';
+import { FunctionName, KernelFunction } from '../../functions';
 import { Kernel } from '../../kernel';
 import { ChatHistory } from '../ChatCompletion';
-import { AutoFunctionChoiceBehavior } from './autoFunctionChoiceBehavior';
-import { FunctionChoiceBehaviorConfiguration } from './functionChoiceBehaviorConfiguration';
+import { AutoFunctionChoiceBehavior } from './AutoFunctionChoiceBehavior';
+import { FunctionChoiceBehaviorConfiguration } from './FunctionChoiceBehaviorConfiguration';
 
 export abstract class FunctionChoiceBehavior {
   protected _functions: Array<KernelFunction> | undefined;
@@ -35,7 +34,7 @@ export abstract class FunctionChoiceBehavior {
 
     if (functionFQNs && functionFQNs.length > 0) {
       for (const functionFQN of functionFQNs) {
-        const functionNameParts = parseFunctionName(functionFQN);
+        const functionNameParts = FunctionName.parse(functionFQN);
 
         const kernelFunction = kernel?.plugins.getFunction(
           functionNameParts.functionName,
