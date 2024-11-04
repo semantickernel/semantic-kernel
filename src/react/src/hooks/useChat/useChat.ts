@@ -2,7 +2,7 @@ import { useKernel, useKernelProps } from '../useKernel';
 import { ChatCompletionService, ChatHistory, ChatMessageContent, TextContent } from '@semantic-kernel/abstractions';
 import { useEffect, useState } from 'react';
 
-type useChatProps = useKernelProps;
+export type useChatProps = useKernelProps;
 
 export const useChat = (props: useChatProps) => {
   const { kernel } = useKernel(props);

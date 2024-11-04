@@ -1,15 +1,16 @@
-import { openAIProvider } from './OpenAIProvider';
+import { OpenAIProvider } from './OpenAIProvider';
 
-describe('openAIProvider', () => {
+describe('OpenAIProvider', () => {
   it('should return a new OpenAI provider', () => {
     // Arrange
     // Act
-    const mockOpenAIProvider = openAIProvider({
+    const mockOpenAIProvider = new OpenAIProvider({
+      model: 'testModel',
       apiKey: 'testApiKey',
     });
 
     // Assert
     expect(mockOpenAIProvider).toBeDefined();
-    expect(mockOpenAIProvider.completion).toBeDefined();
+    expect(mockOpenAIProvider.getChatMessageContents).toBeDefined();
   });
 });

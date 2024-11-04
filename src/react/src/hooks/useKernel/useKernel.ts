@@ -1,11 +1,13 @@
 import { OpenAIChatCompletionService } from '@semantic-kernel/openai';
 import { useEffect, useState } from 'react';
-import { Kernel, kernel } from 'semantic-kernel';
+import { ChatCompletionService, Kernel, kernel } from 'semantic-kernel';
 
 export type useKernelProps = {
-  model: string;
-  apiKey: string;
-  organization?: string;
+  openAIModel?: string;
+  openAIApiKey?: string;
+  openAIorganization?: string;
+  kernel?: Kernel;
+  chatCompletionService?: ChatCompletionService;
 };
 
 export const useKernel = (props: useKernelProps) => {
@@ -13,14 +15,26 @@ export const useKernel = (props: useKernelProps) => {
 
   useEffect(() => {
     if (!sk) {
-      setSK(kernel());
+      setSK(props.kernel ?? kernel());
     }
   }, []);
 
   useEffect(() => {
     if (!sk) return;
 
-    sk.addService(new OpenAIChatCompletionService(props));
+    if (props.chatCompletionService) {
+      sk.addService(props.chatCompletionService);
+    } else if (props.openAIApiKey && props.openAIModel) {
+      sk.addService(
+        new OpenAIChatCompletionService({
+          model: props.openAIModel,
+          apiKey: props.openAIApiKey,
+          organization: props.openAIorganization,
+        })
+      );
+    } else {
+      throw new Error('Either chatCompletionService or openAIModel and openAIApiKey are required.');
+    }
   }, [sk]);
 
   return {

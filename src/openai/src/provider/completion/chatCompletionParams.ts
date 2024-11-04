@@ -5,8 +5,8 @@ import {
   ChatHistory,
   ChatMessageContent,
   FunctionChoiceBehaviorConfiguration,
+  FunctionName,
   TextContent,
-  fullyQualifiedName,
 } from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
 import {
@@ -57,7 +57,7 @@ export const createChatCompletionCreateParams = (
         type: 'function',
         function: {
           description,
-          name: fullyQualifiedName({
+          name: FunctionName.fullyQualifiedName({
             functionName,
             pluginName,
             nameSeparator: OpenAIFunctionNameSeparator,
