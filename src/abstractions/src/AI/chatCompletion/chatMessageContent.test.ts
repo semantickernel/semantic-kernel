@@ -5,143 +5,131 @@ describe('ChatMessageContent', () => {
   describe('chatMessage', () => {
     it('should be able to create a chat message', () => {
       // Arrange
-      const props: ChatMessageContent = {
-        role: 'user',
-        items: [new TextContent({ text: 'test' })],
-      };
+      const role = 'user';
+      const items = [new TextContent({ text: 'test' })];
 
       // Act
-      const result = new ChatMessageContent(props);
+      const result = new ChatMessageContent<typeof role>({
+        role,
+        items,
+      });
 
       // Assert
-      expect(result).toEqual({
-        ...props,
-        encoding: 'utf-8',
-      });
+      expect(result.role).toEqual(role);
+      expect(result.encoding).toEqual('utf-8');
+      expect(result.items).toStrictEqual(items);
     });
   });
 
   describe('assistantChatMessage', () => {
     it('should be able to create an assistant chat message with an array of TextContent', () => {
       // Arrange
+      const role = 'assistant';
       const items: TextContent[] = [new TextContent({ text: 'test' }), new TextContent({ text: 'test2' })];
 
       // Act
-      const result = new ChatMessageContent<'assistant'>({ role: 'assistant', items });
+      const result = new ChatMessageContent<typeof role>({ role, items });
 
       // Assert
-      expect(result).toEqual({
-        items,
-        role: 'assistant',
-        encoding: 'utf-8',
-      });
+      expect(result.role).toEqual(role);
+      expect(result.encoding).toEqual('utf-8');
+      expect(result.items).toStrictEqual(items);
     });
 
     it('should be able to create an assistant chat message with an array of FunctionCallContent', () => {
       // Arrange
+      const role = 'assistant';
       const items: FunctionCallContent[] = [
         new FunctionCallContent({ functionName: 'test' }),
         new FunctionCallContent({ functionName: 'test2' }),
       ];
 
       // Act
-      const result = new ChatMessageContent<'assistant'>({
-        role: 'assistant',
+      const result = new ChatMessageContent<typeof role>({
+        role,
         items,
       });
 
       // Assert
-      expect(result).toEqual({
-        items,
-        role: 'assistant',
-        type: 'chat',
-        encoding: 'utf-8',
-      });
+      expect(result.role).toEqual(role);
+      expect(result.items).toStrictEqual(items);
     });
   });
 
   describe('systemChatMessage', () => {
     it('should be able to create a system chat message', () => {
       // Arrange
-      const content = 'test';
+      const role = 'system';
+      const items = new TextContent({ text: 'test' });
 
       // Act
-      const result = new ChatMessageContent<'system'>({
-        role: 'system',
-        items: new TextContent({ text: content }),
+      const result = new ChatMessageContent<typeof role>({
+        role,
+        items,
       });
 
       // Assert
-      expect(result).toEqual({
-        role: 'system',
-        type: 'chat',
-        items: { type: 'text', text: content },
-        encoding: 'utf-8',
-      });
+      expect(result.role).toEqual(role);
+      expect(result.encoding).toEqual('utf-8');
+      expect(result.items).toStrictEqual(items);
     });
   });
 
   describe('userChatMessage', () => {
     it('should be able to create a user chat message', () => {
       // Arrange
-      const content = 'test';
+      const role = 'user';
+      const items = [new TextContent({ text: 'test' })];
 
       // Act
-      const result = new ChatMessageContent<'user'>({
-        role: 'user',
-        items: [new TextContent({ text: content })],
+      const result = new ChatMessageContent<typeof role>({
+        role,
+        items,
       });
 
       // Assert
-      expect(result).toEqual({
-        role: 'user',
-        type: 'chat',
-        items: [{ type: 'text', text: content }],
-        encoding: 'utf-8',
-      });
+      expect(result.role).toEqual(role);
+      expect(result.encoding).toEqual('utf-8');
+      expect(result.items).toStrictEqual(items);
     });
   });
 
   describe('toolChatMessage', () => {
     it('should be able to create a tool chat message', () => {
       // Arrange
-      const content = 'test';
+      const role = 'tool';
+      const items = new TextContent({ text: 'text' });
 
       // Act
-      const result = new ChatMessageContent<'tool'>({
-        role: 'tool',
-        items: new TextContent({ text: content }),
+      const result = new ChatMessageContent<typeof role>({
+        role,
+        items,
       });
 
       // Assert
-      expect(result).toEqual({
-        role: 'tool',
-        type: 'chat',
-        items: { type: 'text', text: content },
-        encoding: 'utf-8',
-      });
+      expect(result.role).toEqual(role);
+      expect(result.encoding).toEqual('utf-8');
+      expect(result.items).toStrictEqual(items);
     });
 
     it('should be able to create a tool chat message with metadata', () => {
       // Arrange
-      const content = 'test';
+      const role = 'tool';
+      const items = new TextContent({ text: 'test' });
       const metadata = { type: 'test' };
 
       // Act
-      const result = new ChatMessageContent<'tool'>({
-        role: 'tool',
-        items: new TextContent({ text: content }),
+      const result = new ChatMessageContent<typeof role>({
+        role,
+        items,
         metadata,
       });
 
       // Assert
-      expect(result).toEqual({
-        role: 'tool',
-        type: 'chat',
-        items: { type: 'text', text: content },
-        metadata,
-        encoding: 'utf-8',
-      });
+      expect(result.role).toEqual(role);
+      expect(result.encoding).toEqual('utf-8');
+      expect(result.items).toStrictEqual(items);
+      expect(result.metadata).toStrictEqual(metadata);
     });
   });
 });

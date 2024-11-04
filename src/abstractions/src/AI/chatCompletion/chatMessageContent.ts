@@ -32,7 +32,36 @@ export class ChatMessageContent<Role = 'system' | 'author' | 'user' | 'assistant
   /**
    * The encoding of the chat message content.
    */
-  encoding?: Encoding;
+  private _encoding?: Encoding;
+
+  public get encoding(): Encoding | undefined {
+    if (this.items instanceof TextContent) {
+      return this.items.encoding;
+    }
+
+    if (this.items instanceof Array) {
+      const textContents = this.items.filter((item) => item instanceof TextContent) as TextContent[];
+      if (textContents.length > 0) {
+        return textContents[0].encoding;
+      }
+      return this._encoding;
+    }
+
+    return this._encoding;
+  }
+
+  public set encoding(value: Encoding) {
+    this._encoding = value;
+
+    if (this.items instanceof TextContent) {
+      this.items.encoding = value;
+    }
+
+    if (this.items instanceof Array) {
+      const textContents = this.items.filter((item) => item instanceof TextContent) as TextContent[];
+      textContents[0].encoding = value;
+    }
+  }
 
   /**
    * Represents the source of the message. The source is corresponds to the entity that generated this message.
@@ -40,13 +69,26 @@ export class ChatMessageContent<Role = 'system' | 'author' | 'user' | 'assistant
    */
   source?: object;
 
-  constructor(props: ChatMessageContent<Role>) {
-    super();
-    this.role = props.role;
-    this.items = props.items;
-    this.authorName = props.authorName;
-    this.encoding = props.encoding;
-    this.source = props.source;
+  constructor({
+    role,
+    items,
+    authorName,
+    encoding,
+    source,
+    ...props
+  }: {
+    role: Role;
+    items: ChatMessageContent<Role>['items'];
+    authorName?: string;
+    encoding?: Encoding;
+    source?: object;
+  } & KernelContent) {
+    super(props);
+    this.role = role;
+    this.items = items;
+    this.authorName = authorName;
+    this._encoding = encoding;
+    this.source = source;
   }
 }
 

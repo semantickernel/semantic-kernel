@@ -27,4 +27,11 @@ export abstract class KernelContent {
    * Metadata associated with the content.
    */
   metadata?: { [key: string]: string | number | object | undefined | null };
+
+  public constructor(props?: KernelContent) {
+    this.mimeType = props?.mimeType;
+    this.innerContent = props?.innerContent;
+    this.model = props?.model;
+    this.metadata = props?.metadata;
+  }
 }
