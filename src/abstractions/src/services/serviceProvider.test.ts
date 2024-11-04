@@ -1,4 +1,5 @@
 import { PromptExecutionSettings, ServiceId } from '../AI';
+import { KernelArguments } from '../functions';
 import { AIService, AIServiceType, ModelIdKey } from './AIService';
 import { MapServiceProvider } from './ServiceProvider';
 
@@ -97,12 +98,15 @@ describe('MapServiceProvider', () => {
       });
     });
 
-    it('should get a service with ExecutionSettings and serviceKey', () => {
+    it('should get a service with KernelArguments.ExecutionSettings and serviceKey', () => {
       // Arrange
       const stubServiceKey = 'mockService2';
       const stubPromptExecutionSettings = { modelId: 'gpt' };
       const stubExecutionSettings = new Map<ServiceId, PromptExecutionSettings>();
       stubExecutionSettings.set(stubServiceKey, stubPromptExecutionSettings);
+
+      const stubKernelArguments = new KernelArguments({ executionSettings: stubExecutionSettings });
+
       const serviceProvider = new MapServiceProvider();
 
       const mockService1 = MockService('ChatCompletion', 'mockService1');
@@ -114,21 +118,22 @@ describe('MapServiceProvider', () => {
       // Act
       const service = serviceProvider.getService({
         serviceType: 'ChatCompletion',
-        executionSettings: stubExecutionSettings,
+        kernelArguments: stubKernelArguments,
       });
 
       // Assert
-      expect(service).toEqual({
-        service: mockService2,
-        settings: stubPromptExecutionSettings,
-      });
+      expect(service?.service).toEqual(mockService2);
+      expect(service?.executionSettings).toEqual(stubPromptExecutionSettings);
     });
 
-    it('should get a service with ExecutionSettings and modelId', () => {
+    it('should get a service with KernelArguments.ExecutionSettings and modelId', () => {
       // Arrange
       const stubPromptExecutionSettings = { modelId: 'gpt' };
       const stubExecutionSettings = new Map<ServiceId, PromptExecutionSettings>();
       stubExecutionSettings.set('randomService', stubPromptExecutionSettings);
+
+      const stubKernelArguments = new KernelArguments({ executionSettings: stubExecutionSettings });
+
       const serviceProvider = new MapServiceProvider();
 
       const mockService1 = MockService('ChatCompletion', 'mockService1');
@@ -140,14 +145,12 @@ describe('MapServiceProvider', () => {
       // Act
       const service = serviceProvider.getService({
         serviceType: 'ChatCompletion',
-        executionSettings: stubExecutionSettings,
+        kernelArguments: stubKernelArguments,
       });
 
       // Assert
-      expect(service).toEqual({
-        service: mockService2,
-        settings: stubPromptExecutionSettings,
-      });
+      expect(service?.service).toEqual(mockService2);
+      expect(service?.executionSettings).toEqual(stubPromptExecutionSettings);
     });
   });
 });

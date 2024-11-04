@@ -16,12 +16,12 @@ describe('functionName', () => {
       });
     });
 
-    it('should be able to parse a function name with a plugin name', () => {
+    it('should be able to parse a function name with a plugin name and a custom NameSeparator', () => {
       // Arrange
       const fullyQualifiedName = 'plugin-test';
 
       // Act
-      const result = parseFunctionName(fullyQualifiedName);
+      const result = parseFunctionName(fullyQualifiedName, '-');
 
       // Assert
       expect(result).toEqual({

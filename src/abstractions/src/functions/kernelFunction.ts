@@ -24,7 +24,11 @@ export type KernelFunctionMetadata<Schema extends JsonSchema | unknown> = {
 export abstract class KernelFunction<
   Schema extends JsonSchema | unknown | undefined = unknown,
   Result = unknown,
-  Args = Schema extends JsonSchema ? FromSchema<Schema> : Schema extends undefined ? undefined : Record<string, object>,
+  Args = Schema extends JsonSchema
+    ? FromSchema<Schema>
+    : Schema extends undefined
+      ? undefined
+      : Record<string, unknown>,
 > {
   private readonly _metadata: KernelFunctionMetadata<Schema>;
   private readonly _executionSettings?: Map<string, PromptExecutionSettings>;

@@ -9,7 +9,6 @@
     "clean": "rm -rf dist",
     "test:eslint": "eslint \"src/**/*.ts*\"",
     "test:prettier": "prettier --check \"src/**/*.ts*\"",
-    "test:jest": "jest",
     "test": "run-p test:*"
   },
   "exports": {

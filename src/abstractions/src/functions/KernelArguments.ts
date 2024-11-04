@@ -6,7 +6,7 @@ import { FromSchema, JsonSchema } from '../jsonSchema';
  */
 export class KernelArguments<
   Schema extends JsonSchema | unknown = unknown,
-  Args = Schema extends JsonSchema ? FromSchema<Schema> : Record<string, object>,
+  Args = Schema extends JsonSchema ? FromSchema<Schema> : Record<string, unknown>,
 > {
   private _arguments?: Args;
   private _executionSettings?: Map<string, PromptExecutionSettings>;

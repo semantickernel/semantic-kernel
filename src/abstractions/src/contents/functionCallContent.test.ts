@@ -1,3 +1,4 @@
+import { KernelArguments } from '../functions';
 import { FunctionCallContent } from './FunctionCallContent';
 
 describe('functionCallContent', () => {
@@ -17,7 +18,7 @@ describe('functionCallContent', () => {
   it('should be able to create a function call content with arguments', () => {
     // Arrange
     const functionName = 'test';
-    const args = { arg1: 'val1', arg2: 'val2' };
+    const args = new KernelArguments({ arguments: { arg1: 'val1', arg2: 'val2' } });
 
     // Act
     const result = new FunctionCallContent({ functionName, arguments: args });

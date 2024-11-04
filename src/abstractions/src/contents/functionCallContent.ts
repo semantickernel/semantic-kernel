@@ -8,12 +8,18 @@ export class FunctionCallContent extends KernelContent {
   public pluginName?: string;
   public arguments?: KernelArguments;
 
-  constructor(props: { id?: string; functionName: string; pluginName?: string; arguments?: KernelArguments }) {
-    super();
-    this.id = props.id;
-    this.functionName = props.functionName;
-    this.pluginName = props.pluginName;
-    this.arguments = props.arguments;
+  constructor({
+    id,
+    functionName,
+    pluginName,
+    arguments: args,
+    ...props
+  }: { id?: string; functionName: string; pluginName?: string; arguments?: KernelArguments } & KernelContent) {
+    super(props);
+    this.id = id;
+    this.functionName = functionName;
+    this.pluginName = pluginName;
+    this.arguments = args;
   }
 
   static getFunctionCalls(chatMessageContent: ChatMessageContent) {
