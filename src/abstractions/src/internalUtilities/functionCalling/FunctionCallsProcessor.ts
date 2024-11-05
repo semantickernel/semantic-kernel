@@ -1,6 +1,5 @@
-import { ChatHistory, ChatMessageContent } from '../../AI/ChatCompletion';
-import { FunctionChoiceBehavior } from '../../AI/FunctionChoiceBehaviors/FunctionChoiceBehavior';
-import { FunctionChoiceBehaviorConfiguration } from '../../AI/FunctionChoiceBehaviors/FunctionChoiceBehaviorConfiguration';
+import { ChatHistory, ChatMessageContent } from '../../AI/chatCompletion';
+import { FunctionChoiceBehavior, FunctionChoiceBehaviorConfiguration } from '../../AI/functionChoiceBehaviors';
 import { FunctionCallContent, FunctionResultContent } from '../../contents';
 import { Kernel } from '../../kernel';
 

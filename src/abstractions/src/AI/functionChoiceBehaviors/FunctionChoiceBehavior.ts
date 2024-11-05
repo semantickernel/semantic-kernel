@@ -1,6 +1,6 @@
 import { FunctionName, KernelFunction } from '../../functions';
 import { Kernel } from '../../kernel';
-import { ChatHistory } from '../ChatCompletion';
+import { ChatHistory } from '../chatCompletion';
 import { AutoFunctionChoiceBehavior } from './AutoFunctionChoiceBehavior';
 import { FunctionChoiceBehaviorConfiguration } from './FunctionChoiceBehaviorConfiguration';
 
