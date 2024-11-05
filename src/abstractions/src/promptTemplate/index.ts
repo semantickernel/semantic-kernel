@@ -1,3 +1,3 @@
-export * from './promptTemplate';
-export * from './promptTemplateConfig';
+export * from './PromptTemplate';
+export * from './PromptTemplateConfig';
 export * from './stringPromptTemplate';

@@ -1,6 +1,6 @@
 import { PromptExecutionSettings } from '../AI';
+import { Kernel } from '../Kernel';
 import { FromSchema, JsonSchema } from '../jsonSchema';
-import { Kernel } from '../kernel';
 import { KernelArguments } from './KernelArguments';
 
 export type Fn<Result, Args> = (args: Args, kernel?: Kernel) => Result;

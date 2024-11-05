@@ -1,5 +1,5 @@
+import { Kernel } from '../Kernel';
 import { JsonSchema } from '../jsonSchema';
-import { Kernel } from '../kernel';
 import { KernelArguments } from './KernelArguments';
 import { FunctionResult } from './KernelFunction';
 

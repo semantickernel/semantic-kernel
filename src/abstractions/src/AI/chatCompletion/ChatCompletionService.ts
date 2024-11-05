@@ -1,4 +1,4 @@
-import { Kernel } from '../../kernel';
+import { Kernel } from '../../Kernel';
 import { AIService } from '../../services/AIService';
 import { PromptExecutionSettings } from '../PromptExecutionSettings';
 import { ChatHistory } from './ChatHistory';

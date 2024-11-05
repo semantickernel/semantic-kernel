@@ -1,4 +1,4 @@
-import { Kernel, kernel } from '../kernel';
+import { Kernel, kernel } from '../Kernel';
 import { KernelArguments } from './KernelArguments';
 import { kernelFunction } from './KernelFunction';
 

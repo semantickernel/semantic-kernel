@@ -1,6 +1,6 @@
 import { ChatCompletionService, ChatMessageContent } from '../AI';
+import { kernel } from '../Kernel';
 import { TextContent } from '../contents';
-import { kernel } from '../kernel';
 import { KernelFunctionFromPrompt } from './KernelFunctionFromPrompt';
 
 const getMockChatCompletionService = () => {
