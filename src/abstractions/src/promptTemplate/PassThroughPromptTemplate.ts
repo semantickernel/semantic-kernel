@@ -1,4 +1,4 @@
-import { PromptTemplate } from '@semantic-kernel/abstractions/src/promptTemplate/promptTemplate';
+import { PromptTemplate } from './PromptTemplate';
 
 export class PassThroughPromptTemplate implements PromptTemplate {
   constructor(private readonly template: string) {}
