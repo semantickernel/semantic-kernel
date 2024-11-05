@@ -49,7 +49,7 @@ describe('kernelFunctionFromPrompt', () => {
     // Act
     const result = KernelFunctionFromPrompt.create({
       promptTemplate,
-      templateFormat: 'unsupported' as 'string',
+      templateFormat: 'unsupported' as 'passthrough',
     });
 
     // Assert

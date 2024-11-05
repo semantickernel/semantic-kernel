@@ -1,7 +1,12 @@
 import { ChatCompletionService, ChatMessageContent, PromptExecutionSettings } from '../AI';
 import { Kernel } from '../Kernel';
 import { FromSchema } from '../jsonSchema';
-import { PromptTemplateConfig, PromptTemplateFormat, stringPromptTemplate } from '../promptTemplate';
+import {
+  PassThroughPromptTemplate,
+  PromptTemplate,
+  PromptTemplateConfig,
+  PromptTemplateFormat,
+} from '../promptTemplate';
 import { AIService } from '../services';
 import { KernelArguments } from './KernelArguments';
 import { KernelFunction } from './KernelFunction';
@@ -64,7 +69,7 @@ export class KernelFunctionFromPrompt extends KernelFunction<
       promptTemplateConfig: {
         name: name ?? KernelFunctionFromPrompt.createRandomFunctionName(),
         description: description ?? 'Generic function, unknown purpose',
-        templateFormat: templateFormat ?? 'string',
+        templateFormat: templateFormat ?? 'passthrough',
         template: props.promptTemplate,
         ...props,
       },
@@ -104,10 +109,10 @@ export class KernelFunctionFromPrompt extends KernelFunction<
     throw new Error(`Unsupported AI service type: ${AIService.serviceType}`);
   };
 
-  private getPromptTemplate = () => {
+  private getPromptTemplate = (): PromptTemplate => {
     switch (this.promptTemplateConfig.templateFormat) {
-      case 'string':
-        return stringPromptTemplate(this.promptTemplateConfig.template);
+      case 'passthrough':
+        return new PassThroughPromptTemplate(this.promptTemplateConfig.template);
       default:
         throw new Error(`${this.promptTemplateConfig.templateFormat} template rendering not implemented`);
     }

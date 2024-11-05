@@ -1,4 +1,4 @@
-export type PromptTemplateFormat = 'handlebars' | 'string';
+export type PromptTemplateFormat = 'handlebars' | 'passthrough';
 
 export type PromptTemplateConfig = {
   name?: string;
