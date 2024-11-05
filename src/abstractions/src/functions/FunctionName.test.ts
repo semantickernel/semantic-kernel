@@ -1,4 +1,4 @@
-import { FunctionName } from './functionName';
+import { FunctionName } from './FunctionName';
 
 describe('FunctionName', () => {
   describe('parse', () => {
