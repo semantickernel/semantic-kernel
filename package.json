@@ -49,5 +49,8 @@
     "turbo": "^2.0.14",
     "typescript": "^5.5.4",
     "typescript-eslint": "^8.2.0"
+  },
+  "dependencies": {
+    "@changesets/cli": "^2.27.9"
   }
 }
