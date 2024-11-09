@@ -1,3 +1,1 @@
-# skjs
-
-Semantic Kernel TypeScript
+src/semantic-kernel/README.md
