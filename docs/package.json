@@ -11,6 +11,7 @@
   "author": "Afshin Mehrabani",
   "license": "MIT",
   "dependencies": {
+    "@netlify/plugin-nextjs": "^5.8.1",
     "next": "^15.0.3",
     "nextra": "^3.2.3",
     "nextra-theme-docs": "^3.2.3",
