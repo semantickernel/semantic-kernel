@@ -6,7 +6,9 @@
     "build:watch": "turbo watch build",
     "prettier": "prettier --write src",
     "clean": "turbo clean",
-    "test": "turbo test"
+    "test": "turbo test",
+    "version-packages": "changeset",
+    "publish-packages": "turbo run build test && changeset version && changeset publish"
   },
   "packageManager": "npm@10.5.0",
   "workspaces": [
