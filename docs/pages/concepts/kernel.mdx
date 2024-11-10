@@ -1,0 +1,35 @@
+import { Table, Td, Th, Tr } from 'nextra/components'
+
+# Understanding the kernel
+
+The kernel is the central component of Semantic Kernel. At its simplest, the kernel is a Dependency Injection container that manages all of the services and plugins necessary to run your AI application.
+If you provide all of your services and plugins to the kernel, they will then be seamlessly used by the AI as needed.
+
+![The Kernel](/the-kernel-is-at-the-center-of-everything.png)
+
+## Build a kernel with services and plugins
+
+Before building a kernel, you should first understand the two types of components that exist:
+
+<Table>
+  <thead>
+    <Tr>
+      <Th>Components</Th>
+      <Th>Description</Th>
+    </Tr>
+  </thead>
+  <tbody>
+    <Tr>
+      <Td><b>Services</b></Td>
+      <Td>
+          These consist of both AI services (e.g., chat completion) and other services (e.g., logging and HTTP clients) that are necessary to run your application.
+      </Td>
+    </Tr>
+    <Tr>
+      <Td><b>Plugins</b></Td>
+      <Td>
+         These are the components that are used by your AI services and prompt templates to perform work. AI services, for example, can use plugins to retrieve data from a database or call an external API to perform actions.
+      </Td>
+    </Tr>
+  </tbody>
+</Table>
