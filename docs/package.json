@@ -1,7 +1,7 @@
 {
   "name": "kerneljs.com",
   "version": "1.0.0",
-  "description": "Semantic Kernel for JavaScript",
+  "description": "The documentation for Semantic Kernel for JavaScript",
   "main": "index.js",
   "scripts": {
     "dev": "next",

@@ -1,57 +1,18 @@
 # Semantic Kernel for JavaScript
 
-Welcome to the [Semantic Kernel](https://learn.microsoft.com/en-us/semantic-kernel/overview/) for JavaScript. This project is not an official Microsoft product.
+Welcome to the [Semantic Kernel](https://learn.microsoft.com/en-us/semantic-kernel/overview/) for JavaScript.
+
+Semantic Kernel is a lightweight, open-source development kit that lets you easily build AI agents and integrate the latest AI models. It serves as an efficient middleware that enables rapid delivery of enterprise-grade solutions.
 
 ![Orchestrating plugins with planner](https://learn.microsoft.com/en-us/semantic-kernel/media/kernel-infographic.png)
 
-## Install
+## Documentation
 
-```bash
-npm install --save semantic-kernel @semantic-kernel/openai
-```
-
-## Usage
-
-```typescript
-import { OpenAIChatCompletionService } from '@semantic-kernel/openai';
-import { FunctionChoiceBehavior, kernel, kernelFunction } from 'semantic-kernel';
-
-const sk = kernel().addService(
-  new OpenAIChatCompletionService({
-    model: 'gpt-3.5-turbo',
-    apiKey:
-      'YOUR_OPENAI_API_KEY',
-  })
-);
-
-const temperature = kernelFunction(({ loc }) => (loc === 'Dublin' ? 10 : 24), {
-  name: 'temperature',
-  description: 'Returns the temperature for the given location',
-  schema: {
-    type: 'object',
-    properties: {
-      loc: { type: 'string', description: 'The location to return the temperature for' },
-    },
-  },
-});
-
-sk.addPlugin({
-  name: 'weather',
-  description: 'Weather plugin',
-  functions: [temperature],
-});
-
-const result = await sk.invokePrompt({
-  promptTemplate: 'Return the current temperature in Dublin',
-  executionSettings: {
-      functionChoiceBehavior: FunctionChoiceBehavior.Auto(),
-  },
-});
-
-// Prints the output after executing the plugin and the given prompt
-console.log(result);
-```
+[📖 Getting Started](https://kerneljs.com/install)
+[✨ Samples](https://kerneljs.com/samples)
 
 ## License
 
 Licensed under the [MIT](LICENSE) license.
+
+This project is not an official Microsoft product.
