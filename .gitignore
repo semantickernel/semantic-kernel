@@ -42,3 +42,5 @@ yarn.lock
 # Turbobuild cache
 .turbo
 
+# Next.js cache
+.next
