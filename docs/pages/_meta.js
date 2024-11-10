@@ -1,4 +1,4 @@
 export default {
-  index: 'Homepage',
-  install: 'Install',
+  index: 'Overview',
+  "getting-started": 'Getting Started',
 }

@@ -8,8 +8,8 @@ Semantic Kernel is a lightweight, open-source development kit that lets you easi
 
 ## Documentation
 
-[📖 Getting Started](https://kerneljs.com/install)
-[✨ Samples](https://kerneljs.com/samples)
+ - 📖 [Getting Started](https://kerneljs.com/install)
+ - ✨ [Samples](https://kerneljs.com/samples)
 
 ## License
 
