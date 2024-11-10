@@ -5,6 +5,7 @@
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
+  "homepage": "https://kerneljs.com",
   "scripts": {
     "build": "tsup",
     "clean": "rm -rf dist",
@@ -33,7 +34,6 @@
   "bugs": {
     "url": "https://github.com/semantickernel/semantic-kernel/issues"
   },
-  "homepage": "https://github.com/semantickernel/semantic-kernel#readme",
   "dependencies": {
     "@semantic-kernel/abstractions": "*"
   },
