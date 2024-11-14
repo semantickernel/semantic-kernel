@@ -25,7 +25,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/semantickernel/semantic-kernel.git"
+    "url": "git+https://github.com/afshinm/semantic-kernel-js.git"
   },
   "keywords": [
     "semantic-kernel"
@@ -33,9 +33,9 @@
   "author": "Afshin Mehrabani",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/semantickernel/semantic-kernel/issues"
+    "url": "https://github.com/afshinm/semantic-kernel-js/issues"
   },
-  "homepage": "https://github.com/semantickernel/semantic-kernel#readme",
+  "homepage": "https://github.com/afshinm/semantic-kernel-js#readme",
   "devDependencies": {
     "@eslint/js": "^9.9.0",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
