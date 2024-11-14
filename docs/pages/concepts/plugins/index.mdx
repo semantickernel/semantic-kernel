@@ -1,0 +1,13 @@
+# What is a Plugin?
+
+Plugins are a key component of Semantic Kernel. If you have already used plugins from ChatGPT or Copilot extensions in Microsoft 365, you’re already familiar with them. With plugins, you can encapsulate your existing APIs into a collection that can be used by an AI. This allows you to give your AI the ability to perform actions that it wouldn’t be able to do otherwise.
+
+<div style={{width: "50%"}}>
+    ![Semantic Kernel Plugins](/designed-for-modular-extensibility-vertical.png)
+</div>
+
+Behind the scenes, Semantic Kernel leverages function calling, a native feature of most of the latest LLMs to allow LLMs, to perform planning and to invoke your APIs. With function calling, LLMs can request (i.e., call) a particular function. Semantic Kernel then marshals the request to the appropriate function in your codebase and returns the results back to the LLM so the LLM can generate a final response.
+
+## Anatomy of a plugin
+
+At a high-level, a plugin is a group of functions that can be exposed to AI apps and services. The functions within plugins can then be orchestrated by an AI application to accomplish user requests. Within Semantic Kernel, you can invoke these functions automatically with function calling.
