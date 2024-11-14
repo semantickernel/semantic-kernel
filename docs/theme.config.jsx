@@ -4,7 +4,7 @@ import { useConfig } from 'nextra-theme-docs';
 export default {
   logo: (
     <>
-      <img src="/sk.png" style={{ width: '30px', height: '30px' }} />
+      <img src="/favicon-32x32.png" style={{ width: '30px', height: '30px' }} />
       <span style={{ marginLeft: '.4em', fontWeight: 800 }}>Semantic Kernel for JavaScript</span>
     </>
   ),
