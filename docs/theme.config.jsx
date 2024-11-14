@@ -8,9 +8,9 @@ export default {
       <span style={{ marginLeft: '.4em', fontWeight: 800 }}>Semantic Kernel for JavaScript</span>
     </>
   ),
-  docsRepositoryBase: 'https://github.com/afshinm/semantic-kernel/tree/main/docs',
+  docsRepositoryBase: 'https://github.com/afshinm/semantic-kernel-js/tree/main/docs',
   project: {
-    link: 'https://github.com/afshinm/semantic-kernel',
+    link: 'https://github.com/afshinm/semantic-kernel-js',
   },
   head: function useHead() {
     const config = useConfig();
