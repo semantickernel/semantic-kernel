@@ -1,5 +1,5 @@
-import { FunctionCallContent, KernelContent } from '../../contents';
-import { Encoding, FunctionResultContent, TextContent } from '../../contents';
+import { FunctionCallContent, KernelContent } from '.';
+import { Encoding, FunctionResultContent, TextContent } from '.';
 
 /**
  * Represents chat message content return from a chat completion service.

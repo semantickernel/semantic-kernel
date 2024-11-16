@@ -1,4 +1,4 @@
-import { FunctionCallContent, TextContent } from '../../contents';
+import { FunctionCallContent, TextContent } from '.';
 import { ChatMessageContent } from './ChatMessageContent';
 
 describe('ChatMessageContent', () => {

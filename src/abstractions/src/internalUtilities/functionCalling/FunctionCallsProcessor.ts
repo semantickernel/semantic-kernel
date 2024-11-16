@@ -1,7 +1,7 @@
-import { ChatHistory, ChatMessageContent } from '../../AI/chatCompletion';
+import { ChatHistory } from '../../AI/chatCompletion';
 import { FunctionChoiceBehavior, FunctionChoiceBehaviorConfiguration } from '../../AI/functionChoiceBehaviors';
 import { Kernel } from '../../Kernel';
-import { FunctionCallContent, FunctionResultContent } from '../../contents';
+import { ChatMessageContent, FunctionCallContent, FunctionResultContent } from '../../contents';
 
 /**
  * The maximum number of function auto-invokes that can be made in a single user request.
