@@ -7,7 +7,7 @@ export class FunctionResultContent<T> extends KernelContent {
   result?: T;
 
   constructor(props: { callId?: string; pluginName?: string; functionName?: string; result?: T }) {
-    super();
+    super({});
     this.callId = props.callId;
     this.pluginName = props.pluginName;
     this.functionName = props.functionName;

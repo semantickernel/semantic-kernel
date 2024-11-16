@@ -4,7 +4,7 @@ import { ModelId } from './ModelId';
 /**
  * Represents a single update to a streaming content.
  */
-export type StreamingKernelContent = {
+export abstract class StreamingKernelContent {
   /**
    * In a scenario of multiple choices per request, this represents zero-based index of the choice in the streaming sequence
    */
@@ -14,15 +14,22 @@ export type StreamingKernelContent = {
    * The inner content representation. Use this to bypass the current abstraction.
    * The usage of this property is considered "unsafe". Use it only if strictly necessary.
    */
-  innerContent: InnerContent;
+  innerContent?: InnerContent;
 
   /**
    * The model id used to generate the content.
    */
-  modelId: ModelId;
+  modelId?: ModelId;
 
   /**
    * Metadata associated with the content.
    */
-  metadata: Map<string, object>;
-};
+  metadata?: { [key: string]: string | number | object | undefined | null };
+
+  public constructor(props: StreamingKernelContent) {
+    this.choiceIndex = props.choiceIndex;
+    this.innerContent = props.innerContent;
+    this.modelId = props.modelId;
+    this.metadata = props.metadata;
+  }
+}
