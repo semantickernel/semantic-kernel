@@ -17,7 +17,7 @@ import {
 } from 'openai/resources';
 
 export const createChatCompletionCreateParams = (
-  model: string,
+  modelId: string,
   chatHistory: ChatHistory,
   promptExecutionSettings?: OpenAIPromptExecutionSettings,
   functionChoiceBehaviorConfiguration?: FunctionChoiceBehaviorConfiguration
@@ -71,7 +71,7 @@ export const createChatCompletionCreateParams = (
   }
 
   return {
-    model,
+    model: modelId,
     temperature: executionSettings.temperature,
     top_p: executionSettings.topP,
     presence_penalty: executionSettings.presencePenalty,

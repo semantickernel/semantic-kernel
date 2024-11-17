@@ -8,11 +8,12 @@ import {
   FunctionCallsProcessor,
   FunctionName,
   Kernel,
+  KernelArguments,
 } from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
 
 export type OpenAIChatCompletionParams = {
-  model: string;
+  modelId: string;
   chatHistory: ChatHistory;
   executionSettings?: OpenAIPromptExecutionSettings;
   kernel?: Kernel;
@@ -28,7 +29,7 @@ export class OpenAIChatCompletion {
   }
 
   public getChatMessageContent = async ({
-    model,
+    modelId,
     chatHistory,
     executionSettings,
     kernel,
@@ -42,13 +43,13 @@ export class OpenAIChatCompletion {
       });
 
       const chatCompletionCreateParams = createChatCompletionCreateParams(
-        model,
+        modelId,
         chatHistory,
         executionSettings,
         functionCallingConfig
       );
       const chatCompletion = await this.openAIClient.chat.completions.create(chatCompletionCreateParams);
-      const chatMessageContent = new OpenAIChatMessageContent({ chatCompletion, model });
+      const chatMessageContent = this.createChatMessageContent({ chatCompletion, modelId });
 
       // If we don't want to attempt to invoke any functions, just return the result.
       if (!functionCallingConfig?.autoInvoke) {
@@ -74,6 +75,79 @@ export class OpenAIChatCompletion {
       });
     }
   };
+
+  private createChatMessageContent = ({
+    chatCompletion,
+    modelId,
+  }: {
+    chatCompletion: OpenAI.ChatCompletion;
+    modelId: string;
+  }): OpenAIChatMessageContent => {
+    const message = new OpenAIChatMessageContent({ chatCompletion, modelId });
+
+    message.items = [...message.items, ...this.getFunctionCallContents(chatCompletion.choices[0].message.tool_calls)];
+
+    return message;
+  };
+
+  private getFunctionCallContents(toolCalls?: Array<OpenAI.ChatCompletionMessageToolCall>) {
+    const items: Array<FunctionCallContent> = [];
+
+    if (toolCalls) {
+      for (const toolCall of toolCalls) {
+        // Only process function calls
+        if (toolCall.type !== 'function') {
+          continue;
+        }
+
+        const functionArguments = JSON.parse(toolCall.function.arguments);
+        const { functionName, pluginName } = FunctionName.parse(toolCall.function.name, OpenAIFunctionNameSeparator);
+
+        items.push(
+          new FunctionCallContent({
+            id: toolCall.id,
+            functionName,
+            pluginName,
+            arguments: new KernelArguments({ arguments: functionArguments }),
+          })
+        );
+      }
+    }
+
+    return items;
+  }
+
+  // public async *getChatMessageContentStream({
+  //   model,
+  //   chatHistory,
+  //   executionSettings,
+  //   kernel,
+  // }: OpenAIChatCompletionParams) {
+  //   const chatMessageContents: OpenAIChatMessageContent[] = [];
+
+  //   for (let requestIndex = 1; ; requestIndex++) {
+  //     // TODO record completion activity
+  //     const functionCallingConfig = executionSettings?.functionChoiceBehavior?.getConfiguredOptions({
+  //       requestSequenceIndex: requestIndex,
+  //       chatHistory,
+  //       kernel,
+  //     });
+
+  //     const chatCompletionCreateParams = createChatCompletionCreateParams(
+  //       model,
+  //       chatHistory,
+  //       executionSettings,
+  //       functionCallingConfig
+  //     );
+
+  //     const chatCompletionStream = await this.openAIClient.chat.completions.create({
+  //       ...chatCompletionCreateParams,
+  //       stream: true,
+  //     });
+
+  //     yield new OpenAIChatMessageContent({ chatCompletion, model });
+  //   }
+  // }
 
   private static checkIfFunctionAdvertised(
     functionCallContent: FunctionCallContent,

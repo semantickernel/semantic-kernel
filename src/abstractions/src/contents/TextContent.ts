@@ -1,7 +1,7 @@
+import { Encoding } from './Encoding';
 import { InnerContent } from './InnerContent';
 import { KernelContent } from './KernelContent';
 import { ModelId } from './ModelId';
-import { Encoding } from './Encoding';
 
 /**
  * Represents text content return from a text completion service.

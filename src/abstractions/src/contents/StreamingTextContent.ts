@@ -1,7 +1,7 @@
+import { Encoding } from './Encoding';
 import { InnerContent } from './InnerContent';
 import { ModelId } from './ModelId';
 import { StreamingKernelContent } from './StreamingKernelContent';
-import { Encoding } from './Encoding';
 
 /**
  * Abstraction of text content chunks.
