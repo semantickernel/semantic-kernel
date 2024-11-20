@@ -1,16 +1,11 @@
 import { OpenAIFunctionNameSeparator } from '../../OpenAIFunction';
 import { OpenAIChatMessageContent } from '../../chatCompletion';
+import { OpenAIStreamingChatMessageContent } from '../../chatCompletion/OpenAIStreamingChatMessageContent';
 import { OpenAIPromptExecutionSettings } from '../../openAIPromptExecutionSettings';
 import { createChatCompletionCreateParams } from './chatCompletionParams';
-import {
-  ChatHistory,
-  FunctionCallContent,
-  FunctionCallsProcessor,
-  FunctionName,
-  Kernel,
-  KernelArguments,
-} from '@semantic-kernel/abstractions';
+import { ChatHistory, FunctionCallContent, FunctionCallsProcessor, FunctionName, Kernel, KernelArguments } from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
+
 
 export type OpenAIChatCompletionParams = {
   modelId: string;
@@ -76,6 +71,45 @@ export class OpenAIChatCompletion {
     }
   };
 
+  public async *getChatMessageContentStream({
+    modelId,
+    chatHistory,
+    executionSettings,
+    kernel,
+  }: OpenAIChatCompletionParams) {
+    const contentBuilder: string[] = [];
+
+    for (let requestIndex = 1; ; requestIndex++) {
+      // TODO record completion activity
+      const functionCallingConfig = executionSettings?.functionChoiceBehavior?.getConfiguredOptions({
+        requestSequenceIndex: requestIndex,
+        chatHistory,
+        kernel,
+      });
+
+      const chatCompletionCreateParams = createChatCompletionCreateParams(
+        modelId,
+        chatHistory,
+        executionSettings,
+        functionCallingConfig
+      );
+
+      const chatCompletionStream = await this.openAIClient.chat.completions.create({
+        ...chatCompletionCreateParams,
+        stream: true,
+      });
+
+      for await (const chatCompletion of chatCompletionStream) {
+        contentBuilder.push(chatCompletion.choices[0].delta.content ?? '');
+        yield new OpenAIStreamingChatMessageContent({ chatCompletion, modelId });
+      }
+
+      if (!functionCallingConfig?.autoInvoke) {
+        return;
+      }
+    }
+  }
+
   private createChatMessageContent = ({
     chatCompletion,
     modelId,
@@ -116,38 +150,6 @@ export class OpenAIChatCompletion {
 
     return items;
   }
-
-  // public async *getChatMessageContentStream({
-  //   model,
-  //   chatHistory,
-  //   executionSettings,
-  //   kernel,
-  // }: OpenAIChatCompletionParams) {
-  //   const chatMessageContents: OpenAIChatMessageContent[] = [];
-
-  //   for (let requestIndex = 1; ; requestIndex++) {
-  //     // TODO record completion activity
-  //     const functionCallingConfig = executionSettings?.functionChoiceBehavior?.getConfiguredOptions({
-  //       requestSequenceIndex: requestIndex,
-  //       chatHistory,
-  //       kernel,
-  //     });
-
-  //     const chatCompletionCreateParams = createChatCompletionCreateParams(
-  //       model,
-  //       chatHistory,
-  //       executionSettings,
-  //       functionCallingConfig
-  //     );
-
-  //     const chatCompletionStream = await this.openAIClient.chat.completions.create({
-  //       ...chatCompletionCreateParams,
-  //       stream: true,
-  //     });
-
-  //     yield new OpenAIChatMessageContent({ chatCompletion, model });
-  //   }
-  // }
 
   private static checkIfFunctionAdvertised(
     functionCallContent: FunctionCallContent,

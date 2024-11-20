@@ -21,7 +21,7 @@ export class StreamingTextContent extends StreamingKernelContent {
     text?: string;
     choiceIndex?: number;
     model?: ModelId;
-    innerContent: InnerContent;
+    innerContent?: InnerContent;
     encoding?: Encoding;
     metadata?: { [key: string]: string | number | object | undefined | null };
   }) {

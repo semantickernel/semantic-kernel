@@ -4,6 +4,7 @@ import { AIService } from '../../services/AIService';
 import { PromptExecutionSettings } from '../PromptExecutionSettings';
 import { ChatHistory } from './ChatHistory';
 
+
 /**
  * Interface for chat completion services.
  */
@@ -21,9 +22,10 @@ export interface ChatCompletionService extends AIService {
   /**
    * Get streaming chat contents for the chat history provided using the specified settings.
    */
-  getStreamingChatMessageContents(
-    chatHistory: ChatHistory,
-    executionSettings?: PromptExecutionSettings,
-    kernel?: Kernel
-  ): Promise<StreamingChatMessageContent>;
+  getStreamingChatMessageContents(params: {
+    prompt?: string;
+    chatHistory?: ChatHistory;
+    executionSettings?: PromptExecutionSettings;
+    kernel?: Kernel;
+  }): AsyncGenerator<StreamingChatMessageContent>;
 }
