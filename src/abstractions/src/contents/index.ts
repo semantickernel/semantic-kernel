@@ -9,3 +9,4 @@ export * from './ChatMessageContent';
 export * from './StreamingKernelContent';
 export * from './StreamingTextContent';
 export * from './StreamingChatMessageContent';
+export * from './StreamingFunctionCallUpdateContent';

@@ -2,8 +2,9 @@ import { OpenAIFunctionNameSeparator } from '../../OpenAIFunction';
 import { OpenAIChatMessageContent } from '../../chatCompletion';
 import { OpenAIStreamingChatMessageContent } from '../../chatCompletion/OpenAIStreamingChatMessageContent';
 import { OpenAIPromptExecutionSettings } from '../../openAIPromptExecutionSettings';
+import { OpenAIFunctionToolCall } from '../OpenAIFunctionToolCall';
 import { createChatCompletionCreateParams } from './chatCompletionParams';
-import { ChatHistory, FunctionCallContent, FunctionCallsProcessor, FunctionName, Kernel, KernelArguments } from '@semantic-kernel/abstractions';
+import { ChatHistory, FunctionCallContent, FunctionCallsProcessor, FunctionName, Kernel, KernelArguments, StreamingFunctionCallUpdateContent } from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
 
 
@@ -78,6 +79,9 @@ export class OpenAIChatCompletion {
     kernel,
   }: OpenAIChatCompletionParams) {
     const contentBuilder: string[] = [];
+    const toolCallIdsByIndex = new Map<number, string>;
+    const functionNamesByIndex = new Map<number, string>;
+    const functionArgumentByIndex = new Map<number, string>;
 
     for (let requestIndex = 1; ; requestIndex++) {
       // TODO record completion activity
@@ -100,9 +104,43 @@ export class OpenAIChatCompletion {
       });
 
       for await (const chatCompletion of chatCompletionStream) {
+        if (functionCallingConfig?.autoInvoke) {
+          OpenAIFunctionToolCall.TrackStreamingToolUpdate({
+            updates: chatCompletion.choices[0].delta?.tool_calls,
+            toolCallIdsByIndex,
+            functionNamesByIndex,
+            functionArgumentByIndex,
+          });
+        }
+
+        const openAIStreamingChatMessageContent = new OpenAIStreamingChatMessageContent({ chatCompletion, modelId });
+
+        for (const toolCall of chatCompletion.choices[0].delta?.tool_calls ?? []) {
+          if (!toolCall.id || !toolCall.function?.name || !toolCall.function?.arguments) {
+            continue;
+          }
+
+          const streamingFunctionCallUpdateContent = new StreamingFunctionCallUpdateContent({
+            callId: toolCall.id,
+            name: toolCall.function.name,
+            arguments: toolCall.function.arguments,
+            functionCallIndex: toolCall.index,
+          });
+
+          openAIStreamingChatMessageContent.items.push(streamingFunctionCallUpdateContent);
+        }
+
         contentBuilder.push(chatCompletion.choices[0].delta.content ?? '');
-        yield new OpenAIStreamingChatMessageContent({ chatCompletion, modelId });
+        yield openAIStreamingChatMessageContent;
       }
+
+      const toolCalls = OpenAIFunctionToolCall.ConvertToolCallUpdatesToFunctionToolCalls({
+        toolCallIdsByIndex,
+        functionNamesByIndex,
+        functionArgumentByIndex,
+      });
+
+      const functionCallContents = this.getFunctionCallContents(toolCalls);
 
       if (!functionCallingConfig?.autoInvoke) {
         return;

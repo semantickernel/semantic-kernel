@@ -1,4 +1,9 @@
-import { FunctionCallContent, StreamingKernelContent, StreamingTextContent } from '.';
+import {
+  FunctionCallContent,
+  StreamingFunctionCallUpdateContent,
+  StreamingKernelContent,
+  StreamingTextContent,
+} from '.';
 import { Encoding, FunctionResultContent } from '.';
 
 /**
@@ -22,7 +27,7 @@ export class StreamingChatMessageContent<
       : Role extends 'user'
         ? Array<StreamingTextContent>
         : Role extends 'assistant'
-          ? Array<StreamingTextContent | FunctionCallContent>
+          ? Array<StreamingTextContent | FunctionCallContent | StreamingFunctionCallUpdateContent>
           : Role extends 'tool'
             ? FunctionResultContent<unknown>
             : never;
