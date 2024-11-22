@@ -1,6 +1,5 @@
 import OpenAI from 'openai';
 
-
 export class OpenAIFunctionToolCall {
   /**
    * Tracks tooling updates from streaming responses.

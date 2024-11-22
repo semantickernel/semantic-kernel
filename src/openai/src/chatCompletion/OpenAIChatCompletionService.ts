@@ -1,6 +1,12 @@
 import { OpenAIProvider } from '../provider/OpenAIProvider';
-import { ChatCompletionService, ChatHistory, ChatMessageContent, Kernel, PromptExecutionSettings, TextContent } from '@semantic-kernel/abstractions';
-
+import {
+  ChatCompletionService,
+  ChatHistory,
+  ChatMessageContent,
+  Kernel,
+  PromptExecutionSettings,
+  TextContent,
+} from '@semantic-kernel/abstractions';
 
 /**
  * OpenAI chat completion service.
@@ -72,8 +78,7 @@ export class OpenAIChatCompletionService implements ChatCompletionService {
     chatHistory?: ChatHistory;
     executionSettings?: PromptExecutionSettings;
     kernel?: Kernel;
-  }
-  ) {
+  }) {
     if (prompt) {
       chatHistory = [new ChatMessageContent<'user'>({ role: 'user', items: [new TextContent({ text: prompt })] })];
     }

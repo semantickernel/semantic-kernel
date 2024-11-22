@@ -4,9 +4,16 @@ import { OpenAIStreamingChatMessageContent } from '../../chatCompletion/OpenAISt
 import { OpenAIPromptExecutionSettings } from '../../openAIPromptExecutionSettings';
 import { OpenAIFunctionToolCall } from '../OpenAIFunctionToolCall';
 import { createChatCompletionCreateParams } from './chatCompletionParams';
-import { ChatHistory, FunctionCallContent, FunctionCallsProcessor, FunctionName, Kernel, KernelArguments, StreamingFunctionCallUpdateContent } from '@semantic-kernel/abstractions';
+import {
+  ChatHistory,
+  FunctionCallContent,
+  FunctionCallsProcessor,
+  FunctionName,
+  Kernel,
+  KernelArguments,
+  StreamingFunctionCallUpdateContent,
+} from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
-
 
 export type OpenAIChatCompletionParams = {
   modelId: string;
@@ -84,13 +91,13 @@ export class OpenAIChatCompletion {
     kernel,
   }: OpenAIChatCompletionParams) {
     const contentBuilder: string[] = [];
-    const toolCallIdsByIndex = new Map<number, string>;
-    const functionNamesByIndex = new Map<number, string>;
-    const functionArgumentByIndex = new Map<number, string>;
+    const toolCallIdsByIndex = new Map<number, string>();
+    const functionNamesByIndex = new Map<number, string>();
+    const functionArgumentByIndex = new Map<number, string>();
 
     for (let requestIndex = 1; ; requestIndex++) {
       // Assume the role is assistant by default and update it if the completion specifies a different role.
-      let streamedRole: OpenAI.ChatCompletionChunk.Choice.Delta["role"] = 'assistant';
+      let streamedRole: OpenAI.ChatCompletionChunk.Choice.Delta['role'] = 'assistant';
       const streamedContent: string[] = [];
 
       // TODO record completion activity
@@ -214,10 +221,7 @@ export class OpenAIChatCompletion {
   /**
    * Checks if a tool call is for a function that was defined.
    */
-  private static isRequestableTool(
-    functionCallContent: FunctionCallContent,
-    tools?: OpenAI.ChatCompletionTool[]
-  ) {
+  private static isRequestableTool(functionCallContent: FunctionCallContent, tools?: OpenAI.ChatCompletionTool[]) {
     if (!tools) {
       return false;
     }

@@ -2,7 +2,6 @@ import { OpenAIChatCompletion, OpenAIChatCompletionParams } from './completion';
 import { EndpointKey, ModelIdKey } from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
 
-
 /**
  * OpenAI provider which provides access to the OpenAI API including chat completions, etc.
  */

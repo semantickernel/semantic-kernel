@@ -114,12 +114,14 @@ export class FunctionCallsProcessor {
 
     const message = new ChatMessageContent<'tool'>({
       role: 'tool',
-      items: [new FunctionResultContent({
-        callId: functionCall.id,
-        result,
-        functionName: functionCall.functionName,
-        pluginName: functionCall.pluginName,
-      })],
+      items: [
+        new FunctionResultContent({
+          callId: functionCall.id,
+          result,
+          functionName: functionCall.functionName,
+          pluginName: functionCall.pluginName,
+        }),
+      ],
     });
 
     chatHistory.push(message);

@@ -4,7 +4,6 @@ import { AIService } from '../../services/AIService';
 import { PromptExecutionSettings } from '../PromptExecutionSettings';
 import { ChatHistory } from './ChatHistory';
 
-
 /**
  * Interface for chat completion services.
  */
