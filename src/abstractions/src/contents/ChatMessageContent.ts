@@ -14,7 +14,7 @@ export class ChatMessageContent<Role = 'system' | 'author' | 'user' | 'assistant
    * Chat message content items.
    */
   items: Role extends 'system'
-    ? TextContent
+    ? Array<TextContent>
     : Role extends 'author'
       ? Array<TextContent>
       : Role extends 'user'
@@ -22,7 +22,7 @@ export class ChatMessageContent<Role = 'system' | 'author' | 'user' | 'assistant
         : Role extends 'assistant'
           ? Array<TextContent | FunctionCallContent>
           : Role extends 'tool'
-            ? FunctionResultContent<unknown>
+            ? Array<FunctionResultContent<unknown>>
             : never;
   /**
    * The name of the author of the chat message.

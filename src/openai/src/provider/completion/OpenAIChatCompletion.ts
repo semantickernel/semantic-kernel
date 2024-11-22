@@ -45,7 +45,12 @@ export class OpenAIChatCompletion {
         functionCallingConfig
       );
       const chatCompletion = await this.openAIClient.chat.completions.create(chatCompletionCreateParams);
-      const chatMessageContent = this.createChatMessageContent({ chatCompletion, modelId });
+      const functionCallContents = this.getFunctionCallContents(chatCompletion.choices[0].message.tool_calls);
+      const chatMessageContent = OpenAIChatMessageContent.fromOpenAIChatCompletion({
+        chatCompletion,
+        modelId,
+        items: functionCallContents,
+      });
 
       // If we don't want to attempt to invoke any functions, just return the result.
       if (!functionCallingConfig?.autoInvoke) {
@@ -66,7 +71,7 @@ export class OpenAIChatCompletion {
         chatHistory,
         requestIndex,
         checkIfFunctionAdvertised: (functionCallContent) =>
-          OpenAIChatCompletion.checkIfFunctionAdvertised(functionCallContent, chatCompletionCreateParams.tools),
+          OpenAIChatCompletion.isRequestableTool(functionCallContent, chatCompletionCreateParams.tools),
         kernel,
       });
     }
@@ -84,6 +89,10 @@ export class OpenAIChatCompletion {
     const functionArgumentByIndex = new Map<number, string>;
 
     for (let requestIndex = 1; ; requestIndex++) {
+      // Assume the role is assistant by default and update it if the completion specifies a different role.
+      let streamedRole: OpenAI.ChatCompletionChunk.Choice.Delta["role"] = 'assistant';
+      const streamedContent: string[] = [];
+
       // TODO record completion activity
       const functionCallingConfig = executionSettings?.functionChoiceBehavior?.getConfiguredOptions({
         requestSequenceIndex: requestIndex,
@@ -104,6 +113,16 @@ export class OpenAIChatCompletion {
       });
 
       for await (const chatCompletion of chatCompletionStream) {
+        const choice = chatCompletion.choices[0];
+
+        if (choice.delta.role) {
+          streamedRole = choice.delta.role;
+        }
+
+        if (choice.delta.content) {
+          streamedContent.push(choice.delta.content);
+        }
+
         if (functionCallingConfig?.autoInvoke) {
           OpenAIFunctionToolCall.TrackStreamingToolUpdate({
             updates: chatCompletion.choices[0].delta?.tool_calls,
@@ -142,25 +161,28 @@ export class OpenAIChatCompletion {
 
       const functionCallContents = this.getFunctionCallContents(toolCalls);
 
-      if (!functionCallingConfig?.autoInvoke) {
+      if (!functionCallingConfig?.autoInvoke || toolCallIdsByIndex.size === 0) {
         return;
       }
+
+      const content = streamedContent.join('');
+      const chatMessageContent = new OpenAIChatMessageContent<typeof streamedRole>({
+        role: streamedRole,
+        modelId,
+        content,
+        items: functionCallContents,
+      });
+
+      await this.functionCallsProcessor.ProcessFunctionCalls({
+        chatMessageContent,
+        chatHistory,
+        requestIndex,
+        checkIfFunctionAdvertised: (functionCallContent) =>
+          OpenAIChatCompletion.isRequestableTool(functionCallContent, chatCompletionCreateParams.tools),
+        kernel,
+      });
     }
   }
-
-  private createChatMessageContent = ({
-    chatCompletion,
-    modelId,
-  }: {
-    chatCompletion: OpenAI.ChatCompletion;
-    modelId: string;
-  }): OpenAIChatMessageContent => {
-    const message = new OpenAIChatMessageContent({ chatCompletion, modelId });
-
-    message.items = [...message.items, ...this.getFunctionCallContents(chatCompletion.choices[0].message.tool_calls)];
-
-    return message;
-  };
 
   private getFunctionCallContents(toolCalls?: Array<OpenAI.ChatCompletionMessageToolCall>) {
     const items: Array<FunctionCallContent> = [];
@@ -189,7 +211,10 @@ export class OpenAIChatCompletion {
     return items;
   }
 
-  private static checkIfFunctionAdvertised(
+  /**
+   * Checks if a tool call is for a function that was defined.
+   */
+  private static isRequestableTool(
     functionCallContent: FunctionCallContent,
     tools?: OpenAI.ChatCompletionTool[]
   ) {

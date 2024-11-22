@@ -1,11 +1,47 @@
-import { ChatMessageContent, FunctionCallContent, TextContent } from '@semantic-kernel/abstractions';
+import { ChatMessageContent, TextContent } from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
 
-export class OpenAIChatMessageContent extends ChatMessageContent<'assistant'> {
-  public constructor({ chatCompletion, modelId }: { chatCompletion: OpenAI.ChatCompletion; modelId: string }) {
+export class OpenAIChatMessageContent<Role> extends ChatMessageContent<Role> {
+  public constructor({
+    role,
+    modelId,
+    content,
+    items,
+  }: {
+    role: Role;
+    modelId: string;
+    content?: string;
+    items: ChatMessageContent<Role>['items'];
+  }) {
+    items = items ?? [];
+
+    if (content) {
+      items.push(
+        new TextContent({
+          text: content,
+        })
+      );
+    }
+
+    super({
+      role,
+      modelId,
+      items,
+    });
+  }
+
+  public static fromOpenAIChatCompletion({
+    chatCompletion,
+    modelId,
+    items,
+  }: {
+    chatCompletion: OpenAI.ChatCompletion;
+    modelId: string;
+    items?: OpenAIChatMessageContent<'assistant'>['items'];
+  }) {
     const choice = chatCompletion.choices[0];
     const content = choice.message.content;
-    const items: Array<TextContent | FunctionCallContent> = [];
+    items = items ?? [];
 
     if (content) {
       items.push(
@@ -16,7 +52,7 @@ export class OpenAIChatMessageContent extends ChatMessageContent<'assistant'> {
     }
 
     // OpenAI.ChatCompletion's role is always 'assistant'
-    super({
+    return new OpenAIChatMessageContent<'assistant'>({
       role: 'assistant',
       modelId,
       items,
