@@ -3,12 +3,14 @@ import OpenAI from 'openai';
 
 export class OpenAIStreamingChatMessageContent<Role> extends StreamingChatMessageContent<Role> {
   public finishReason: OpenAI.ChatCompletionChunk.Choice['finish_reason'] | undefined;
+  public toolCalls: Array<OpenAI.ChatCompletionChunk.Choice.Delta.ToolCall> | undefined;
 
   public constructor({
     role,
     modelId,
     content,
     finishReason,
+    toolCalls,
     choiceIndex,
     items,
   }: {
@@ -16,6 +18,7 @@ export class OpenAIStreamingChatMessageContent<Role> extends StreamingChatMessag
     modelId: string;
     content?: string | null;
     finishReason?: OpenAI.ChatCompletionChunk.Choice['finish_reason'];
+    toolCalls?: Array<OpenAI.ChatCompletionChunk.Choice.Delta.ToolCall>;
     choiceIndex?: number;
     items: OpenAIStreamingChatMessageContent<Role>['items'];
   }) {
@@ -35,6 +38,7 @@ export class OpenAIStreamingChatMessageContent<Role> extends StreamingChatMessag
     });
 
     this.finishReason = finishReason;
+    this.toolCalls = toolCalls;
   }
 
   public static fromOpenAIChatCompletionChunk<Role>({
@@ -50,6 +54,7 @@ export class OpenAIStreamingChatMessageContent<Role> extends StreamingChatMessag
   }) {
     const choice = chatCompletionChunk.choices[0];
     const content = choice.delta.content;
+    const toolCalls = choice.delta.tool_calls;
 
     return new OpenAIStreamingChatMessageContent<Role>({
       choiceIndex: choice.index,
@@ -58,6 +63,7 @@ export class OpenAIStreamingChatMessageContent<Role> extends StreamingChatMessag
       content,
       items,
       finishReason: choice.finish_reason,
+      toolCalls,
     });
   }
 }
