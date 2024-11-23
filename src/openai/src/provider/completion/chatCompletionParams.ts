@@ -9,32 +9,31 @@ import {
   TextContent,
 } from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
-import {
-  ChatCompletionCreateParamsNonStreaming,
-  ChatCompletionTool,
-  ChatCompletionToolChoiceOption,
-  FunctionParameters,
-} from 'openai/resources';
 
-export const createChatCompletionCreateParams = (
-  modelId: string,
-  chatHistory: ChatHistory,
-  promptExecutionSettings?: OpenAIPromptExecutionSettings,
-  functionChoiceBehaviorConfiguration?: FunctionChoiceBehaviorConfiguration
-): ChatCompletionCreateParamsNonStreaming => {
-  const executionSettings = getOpenAIPromptExecutionSettings(promptExecutionSettings);
+export const createChatCompletionCreateParams = ({
+  modelId,
+  chatHistory,
+  executionSettings,
+  functionChoiceBehaviorConfiguration,
+}: {
+  modelId: string;
+  chatHistory: ChatHistory;
+  executionSettings?: OpenAIPromptExecutionSettings;
+  functionChoiceBehaviorConfiguration?: FunctionChoiceBehaviorConfiguration;
+}): OpenAI.ChatCompletionCreateParamsNonStreaming => {
+  const openAIExecutionSettings = getOpenAIPromptExecutionSettings(executionSettings);
   let messages: OpenAI.Chat.ChatCompletionMessageParam[] = [];
-  let tools: ChatCompletionTool[] | undefined;
-  let toolChoice: ChatCompletionToolChoiceOption | undefined;
+  let tools: OpenAI.ChatCompletionTool[] | undefined;
+  let toolChoice: OpenAI.ChatCompletionToolChoiceOption | undefined;
 
   // Add the system prompt if provided first
-  if (executionSettings.chatSystemPrompt && !chatHistory.find((message) => message.role === 'system')) {
+  if (openAIExecutionSettings.chatSystemPrompt && !chatHistory.find((message) => message.role === 'system')) {
     messages = [
       ...messages,
       ...createChatCompletionMessages(
         new ChatMessageContent({
           role: 'system',
-          items: [new TextContent({ text: executionSettings.chatSystemPrompt })],
+          items: [new TextContent({ text: openAIExecutionSettings.chatSystemPrompt })],
         })
       ),
     ];
@@ -62,7 +61,7 @@ export const createChatCompletionCreateParams = (
             pluginName,
             nameSeparator: OpenAIFunctionNameSeparator,
           }),
-          parameters: schema as FunctionParameters,
+          parameters: schema as OpenAI.FunctionParameters,
         },
       });
     }
@@ -72,14 +71,14 @@ export const createChatCompletionCreateParams = (
 
   return {
     model: modelId,
-    temperature: executionSettings.temperature,
-    top_p: executionSettings.topP,
-    presence_penalty: executionSettings.presencePenalty,
-    frequency_penalty: executionSettings.frequencyPenalty,
-    max_tokens: executionSettings.maxTokens,
-    response_format: executionSettings.responseFormat,
-    seed: executionSettings.seed,
-    stop: executionSettings.stop,
+    temperature: openAIExecutionSettings.temperature,
+    top_p: openAIExecutionSettings.topP,
+    presence_penalty: openAIExecutionSettings.presencePenalty,
+    frequency_penalty: openAIExecutionSettings.frequencyPenalty,
+    max_tokens: openAIExecutionSettings.maxTokens,
+    response_format: openAIExecutionSettings.responseFormat,
+    seed: openAIExecutionSettings.seed,
+    stop: openAIExecutionSettings.stop,
     messages,
     tools,
     tool_choice: toolChoice,

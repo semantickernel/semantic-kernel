@@ -45,12 +45,12 @@ export class OpenAIChatCompletion {
         kernel,
       });
 
-      const chatCompletionCreateParams = createChatCompletionCreateParams(
+      const chatCompletionCreateParams = createChatCompletionCreateParams({
         modelId,
         chatHistory,
         executionSettings,
-        functionCallingConfig
-      );
+        functionChoiceBehaviorConfiguration: functionCallingConfig,
+      });
       const chatCompletion = await this.openAIClient.chat.completions.create(chatCompletionCreateParams);
       const functionCallContents = this.getFunctionCallContents(chatCompletion.choices[0].message.tool_calls);
       const chatMessageContent = OpenAIChatMessageContent.fromOpenAIChatCompletion({
@@ -107,12 +107,12 @@ export class OpenAIChatCompletion {
         kernel,
       });
 
-      const chatCompletionCreateParams = createChatCompletionCreateParams(
+      const chatCompletionCreateParams = createChatCompletionCreateParams({
         modelId,
         chatHistory,
         executionSettings,
-        functionCallingConfig
-      );
+        functionChoiceBehaviorConfiguration: functionCallingConfig,
+      });
 
       const chatCompletionChunks = await this.openAIClient.chat.completions.create({
         ...chatCompletionCreateParams,
