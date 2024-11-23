@@ -34,7 +34,7 @@ export const createChatCompletionCreateParams = (
       ...createChatCompletionMessages(
         new ChatMessageContent({
           role: 'system',
-          items: new TextContent({ text: executionSettings.chatSystemPrompt }),
+          items: [new TextContent({ text: executionSettings.chatSystemPrompt })],
         })
       ),
     ];

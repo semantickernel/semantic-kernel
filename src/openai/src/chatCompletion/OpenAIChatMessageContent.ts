@@ -10,8 +10,8 @@ export class OpenAIChatMessageContent<Role> extends ChatMessageContent<Role> {
   }: {
     role: Role;
     modelId: string;
-    content?: string;
-    items: ChatMessageContent<Role>['items'];
+    content?: string | null;
+    items: OpenAIChatMessageContent<Role>['items'];
   }) {
     items = items ?? [];
 
@@ -41,21 +41,13 @@ export class OpenAIChatMessageContent<Role> extends ChatMessageContent<Role> {
   }) {
     const choice = chatCompletion.choices[0];
     const content = choice.message.content;
-    items = items ?? [];
-
-    if (content) {
-      items.push(
-        new TextContent({
-          text: content,
-        })
-      );
-    }
 
     // OpenAI.ChatCompletion's role is always 'assistant'
     return new OpenAIChatMessageContent<'assistant'>({
       role: 'assistant',
       modelId,
-      items,
+      content,
+      items: items ?? [],
     });
   }
 }

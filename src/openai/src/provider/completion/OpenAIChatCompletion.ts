@@ -114,13 +114,13 @@ export class OpenAIChatCompletion {
         functionCallingConfig
       );
 
-      const chatCompletionStream = await this.openAIClient.chat.completions.create({
+      const chatCompletionChunks = await this.openAIClient.chat.completions.create({
         ...chatCompletionCreateParams,
         stream: true,
       });
 
-      for await (const chatCompletion of chatCompletionStream) {
-        const choice = chatCompletion.choices[0];
+      for await (const chatCompletionChunk of chatCompletionChunks) {
+        const choice = chatCompletionChunk.choices[0];
 
         if (choice.delta.role) {
           streamedRole = choice.delta.role;
@@ -132,16 +132,21 @@ export class OpenAIChatCompletion {
 
         if (functionCallingConfig?.autoInvoke) {
           OpenAIFunctionToolCall.TrackStreamingToolUpdate({
-            updates: chatCompletion.choices[0].delta?.tool_calls,
+            updates: chatCompletionChunk.choices[0].delta?.tool_calls,
             toolCallIdsByIndex,
             functionNamesByIndex,
             functionArgumentByIndex,
           });
         }
 
-        const openAIStreamingChatMessageContent = new OpenAIStreamingChatMessageContent({ chatCompletion, modelId });
+        const openAIStreamingChatMessageContent = OpenAIStreamingChatMessageContent.fromOpenAIChatCompletionChunk({
+          chatCompletionChunk,
+          modelId,
+          role: streamedRole,
+          items: [],
+        });
 
-        for (const toolCall of chatCompletion.choices[0].delta?.tool_calls ?? []) {
+        for (const toolCall of chatCompletionChunk.choices[0].delta?.tool_calls ?? []) {
           if (!toolCall.id || !toolCall.function?.name || !toolCall.function?.arguments) {
             continue;
           }
@@ -153,10 +158,12 @@ export class OpenAIChatCompletion {
             functionCallIndex: toolCall.index,
           });
 
-          openAIStreamingChatMessageContent.items.push(streamingFunctionCallUpdateContent);
+          (openAIStreamingChatMessageContent as OpenAIStreamingChatMessageContent<'assistant'>).items.push(
+            streamingFunctionCallUpdateContent
+          );
         }
 
-        contentBuilder.push(chatCompletion.choices[0].delta.content ?? '');
+        contentBuilder.push(choice.delta.content ?? '');
         yield openAIStreamingChatMessageContent;
       }
 

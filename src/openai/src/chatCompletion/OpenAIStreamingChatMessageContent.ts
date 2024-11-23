@@ -1,14 +1,24 @@
-import { FunctionCallContent, StreamingChatMessageContent, StreamingTextContent } from '@semantic-kernel/abstractions';
+import { StreamingChatMessageContent, StreamingTextContent } from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
 
-export class OpenAIStreamingChatMessageContent extends StreamingChatMessageContent<'assistant'> {
-  public finishReason: OpenAI.ChatCompletionChunk.Choice['finish_reason'];
+export class OpenAIStreamingChatMessageContent<Role> extends StreamingChatMessageContent<Role> {
+  public finishReason: OpenAI.ChatCompletionChunk.Choice['finish_reason'] | undefined;
 
-  public constructor({ chatCompletion, modelId }: { chatCompletion: OpenAI.ChatCompletionChunk; modelId: string }) {
-    const choice = chatCompletion.choices[0];
-    const content = choice.delta.content;
-    const items: Array<StreamingTextContent | FunctionCallContent> = [];
-
+  public constructor({
+    role,
+    modelId,
+    content,
+    finishReason,
+    choiceIndex,
+    items,
+  }: {
+    role: Role;
+    modelId: string;
+    content?: string | null;
+    finishReason?: OpenAI.ChatCompletionChunk.Choice['finish_reason'];
+    choiceIndex?: number;
+    items: OpenAIStreamingChatMessageContent<Role>['items'];
+  }) {
     if (content) {
       items.push(
         new StreamingTextContent({
@@ -17,14 +27,37 @@ export class OpenAIStreamingChatMessageContent extends StreamingChatMessageConte
       );
     }
 
-    // OpenAI.ChatCompletion's role is always 'assistant'
     super({
-      choiceIndex: choice.index,
-      role: 'assistant',
+      choiceIndex: choiceIndex ?? 0,
+      role,
       modelId,
       items,
     });
 
-    this.finishReason = choice.finish_reason;
+    this.finishReason = finishReason;
+  }
+
+  public static fromOpenAIChatCompletionChunk<Role>({
+    chatCompletionChunk,
+    modelId,
+    role,
+    items,
+  }: {
+    chatCompletionChunk: OpenAI.ChatCompletionChunk;
+    modelId: string;
+    role: Role;
+    items: OpenAIStreamingChatMessageContent<Role>['items'];
+  }) {
+    const choice = chatCompletionChunk.choices[0];
+    const content = choice.delta.content;
+
+    return new OpenAIStreamingChatMessageContent<Role>({
+      choiceIndex: choice.index,
+      role,
+      modelId,
+      content,
+      items,
+      finishReason: choice.finish_reason,
+    });
   }
 }

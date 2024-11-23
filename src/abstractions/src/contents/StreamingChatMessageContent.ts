@@ -21,7 +21,7 @@ export class StreamingChatMessageContent<
    * Chat message content items.
    */
   items: Role extends 'system'
-    ? StreamingTextContent
+    ? Array<StreamingTextContent>
     : Role extends 'author'
       ? Array<StreamingTextContent>
       : Role extends 'user'
@@ -29,7 +29,7 @@ export class StreamingChatMessageContent<
         : Role extends 'assistant'
           ? Array<StreamingTextContent | FunctionCallContent | StreamingFunctionCallUpdateContent>
           : Role extends 'tool'
-            ? FunctionResultContent<unknown>
+            ? Array<FunctionResultContent<unknown>>
             : never;
 
   /**
