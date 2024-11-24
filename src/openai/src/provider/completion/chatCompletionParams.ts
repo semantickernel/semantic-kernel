@@ -43,7 +43,7 @@ export const createChatCompletionCreateParams = ({
     messages = [...messages, ...createChatCompletionMessages(chatMessage)];
   }
 
-  if (functionChoiceBehaviorConfiguration?.functions) {
+  if (functionChoiceBehaviorConfiguration?.functions && functionChoiceBehaviorConfiguration.functions.length > 0) {
     tools = [];
     for (const kernelFunction of functionChoiceBehaviorConfiguration.functions) {
       const { name: functionName, pluginName, schema, description } = kernelFunction.metadata ?? {};

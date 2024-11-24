@@ -4,15 +4,13 @@ import { FunctionChoiceBehaviorBase } from './FunctionChoiceBehaviorBase';
 import { FunctionChoiceBehaviorConfiguration } from './FunctionChoiceBehaviorConfiguration';
 import { FunctionChoiceBehaviorOptions } from './FunctionChoiceBehaviorOptions';
 
-export class AutoFunctionChoiceBehavior extends FunctionChoiceBehaviorBase {
-  private readonly autoInvoke: boolean;
+export class NoneFunctionChoiceBehavior extends FunctionChoiceBehaviorBase {
   private readonly functions: Array<string> | undefined;
   public readonly options?: FunctionChoiceBehaviorOptions;
 
-  constructor(functions?: Array<KernelFunction>, autoInvoke: boolean = true, options?: FunctionChoiceBehaviorOptions) {
+  constructor(functions?: Array<KernelFunction>, options?: FunctionChoiceBehaviorOptions) {
     super(functions);
     this.options = options;
-    this.autoInvoke = autoInvoke;
     this.functions = functions
       ?.map(
         (f) =>
@@ -26,12 +24,12 @@ export class AutoFunctionChoiceBehavior extends FunctionChoiceBehaviorBase {
     const functions = this.getFunctions({
       functionFQNs: this.functions,
       kernel,
-      autoInvoke: this.autoInvoke,
+      autoInvoke: false,
     });
 
     return {
-      choice: 'auto',
-      autoInvoke: this.autoInvoke,
+      choice: 'none',
+      autoInvoke: false,
       functions,
       options: this.options ?? this.defaultOptions,
     };

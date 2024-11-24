@@ -1,5 +1,5 @@
 import { ModelId } from '../contents/ModelId';
-import { FunctionChoiceBehavior } from './functionChoiceBehaviors';
+import { FunctionChoiceBehaviorBase } from './functionChoiceBehaviors/FunctionChoiceBehaviorBase';
 
 /**
  * Gets the default service identifier.
@@ -42,5 +42,5 @@ export interface PromptExecutionSettings {
   /**
    * Gets or sets the behavior defining the way functions are chosen by LLM and how they are invoked by AI connectors.
    */
-  functionChoiceBehavior?: FunctionChoiceBehavior;
+  functionChoiceBehavior?: FunctionChoiceBehaviorBase;
 }

@@ -57,6 +57,8 @@ export abstract class KernelFunction<
     args?: KernelArguments<Schema, Args>
   ): Promise<FunctionResult<Result, Args>>;
 
+  protected abstract invokeStreamingCore<T>(kernel: Kernel, args?: KernelArguments<Schema, Args>): AsyncGenerator<T>;
+
   invoke = async (kernel: Kernel, args?: KernelArguments<Schema, Args>): Promise<FunctionResult<Result, Args>> => {
     const value = await this.invokeCore(kernel, args);
 
@@ -65,6 +67,17 @@ export abstract class KernelFunction<
     });
 
     return value;
+  };
+
+  invokeStreaming = (kernel: Kernel, args?: KernelArguments<Schema, Args>): AsyncGenerator<Result> => {
+    const enumerable = this.invokeStreamingCore<Result>(kernel, args);
+
+    kernel.functionInvocationFilters.forEach((filter) => {
+      const functionResult: FunctionResult<Result, Args> = { value: undefined as unknown as Result };
+      filter.onFunctionInvocationFilter({ kernel, args, value: functionResult });
+    });
+
+    return enumerable;
   };
 }
 
@@ -79,6 +92,10 @@ export const kernelFunction = <
   return new (class extends KernelFunction<Schema, Result, Args> {
     constructor() {
       super({ metadata });
+    }
+
+    protected override invokeStreamingCore<T>(): AsyncGenerator<T> {
+      throw new Error('Method not implemented.');
     }
 
     override async invokeCore(

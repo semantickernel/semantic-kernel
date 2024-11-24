@@ -110,6 +110,26 @@ export class KernelFunctionFromPrompt extends KernelFunction<
     throw new Error(`Unsupported AI service type: ${AIService.serviceType}`);
   };
 
+  override async *invokeStreamingCore<T>(kernel: Kernel, args: KernelArguments<PromptType>): AsyncGenerator<T> {
+    const { renderedPrompt, AIService, executionSettings } = await this.renderPrompt(kernel, args);
+
+    if (AIService.serviceType === 'ChatCompletion') {
+      const chatContents = (AIService as ChatCompletionService).getStreamingChatMessageContents({
+        prompt: renderedPrompt,
+        executionSettings,
+        kernel,
+      });
+
+      for await (const chatContent of chatContents) {
+        yield chatContent as T;
+      }
+
+      return;
+    }
+
+    throw new Error(`Unsupported AI service type: ${AIService.serviceType}`);
+  }
+
   private getPromptTemplate = (): PromptTemplate => {
     switch (this.promptTemplateConfig.templateFormat) {
       case 'passthrough':

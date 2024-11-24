@@ -88,6 +88,23 @@ export class Kernel {
     return kernelFunction.invoke(this, kernelArguments);
   }
 
+  public invokeStreaming<Schema, Result, Args>({
+    kernelFunction,
+    kernelArguments,
+    ...props
+  }: {
+    kernelFunction: KernelFunction<Schema, Result, Args>;
+    kernelArguments?: KernelArguments<Schema, Args>;
+    arguments?: Args;
+    executionSettings?: Map<string, PromptExecutionSettings> | PromptExecutionSettings[] | PromptExecutionSettings;
+  }) {
+    if (!kernelArguments) {
+      kernelArguments = new KernelArguments(props);
+    }
+
+    return kernelFunction.invokeStreaming(this, kernelArguments);
+  }
+
   /**
    * Invokes a prompt.
    * @param params The parameters for the prompt.
@@ -122,6 +139,36 @@ export class Kernel {
     });
 
     return this.invoke({ kernelFunction: kernelFunctionFromPrompt, ...props });
+  }
+
+  /**
+   * Invokes a streaming prompt.
+   * @param params The parameters for the prompt.
+   * @param params.promptTemplate The template for the prompt.
+   * @param params.name The name of the kernel function (optional).
+   * @param params.description The description of the kernel function (optional).
+   * @param params.templateFormat The format of the template (optional).
+   * @param params.inputVariables The input variables for the prompt (optional).
+   * @param params.allowDangerouslySetContent Whether to allow dangerously set content (optional).
+   * @param params.kernelArguments The KernelArguments to pass to the kernel function (optional).
+   * @param params.arguments The arguments to pass to the kernel function (optional).
+   * @param params.executionSettings The execution settings to pass to the kernel function (optional).
+   * @returns The result of the prompt.
+   */
+  public invokeStreamingPrompt<Schema, Args>(props: {
+    promptTemplate: string;
+    name?: string;
+    description?: string;
+    templateFormat?: PromptTemplateFormat;
+    inputVariables?: string[];
+    allowDangerouslySetContent?: boolean;
+    kernelArguments?: KernelArguments<Schema, Args>;
+    arguments?: Args;
+    executionSettings?: Map<string, PromptExecutionSettings> | PromptExecutionSettings[] | PromptExecutionSettings;
+  }) {
+    const kernelFunctionFromPrompt = KernelFunctionFromPrompt.create(props);
+
+    return this.invokeStreaming({ kernelFunction: kernelFunctionFromPrompt, ...props });
   }
 }
 
