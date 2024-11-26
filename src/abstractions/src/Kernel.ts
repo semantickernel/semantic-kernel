@@ -1,9 +1,11 @@
 import { PromptExecutionSettings } from './AI';
-import { FunctionInvocationFilter, KernelFunction, KernelFunctionFromPrompt, KernelPlugin } from './functions';
+import { FunctionInvocationFilter, FunctionResult, KernelFunction, KernelFunctionFromPrompt, KernelPlugin } from './functions';
+import { FunctionInvocationContext } from './functions/FunctionInvocationContext';
 import { KernelArguments } from './functions/KernelArguments';
 import { KernelPlugins, MapKernelPlugins } from './functions/KernelPlugins';
 import { PromptTemplateFormat } from './promptTemplate';
 import { AIService, MapServiceProvider, ServiceProvider } from './services';
+
 
 /**
  * Represents a kernel.
@@ -60,6 +62,66 @@ export class Kernel {
   public addPlugin(plugin: KernelPlugin) {
     this._plugins.addPlugin(plugin);
     return this;
+  }
+
+  public async onFunctionInvocation<Schema, Result, Args>({
+    function: fn,
+    arguments: args,
+    functionResult,
+    isStreaming,
+    functionCallback,
+  }: {
+    function: KernelFunction<Schema, Result, Args>;
+    arguments: KernelArguments<Schema, Args>;
+    functionResult: FunctionResult<Schema, Result, Args>;
+    isStreaming: boolean;
+    functionCallback: (context: FunctionInvocationContext<Schema, Result, Args>) => Promise<void>;
+  }) {
+    const context = new FunctionInvocationContext<Schema, Result, Args>({
+      isStreaming,
+      kernel: this,
+      function: fn,
+      arguments: args,
+      result: functionResult,
+    });
+
+    await Kernel.invokeFilterOrFunction<Schema, Result, Args>({
+      functionFilters: this.functionInvocationFilters,
+      functionCallback,
+      context,
+    });
+
+    return context;
+  }
+
+  public static async invokeFilterOrFunction<Schema, Result, Args>({
+    functionFilters,
+    functionCallback,
+    context,
+    index,
+  }: {
+    functionFilters: Array<FunctionInvocationFilter>;
+    functionCallback: (context: FunctionInvocationContext<Schema, Result, Args>) => Promise<void>;
+    context: FunctionInvocationContext<Schema, Result, Args>;
+    index?: number;
+  }) {
+    index = index ?? 0;
+
+    if (functionFilters.length > 0 && index < functionFilters.length) {
+      const functionFilter = functionFilters[index];
+      await functionFilter.onFunctionInvocationFilter({
+        context,
+        next: (context) =>
+          Kernel.invokeFilterOrFunction<Schema, Result, Args>({
+            functionFilters,
+            functionCallback,
+            context,
+            index: index + 1,
+          }),
+      });
+    } else {
+      await functionCallback(context);
+    }
   }
 
   /**
