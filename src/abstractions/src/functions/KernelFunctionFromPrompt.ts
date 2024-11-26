@@ -139,7 +139,7 @@ export class KernelFunctionFromPrompt extends KernelFunction<
     }
   };
 
-  private renderPrompt = async (kernel: Kernel, args: KernelArguments<PromptType>): Promise<PromptRenderingResult> => {
+  private async renderPrompt(kernel: Kernel, args: KernelArguments<PromptType>): Promise<PromptRenderingResult> {
     const promptTemplate = this.getPromptTemplate();
 
     const { service, executionSettings } =
@@ -159,12 +159,14 @@ export class KernelFunctionFromPrompt extends KernelFunction<
       throw new Error('AIService not found in kernel');
     }
 
+    const renderedPrompt = await promptTemplate.render(kernel, args);
+
     return {
-      renderedPrompt: await promptTemplate.render(kernel, args),
+      renderedPrompt,
       executionSettings,
       AIService: service,
     };
-  };
+  }
 
   private static createRandomFunctionName() {
     return `function_${Math.random().toString(36).substring(7)}`;

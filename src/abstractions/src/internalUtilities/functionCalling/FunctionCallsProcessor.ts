@@ -1,5 +1,6 @@
 import { ChatHistory } from '../../AI/chatCompletion';
-import { FunctionChoiceBehavior, FunctionChoiceBehaviorConfiguration } from '../../AI/functionChoiceBehaviors';
+import { FunctionChoiceBehaviorConfiguration } from '../../AI/functionChoiceBehaviors';
+import { FunctionChoiceBehaviorBase } from '../../AI/functionChoiceBehaviors/FunctionChoiceBehaviorBase';
 import { Kernel } from '../../Kernel';
 import { ChatMessageContent, FunctionCallContent, FunctionResultContent } from '../../contents';
 
@@ -12,7 +13,7 @@ export class FunctionCallsProcessor {
   public GetConfiguration(
     chatHistory: ChatHistory,
     requestIndex: number,
-    behavior?: FunctionChoiceBehavior,
+    behavior?: FunctionChoiceBehaviorBase,
     kernel?: Kernel
   ): FunctionChoiceBehaviorConfiguration | undefined {
     if (!behavior) {

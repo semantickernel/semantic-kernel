@@ -3,11 +3,9 @@ import { Kernel } from '../Kernel';
 import { FromSchema, JsonSchema } from '../jsonSchema';
 import { KernelArguments } from './KernelArguments';
 
-
 export type Fn<Result, Args> = (args: Args, kernel?: Kernel) => Result;
 
 export type FunctionResult<
-
   Schema extends JsonSchema | unknown | undefined = unknown,
   Result = unknown,
   Args = Schema extends JsonSchema
@@ -15,7 +13,6 @@ export type FunctionResult<
     : Schema extends undefined
       ? undefined
       : Record<string, unknown>,
-
 > = {
   function?: KernelFunction<Schema, Result, Args>;
   value?: Result;
@@ -92,7 +89,7 @@ export abstract class KernelFunction<
     return functionResult;
   };
 
-  invokeStreaming = async (kernel: Kernel, args?: KernelArguments<Schema, Args>): Promise<AsyncGenerator<Result>> => {
+  async *invokeStreaming(kernel: Kernel, args?: KernelArguments<Schema, Args>): AsyncGenerator<Result> {
     args = args ?? new KernelArguments({});
     const functionResult: FunctionResult<Schema, Result, Args> = { function: this };
 
@@ -107,10 +104,12 @@ export abstract class KernelFunction<
       },
     });
 
-    const enumerable = invocationContext.result as AsyncGenerator<Result>;
+    const enumerable = invocationContext.result.value as AsyncGenerator<Result>;
 
-    return enumerable;
-  };
+    for await (const value of enumerable) {
+      yield value;
+    }
+  }
 }
 
 export const kernelFunction = <
@@ -136,7 +135,7 @@ export const kernelFunction = <
     ) {
       return {
         value: await fn(args?.arguments as Args, kernel),
-        function: fn,
+        function: this,
       };
     }
   })();
