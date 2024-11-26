@@ -116,8 +116,8 @@ export class Kernel {
       const functionFilter = functionFilters[index];
       await functionFilter.onFunctionInvocationFilter({
         context,
-        next: (context) =>
-          Kernel.invokeFilterOrFunction<Schema, Result, Args>({
+        next: async (context) =>
+          await Kernel.invokeFilterOrFunction<Schema, Result, Args>({
             functionFilters,
             functionCallback,
             context,
