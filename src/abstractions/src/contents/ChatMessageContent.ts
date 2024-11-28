@@ -2,7 +2,7 @@ import { FunctionCallContent, KernelContent } from '.';
 import { Encoding, FunctionResultContent, TextContent } from '.';
 
 /**
- * Represents chat message content return from a chat completion service.
+ * Represents chat message content return from a {@link ChatCompletionService} service.
  */
 export class ChatMessageContent<Role = 'system' | 'author' | 'user' | 'assistant' | 'tool'> extends KernelContent {
   /**
@@ -22,8 +22,9 @@ export class ChatMessageContent<Role = 'system' | 'author' | 'user' | 'assistant
         : Role extends 'assistant'
           ? Array<TextContent | FunctionCallContent>
           : Role extends 'tool'
-            ? Array<FunctionResultContent<unknown>>
+            ? Array<FunctionResultContent>
             : never;
+
   /**
    * The name of the author of the chat message.
    */
@@ -35,16 +36,9 @@ export class ChatMessageContent<Role = 'system' | 'author' | 'user' | 'assistant
   private _encoding?: Encoding;
 
   get encoding(): Encoding | undefined {
-    if (this.items instanceof TextContent) {
-      return this.items.encoding;
-    }
-
-    if (this.items instanceof Array) {
-      const textContents = this.items.filter((item) => item instanceof TextContent) as TextContent[];
-      if (textContents.length > 0) {
-        return textContents[0].encoding;
-      }
-      return this._encoding;
+    const textContents = this.items.filter((item) => item instanceof TextContent) as TextContent[];
+    if (textContents.length > 0) {
+      return textContents[0].encoding;
     }
 
     return this._encoding;
@@ -53,12 +47,9 @@ export class ChatMessageContent<Role = 'system' | 'author' | 'user' | 'assistant
   set encoding(value: Encoding) {
     this._encoding = value;
 
-    if (this.items instanceof TextContent) {
-      this.items.encoding = value;
-    }
+    const textContents = this.items.filter((item) => item instanceof TextContent) as TextContent[];
 
-    if (this.items instanceof Array) {
-      const textContents = this.items.filter((item) => item instanceof TextContent) as TextContent[];
+    if (textContents.length > 0) {
       textContents[0].encoding = value;
     }
   }
@@ -116,77 +107,3 @@ export class ChatMessageContent<Role = 'system' | 'author' | 'user' | 'assistant
     return message.role === 'assistant';
   }
 }
-
-// /**
-//  * Create a {@link ChatMessageContent} from content or items.
-//  */
-// export const chatMessage = (props: ChatMessageContent) => {
-//   const message: ChatMessageContent = {
-//     ...props,
-//     type: 'chat',
-//     encoding: 'utf-8',
-//   };
-//
-//   return message;
-// };
-//
-// /**
-//  * Create an assistant {@link ChatMessageContent}.
-//  * @param props The chat message properties.
-//  * @returns The assistant chat message.
-//  */
-// export const assistantChatMessage = (
-//   props: Omit<Extract<ChatMessageContent, { role: 'assistant' }>, 'type' | 'role'>
-// ): ChatMessageContent => {
-//   return chatMessage({
-//     ...props,
-//     type: 'chat',
-//     role: 'assistant',
-//   });
-// };
-//
-// /**
-//  * Create a system {@link ChatMessageContent}.
-//  * @param content The content of the system message.
-//  * @returns The system chat message.
-//  */
-// export const systemChatMessage = (content: string): ChatMessageContent => {
-//   return chatMessage({
-//     // TODO: fix the "type" to avoid passing it explicitly
-//     type: 'chat',
-//     role: 'system',
-//     items: { type: 'text', text: content },
-//   });
-// };
-//
-// /**
-//  * Create a user {@link ChatMessageContent}.
-//  * @param content The content of the user message.
-//  * @returns The user chat message.
-//  */
-// export const userChatMessage = (content: string): ChatMessageContent => {
-//   return chatMessage({
-//     type: 'chat',
-//     role: 'user',
-//     items: [{ type: 'text', text: content }],
-//   });
-// };
-//
-// /**
-//  * Create a tool {@link ChatMessageContent}.
-//  * @param props The tool message properties.
-//  * @param metadata The metadata of the tool message.
-//  * @returns The tool chat message.
-//  */
-// export const toolChatMessage = <T>(props: Omit<FunctionResultContent<T>, 'type'>): ChatMessageContent => {
-//   const msg = chatMessage({
-//     type: 'chat',
-//     role: 'tool',
-//     items: {
-//       type: 'functionResult',
-//       ...props,
-//     },
-//   });
-//
-//   return msg;
-// };

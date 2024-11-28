@@ -7,7 +7,7 @@ import {
 import { Encoding, FunctionResultContent } from '.';
 
 /**
- * Abstraction of chat message content chunks when using streaming from {@link ChatCompletionService} interface.
+ * Abstraction of chat message content chunks when using streaming from {@link ChatCompletionService} service.
  */
 export class StreamingChatMessageContent<
   Role = 'system' | 'author' | 'user' | 'assistant' | 'tool',
@@ -29,7 +29,7 @@ export class StreamingChatMessageContent<
         : Role extends 'assistant'
           ? Array<StreamingTextContent | FunctionCallContent | StreamingFunctionCallUpdateContent>
           : Role extends 'tool'
-            ? Array<FunctionResultContent<unknown>>
+            ? Array<FunctionResultContent>
             : never;
 
   /**
@@ -43,16 +43,9 @@ export class StreamingChatMessageContent<
   private _encoding?: Encoding;
 
   public get encoding(): Encoding | undefined {
-    if (this.items instanceof StreamingTextContent) {
-      return this.items.encoding;
-    }
-
-    if (this.items instanceof Array) {
-      const textContents = this.items.filter((item) => item instanceof StreamingTextContent) as StreamingTextContent[];
-      if (textContents.length > 0) {
-        return textContents[0].encoding;
-      }
-      return this._encoding;
+    const textContents = this.items.filter((item) => item instanceof StreamingTextContent) as StreamingTextContent[];
+    if (textContents.length > 0) {
+      return textContents[0].encoding;
     }
 
     return this._encoding;
@@ -61,12 +54,9 @@ export class StreamingChatMessageContent<
   public set encoding(value: Encoding) {
     this._encoding = value;
 
-    if (this.items instanceof StreamingTextContent) {
-      this.items.encoding = value;
-    }
+    const textContents = this.items.filter((item) => item instanceof StreamingTextContent) as StreamingTextContent[];
 
-    if (this.items instanceof Array) {
-      const textContents = this.items.filter((item) => item instanceof StreamingTextContent) as StreamingTextContent[];
+    if (textContents.length > 0) {
       textContents[0].encoding = value;
     }
   }
