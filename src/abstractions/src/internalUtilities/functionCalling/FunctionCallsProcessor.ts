@@ -4,6 +4,7 @@ import { FunctionChoiceBehaviorBase } from '../../AI/functionChoiceBehaviors/Fun
 import { Kernel } from '../../Kernel';
 import { ChatMessageContent, FunctionCallContent, FunctionResultContent } from '../../contents';
 
+
 /**
  * The maximum number of function auto-invokes that can be made in a single user request.
  */
@@ -84,7 +85,7 @@ export class FunctionCallsProcessor {
 
       try {
         const functionResult = await kernelFunction.invoke(kernel, functionCall.arguments);
-        const functionResultValue = this.processFunctionResult(functionResult?.value ?? '');
+        const functionResultValue = FunctionCallsProcessor.processFunctionResult(functionResult?.value ?? '');
         this.addFunctionCallToChatHistory({ chatHistory, functionCall, result: functionResultValue });
       } catch (e) {
         this.addFunctionCallToChatHistory({
@@ -128,9 +129,15 @@ export class FunctionCallsProcessor {
     chatHistory.push(message);
   }
 
-  private processFunctionResult(functionResult: unknown) {
-    if (typeof functionResult === 'string') {
+  static processFunctionResult<T>(functionResult: T) {
+    if (typeof functionResult === "string") {
       return functionResult;
+    }
+
+    // This is an optimization to use ChatMessageContent content directly
+    // without unnecessary serialization of the whole message content class.
+    if (functionResult instanceof ChatMessageContent) {
+      return functionResult.content ?? '';
     }
 
     return JSON.stringify(functionResult);

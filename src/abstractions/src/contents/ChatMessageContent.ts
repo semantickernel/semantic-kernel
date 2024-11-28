@@ -1,6 +1,7 @@
 import { FunctionCallContent, KernelContent } from '.';
 import { Encoding, FunctionResultContent, TextContent } from '.';
 
+
 /**
  * Represents chat message content return from a chat completion service.
  */
@@ -64,6 +65,15 @@ export class ChatMessageContent<Role = 'system' | 'author' | 'user' | 'assistant
   }
 
   /**
+   * A convenience property to get he text of the first item in the items.
+   */
+  public get content() {
+    if (this.items.length > 0 && this.items[0] instanceof TextContent) {
+      return this.items[0].text;
+    }
+  }
+
+  /**
    * Represents the source of the message. The source is corresponds to the entity that generated this message.
    * The property is intended to be used by agents to associate themselves with the messages they generate.
    */
@@ -89,6 +99,18 @@ export class ChatMessageContent<Role = 'system' | 'author' | 'user' | 'assistant
     this.authorName = authorName;
     this._encoding = encoding;
     this.source = source;
+  }
+
+  static isSystemMessage(message: ChatMessageContent): message is ChatMessageContent<'system'> {
+    return message.role === 'system';
+  }
+
+  static isToolMessage(message: ChatMessageContent): message is ChatMessageContent<'tool'> {
+    return message.role === 'tool';
+  }
+
+  static isUserMessage(message: ChatMessageContent): message is ChatMessageContent<'user'> {
+    return message.role === 'user';
   }
 }
 
