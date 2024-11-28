@@ -91,11 +91,12 @@ export class OpenAIChatCompletion {
     kernel,
   }: OpenAIChatCompletionParams) {
     const contentBuilder: string[] = [];
-    const toolCallIdsByIndex = new Map<number, string>();
-    const functionNamesByIndex = new Map<number, string>();
-    const functionArgumentByIndex = new Map<number, string>();
 
     for (let requestIndex = 1; ; requestIndex++) {
+      const toolCallIdsByIndex = new Map<number, string>();
+      const functionNamesByIndex = new Map<number, string>();
+      const functionArgumentByIndex = new Map<number, string>();
+
       // Assume the role is assistant by default and update it if the completion specifies a different role.
       let streamedRole: OpenAI.ChatCompletionChunk.Choice.Delta['role'] = 'assistant';
       const streamedContent: string[] = [];
@@ -167,6 +168,10 @@ export class OpenAIChatCompletion {
         yield openAIStreamingChatMessageContent;
       }
 
+      if (!functionCallingConfig?.autoInvoke || toolCallIdsByIndex.size === 0) {
+        return;
+      }
+
       const toolCalls = OpenAIFunctionToolCall.ConvertToolCallUpdatesToFunctionToolCalls({
         toolCallIdsByIndex,
         functionNamesByIndex,
@@ -174,10 +179,6 @@ export class OpenAIChatCompletion {
       });
 
       const functionCallContents = this.getFunctionCallContents(toolCalls);
-
-      if (!functionCallingConfig?.autoInvoke || toolCallIdsByIndex.size === 0) {
-        return;
-      }
 
       const content = streamedContent.join('');
       const chatMessageContent = new OpenAIChatMessageContent<typeof streamedRole>({
