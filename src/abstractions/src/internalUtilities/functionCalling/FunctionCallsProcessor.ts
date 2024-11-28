@@ -4,7 +4,6 @@ import { FunctionChoiceBehaviorBase } from '../../AI/functionChoiceBehaviors/Fun
 import { Kernel } from '../../Kernel';
 import { ChatMessageContent, FunctionCallContent, FunctionResultContent } from '../../contents';
 
-
 /**
  * The maximum number of function auto-invokes that can be made in a single user request.
  */
@@ -130,7 +129,7 @@ export class FunctionCallsProcessor {
   }
 
   static processFunctionResult<T>(functionResult: T) {
-    if (typeof functionResult === "string") {
+    if (typeof functionResult === 'string') {
       return functionResult;
     }
 

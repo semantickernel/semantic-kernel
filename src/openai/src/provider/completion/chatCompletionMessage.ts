@@ -1,7 +1,12 @@
 import { OpenAIFunctionNameSeparator } from '../../OpenAIFunction';
-import { ChatMessageContent, FunctionCallContent, FunctionCallsProcessor, FunctionName, TextContent } from '@semantic-kernel/abstractions';
+import {
+  ChatMessageContent,
+  FunctionCallContent,
+  FunctionCallsProcessor,
+  FunctionName,
+  TextContent,
+} from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
-
 
 export const createChatCompletionMessages = (message: ChatMessageContent): OpenAI.Chat.ChatCompletionMessageParam[] => {
   // handle system messages
@@ -40,7 +45,7 @@ export const createChatCompletionMessages = (message: ChatMessageContent): OpenA
     }
 
     if (toolMessages.length === 0) {
-      throw new Error("No function result provided in the tool message.");
+      throw new Error('No function result provided in the tool message.');
     }
 
     return toolMessages;

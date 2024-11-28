@@ -1,7 +1,6 @@
 import { FunctionCallContent, KernelContent } from '.';
 import { Encoding, FunctionResultContent, TextContent } from '.';
 
-
 /**
  * Represents chat message content return from a chat completion service.
  */
