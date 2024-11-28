@@ -58,6 +58,7 @@ export const createChatCompletionMessages = (message: ChatMessageContent): OpenA
     if (items.length === 1 && message.content) {
       const chatUserMessage: OpenAI.Chat.ChatCompletionUserMessageParam = {
         role: 'user',
+        name: message.authorName,
         content: message.content,
       };
 
@@ -65,22 +66,25 @@ export const createChatCompletionMessages = (message: ChatMessageContent): OpenA
     }
 
     for (const item of items) {
-      if (message.content) {
-        const chatUserMessage: OpenAI.Chat.ChatCompletionUserMessageParam = {
-          role: 'user',
-          content: message.content,
-        };
+      const chatUserMessages: OpenAI.Chat.ChatCompletionUserMessageParam[] = [];
 
-        return [chatUserMessage];
+      if (item instanceof TextContent && item.text) {
+        chatUserMessages.push({
+          role: 'user',
+          name: message.authorName,
+          content: item.text,
+        });
       } else {
         throw new Error(`Unsupported chat item type: ${item}`);
       }
+
+      return chatUserMessages;
     }
   }
 
   // handle assistant messages
-  if (message.role === 'assistant') {
-    const items = (message as ChatMessageContent<'assistant'>).items;
+  if (ChatMessageContent.isAssistantMessage(message)) {
+    const items = message.items;
     const messageToolCalls = FunctionCallContent.getFunctionCalls(message);
 
     const chatAssistantMessage: OpenAI.Chat.ChatCompletionAssistantMessageParam = {
@@ -88,10 +92,8 @@ export const createChatCompletionMessages = (message: ChatMessageContent): OpenA
       name: message.authorName,
     };
 
-    if (items.length === 1) {
-      if (items[0] instanceof TextContent) {
-        chatAssistantMessage.content = items[0].text;
-      }
+    if (items.length === 1 && message.content) {
+      chatAssistantMessage.content = message.content;
     } else {
       const textContents = items
         .filter((item) => item)

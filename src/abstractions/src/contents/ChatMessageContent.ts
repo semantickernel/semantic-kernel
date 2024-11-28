@@ -34,7 +34,7 @@ export class ChatMessageContent<Role = 'system' | 'author' | 'user' | 'assistant
    */
   private _encoding?: Encoding;
 
-  public get encoding(): Encoding | undefined {
+  get encoding(): Encoding | undefined {
     if (this.items instanceof TextContent) {
       return this.items.encoding;
     }
@@ -50,7 +50,7 @@ export class ChatMessageContent<Role = 'system' | 'author' | 'user' | 'assistant
     return this._encoding;
   }
 
-  public set encoding(value: Encoding) {
+  set encoding(value: Encoding) {
     this._encoding = value;
 
     if (this.items instanceof TextContent) {
@@ -66,7 +66,7 @@ export class ChatMessageContent<Role = 'system' | 'author' | 'user' | 'assistant
   /**
    * A convenience property to get he text of the first item in the items.
    */
-  public get content() {
+  get content() {
     if (this.items.length > 0 && this.items[0] instanceof TextContent) {
       return this.items[0].text;
     }
@@ -110,6 +110,10 @@ export class ChatMessageContent<Role = 'system' | 'author' | 'user' | 'assistant
 
   static isUserMessage(message: ChatMessageContent): message is ChatMessageContent<'user'> {
     return message.role === 'user';
+  }
+
+  static isAssistantMessage(message: ChatMessageContent): message is ChatMessageContent<'assistant'> {
+    return message.role === 'assistant';
   }
 }
 
