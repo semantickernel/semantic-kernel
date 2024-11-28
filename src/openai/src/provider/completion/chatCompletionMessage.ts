@@ -2,13 +2,14 @@ import { OpenAIFunctionNameSeparator } from '../../OpenAIFunction';
 import { ChatMessageContent, FunctionCallContent, FunctionName, TextContent } from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
 
+
 export const createChatCompletionMessages = (message: ChatMessageContent): OpenAI.Chat.ChatCompletionMessageParam[] => {
   // handle system messages
   if (message.role === 'system') {
     const chatSystemMessage: OpenAI.Chat.ChatCompletionSystemMessageParam = {
       role: 'system',
       name: message.authorName,
-      content: (message as ChatMessageContent<'system'>).items.text,
+      content: (message as ChatMessageContent<'system'>).items[0].text ?? '',
     };
 
     return [chatSystemMessage];
@@ -16,7 +17,7 @@ export const createChatCompletionMessages = (message: ChatMessageContent): OpenA
 
   // handle tool messages
   if (message.role === 'tool') {
-    const items = (message as ChatMessageContent<'tool'>).items;
+    const items = (message as ChatMessageContent<'tool'>).items[0];
     const toolCallId = items.callId;
 
     if (!toolCallId || typeof toolCallId !== 'string') {
@@ -46,7 +47,7 @@ export const createChatCompletionMessages = (message: ChatMessageContent): OpenA
   if (message.role === 'user') {
     const items = (message as ChatMessageContent<'user'>).items;
 
-    if (items.length === 1 && items[0] instanceof TextContent) {
+    if (items.length === 1 && items[0] instanceof TextContent && items[0].text) {
       const chatUserMessage: OpenAI.Chat.ChatCompletionUserMessageParam = {
         role: 'user',
         content: items[0].text,
@@ -56,7 +57,7 @@ export const createChatCompletionMessages = (message: ChatMessageContent): OpenA
     }
 
     for (const item of items) {
-      if (item instanceof TextContent) {
+      if (item instanceof TextContent && item.text) {
         const chatUserMessage: OpenAI.Chat.ChatCompletionUserMessageParam = {
           role: 'user',
           content: item.text,
@@ -84,12 +85,13 @@ export const createChatCompletionMessages = (message: ChatMessageContent): OpenA
         chatAssistantMessage.content = items[0].text;
       }
     } else {
-      chatAssistantMessage.content = items
+      const textContents = items
         .filter((item) => item)
-        .filter((item) => item instanceof TextContent)
-        .map((item) => {
-          return { text: item.text, type: 'text' };
-        });
+        .filter((item) => item instanceof TextContent && item.text) as TextContent[];
+
+      chatAssistantMessage.content = (textContents.map((item) => item.text) as string[]).map((text) => {
+        return { text, type: 'text' };
+      });
     }
 
     if (messageToolCalls.length > 0) {
