@@ -1,5 +1,5 @@
-import { ChatMessageContent } from '../AI';
 import { KernelArguments } from '../functions/KernelArguments';
+import { ChatMessageContent } from './ChatMessageContent';
 import { KernelContent } from './KernelContent';
 
 export class FunctionCallContent extends KernelContent {

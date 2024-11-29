@@ -5,9 +5,17 @@ import { KernelArguments } from './KernelArguments';
 
 export type Fn<Result, Args> = (args: Args, kernel?: Kernel) => Result;
 
-export type FunctionResult<Result, Args> = {
-  function?: Fn<Result, Args>;
-  value: Result;
+export type FunctionResult<
+  Schema extends JsonSchema | unknown | undefined = unknown,
+  Result = unknown,
+  Args = Schema extends JsonSchema
+    ? FromSchema<Schema>
+    : Schema extends undefined
+      ? undefined
+      : Record<string, unknown>,
+> = {
+  function?: KernelFunction<Schema, Result, Args>;
+  value?: Result;
   renderedPrompt?: string;
   metadata?: ReadonlyMap<string, unknown>;
 };
@@ -55,17 +63,53 @@ export abstract class KernelFunction<
   protected abstract invokeCore(
     kernel: Kernel,
     args?: KernelArguments<Schema, Args>
-  ): Promise<FunctionResult<Result, Args>>;
+  ): Promise<FunctionResult<Schema, Result, Args>>;
 
-  invoke = async (kernel: Kernel, args?: KernelArguments<Schema, Args>): Promise<FunctionResult<Result, Args>> => {
-    const value = await this.invokeCore(kernel, args);
+  protected abstract invokeStreamingCore<T>(kernel: Kernel, args?: KernelArguments<Schema, Args>): AsyncGenerator<T>;
 
-    kernel.functionInvocationFilters.forEach((filter) => {
-      filter.onFunctionInvocationFilter({ kernel, args, value });
+  invoke = async (
+    kernel: Kernel,
+    args?: KernelArguments<Schema, Args>
+  ): Promise<FunctionResult<Schema, Result, Args>> => {
+    args = args ?? new KernelArguments({});
+    let functionResult: FunctionResult<Schema, Result, Args> = { function: this };
+
+    const invocationContext = await kernel.onFunctionInvocation<Schema, Result, Args>({
+      arguments: args,
+      function: this,
+      functionResult,
+      isStreaming: false,
+      functionCallback: async (context) => {
+        context.result = await this.invokeCore(kernel, args);
+      },
     });
 
-    return value;
+    functionResult = invocationContext.result;
+
+    return functionResult;
   };
+
+  async *invokeStreaming(kernel: Kernel, args?: KernelArguments<Schema, Args>): AsyncGenerator<Result> {
+    args = args ?? new KernelArguments({});
+    const functionResult: FunctionResult<Schema, Result, Args> = { function: this };
+
+    const invocationContext = await kernel.onFunctionInvocation<Schema, Result, Args>({
+      arguments: args,
+      function: this,
+      functionResult,
+      isStreaming: true,
+      functionCallback: async (context) => {
+        const enumerable = this.invokeStreamingCore(kernel, args);
+        context.result = { value: enumerable as Result };
+      },
+    });
+
+    const enumerable = invocationContext.result.value as AsyncGenerator<Result>;
+
+    for await (const value of enumerable) {
+      yield value;
+    }
+  }
 }
 
 export const kernelFunction = <
@@ -81,13 +125,17 @@ export const kernelFunction = <
       super({ metadata });
     }
 
+    protected override invokeStreamingCore<T>(): AsyncGenerator<T> {
+      throw new Error('Method not implemented.');
+    }
+
     override async invokeCore(
       kernel: Kernel,
       args: Args extends undefined ? KernelArguments<Schema, Args> | undefined : KernelArguments<Schema, Args>
     ) {
       return {
         value: await fn(args?.arguments as Args, kernel),
-        function: fn,
+        function: this,
       };
     }
   })();

@@ -1,35 +1,32 @@
 import { Encoding } from './Encoding';
 import { InnerContent } from './InnerContent';
-import { KernelContent } from './KernelContent';
 import { ModelId } from './ModelId';
+import { StreamingKernelContent } from './StreamingKernelContent';
 
 /**
- * Represents text content return from a text completion service.
+ * Abstraction of text content chunks.
  */
-export class TextContent extends KernelContent {
+export class StreamingTextContent extends StreamingKernelContent {
+  /**
+   * The text associated to the update.
+   */
+  text?: string;
+
   /**
    * Encoding of the text content.
    */
   encoding: Encoding;
 
-  /**
-   * The text content.
-   */
-  text?: string;
-
   constructor(props: {
     text?: string;
-    modelId?: ModelId;
+    choiceIndex?: number;
+    model?: ModelId;
     innerContent?: InnerContent;
     encoding?: Encoding;
     metadata?: { [key: string]: string | number | object | undefined | null };
   }) {
-    super(props);
+    super({ ...props, choiceIndex: props.choiceIndex ?? 0 });
     this.text = props.text;
     this.encoding = props.encoding ?? 'utf-8';
-  }
-
-  override toString(): string {
-    return this.text ?? '';
   }
 }

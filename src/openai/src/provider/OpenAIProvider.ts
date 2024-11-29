@@ -8,7 +8,7 @@ import OpenAI from 'openai';
 export class OpenAIProvider {
   private readonly openAIClient: OpenAI;
   private readonly openAIChatCompletion: OpenAIChatCompletion;
-  private readonly _model: string;
+  private readonly _modelId: string;
   private readonly _attributes: Map<string, string> = new Map();
   private readonly endpoint: string;
 
@@ -20,7 +20,7 @@ export class OpenAIProvider {
   /**
    * Returns a new OpenAI provider.
    * @param params OpenAI provider parameters.
-   * @param params.model OpenAI model id.
+   * @param params.modelId OpenAI model id.
    * @param params.apiKey OpenAI API key.
    * @param params.endpoint OpenAI endpoint (optional).
    * @param params.organization OpenAI organization (optional).
@@ -28,20 +28,20 @@ export class OpenAIProvider {
    * @returns The OpenAI provider.
    */
   public constructor({
-    model,
+    modelId,
     apiKey,
     endpoint,
     organization,
     openAIClient,
   }: {
-    model: string;
+    modelId: string;
     apiKey: string;
     endpoint?: string;
     organization?: string;
     openAIClient?: OpenAI;
   }) {
-    this._model = model;
-    this.addAttribute(ModelIdKey, this._model);
+    this._modelId = modelId;
+    this.addAttribute(ModelIdKey, this._modelId);
 
     this.endpoint = endpoint ?? this.OpenAIV1Endpoint;
     this.addAttribute(EndpointKey, this.endpoint);
@@ -57,10 +57,17 @@ export class OpenAIProvider {
     this.openAIChatCompletion = new OpenAIChatCompletion(this.openAIClient);
   }
 
-  public async getChatMessageContents(completionParams: Omit<OpenAIChatCompletionParams, 'model'>) {
+  public getChatMessageContents(completionParams: Omit<OpenAIChatCompletionParams, 'modelId'>) {
     return this.openAIChatCompletion.getChatMessageContent({
       ...completionParams,
-      model: this._model,
+      modelId: this._modelId,
+    });
+  }
+
+  public getStreamingChatMessageContents(completionParams: Omit<OpenAIChatCompletionParams, 'modelId'>) {
+    return this.openAIChatCompletion.getChatMessageContentStream({
+      ...completionParams,
+      modelId: this._modelId,
     });
   }
 

@@ -5,7 +5,7 @@ describe('OpenAIProvider', () => {
     // Arrange
     // Act
     const mockOpenAIProvider = new OpenAIProvider({
-      model: 'testModel',
+      modelId: 'testModel',
       apiKey: 'testApiKey',
     });
 

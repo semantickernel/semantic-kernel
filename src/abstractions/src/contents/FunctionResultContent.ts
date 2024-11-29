@@ -1,13 +1,13 @@
 import { KernelContent } from './KernelContent';
 
-export class FunctionResultContent<T> extends KernelContent {
+export class FunctionResultContent<T = unknown> extends KernelContent {
   callId?: string;
   pluginName?: string;
   functionName?: string;
   result?: T;
 
   constructor(props: { callId?: string; pluginName?: string; functionName?: string; result?: T }) {
-    super();
+    super({});
     this.callId = props.callId;
     this.pluginName = props.pluginName;
     this.functionName = props.functionName;

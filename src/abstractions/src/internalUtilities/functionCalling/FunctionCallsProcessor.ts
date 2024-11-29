@@ -1,7 +1,8 @@
-import { ChatHistory, ChatMessageContent } from '../../AI/chatCompletion';
-import { FunctionChoiceBehavior, FunctionChoiceBehaviorConfiguration } from '../../AI/functionChoiceBehaviors';
+import { ChatHistory } from '../../AI/chatCompletion';
+import { FunctionChoiceBehaviorConfiguration } from '../../AI/functionChoiceBehaviors';
+import { FunctionChoiceBehaviorBase } from '../../AI/functionChoiceBehaviors/FunctionChoiceBehaviorBase';
 import { Kernel } from '../../Kernel';
-import { FunctionCallContent, FunctionResultContent } from '../../contents';
+import { ChatMessageContent, FunctionCallContent, FunctionResultContent } from '../../contents';
 
 /**
  * The maximum number of function auto-invokes that can be made in a single user request.
@@ -12,7 +13,7 @@ export class FunctionCallsProcessor {
   public GetConfiguration(
     chatHistory: ChatHistory,
     requestIndex: number,
-    behavior?: FunctionChoiceBehavior,
+    behavior?: FunctionChoiceBehaviorBase,
     kernel?: Kernel
   ): FunctionChoiceBehaviorConfiguration | undefined {
     if (!behavior) {
@@ -83,7 +84,7 @@ export class FunctionCallsProcessor {
 
       try {
         const functionResult = await kernelFunction.invoke(kernel, functionCall.arguments);
-        const functionResultValue = this.processFunctionResult(functionResult?.value ?? '');
+        const functionResultValue = FunctionCallsProcessor.processFunctionResult(functionResult?.value ?? '');
         this.addFunctionCallToChatHistory({ chatHistory, functionCall, result: functionResultValue });
       } catch (e) {
         this.addFunctionCallToChatHistory({
@@ -114,20 +115,28 @@ export class FunctionCallsProcessor {
 
     const message = new ChatMessageContent<'tool'>({
       role: 'tool',
-      items: new FunctionResultContent({
-        callId: functionCall.id,
-        result,
-        functionName: functionCall.functionName,
-        pluginName: functionCall.pluginName,
-      }),
+      items: [
+        new FunctionResultContent({
+          callId: functionCall.id,
+          result,
+          functionName: functionCall.functionName,
+          pluginName: functionCall.pluginName,
+        }),
+      ],
     });
 
     chatHistory.push(message);
   }
 
-  private processFunctionResult(functionResult: unknown) {
+  static processFunctionResult<T>(functionResult: T) {
     if (typeof functionResult === 'string') {
       return functionResult;
+    }
+
+    // This is an optimization to use ChatMessageContent content directly
+    // without unnecessary serialization of the whole message content class.
+    if (functionResult instanceof ChatMessageContent) {
+      return functionResult.content ?? '';
     }
 
     return JSON.stringify(functionResult);

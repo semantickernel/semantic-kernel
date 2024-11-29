@@ -1,6 +1,7 @@
-import { ChatCompletionService, ChatMessageContent, PromptExecutionSettings } from '../AI';
+import { ChatCompletionService, PromptExecutionSettings } from '../AI';
 import { Kernel } from '../Kernel';
-import { FromSchema } from '../jsonSchema';
+import { ChatMessageContent } from '../contents';
+import { type FromSchema } from '../jsonSchema';
 import {
   PassThroughPromptTemplate,
   PromptTemplate,
@@ -109,6 +110,26 @@ export class KernelFunctionFromPrompt extends KernelFunction<
     throw new Error(`Unsupported AI service type: ${AIService.serviceType}`);
   };
 
+  override async *invokeStreamingCore<T>(kernel: Kernel, args: KernelArguments<PromptType>): AsyncGenerator<T> {
+    const { renderedPrompt, AIService, executionSettings } = await this.renderPrompt(kernel, args);
+
+    if (AIService.serviceType === 'ChatCompletion') {
+      const chatContents = (AIService as ChatCompletionService).getStreamingChatMessageContents({
+        prompt: renderedPrompt,
+        executionSettings,
+        kernel,
+      });
+
+      for await (const chatContent of chatContents) {
+        yield chatContent as T;
+      }
+
+      return;
+    }
+
+    throw new Error(`Unsupported AI service type: ${AIService.serviceType}`);
+  }
+
   private getPromptTemplate = (): PromptTemplate => {
     switch (this.promptTemplateConfig.templateFormat) {
       case 'passthrough':
@@ -118,7 +139,7 @@ export class KernelFunctionFromPrompt extends KernelFunction<
     }
   };
 
-  private renderPrompt = async (kernel: Kernel, args: KernelArguments<PromptType>): Promise<PromptRenderingResult> => {
+  private async renderPrompt(kernel: Kernel, args: KernelArguments<PromptType>): Promise<PromptRenderingResult> {
     const promptTemplate = this.getPromptTemplate();
 
     const { service, executionSettings } =
@@ -138,12 +159,14 @@ export class KernelFunctionFromPrompt extends KernelFunction<
       throw new Error('AIService not found in kernel');
     }
 
+    const renderedPrompt = await promptTemplate.render(kernel, args);
+
     return {
-      renderedPrompt: await promptTemplate.render(kernel, args),
+      renderedPrompt,
       executionSettings,
       AIService: service,
     };
-  };
+  }
 
   private static createRandomFunctionName() {
     return `function_${Math.random().toString(36).substring(7)}`;

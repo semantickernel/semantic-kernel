@@ -1,13 +1,19 @@
-import { OpenAIFunctionNameSeparator } from '../OpenAIFunction';
-import { ChatMessageContent, FunctionCallContent, FunctionName, TextContent } from '@semantic-kernel/abstractions';
-import { KernelArguments } from '@semantic-kernel/abstractions';
+import { ChatMessageContent, TextContent } from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
 
-export class OpenAIChatMessageContent extends ChatMessageContent<'assistant'> {
-  public constructor(props: { chatCompletion: OpenAI.ChatCompletion; model: string }) {
-    const choice = props.chatCompletion.choices[0];
-    const content = choice.message.content;
-    const items: Array<TextContent | FunctionCallContent> = [];
+export class OpenAIChatMessageContent<Role> extends ChatMessageContent<Role> {
+  public constructor({
+    role,
+    modelId,
+    content,
+    items,
+  }: {
+    role: Role;
+    modelId: string;
+    content?: string | null;
+    items: OpenAIChatMessageContent<Role>['items'];
+  }) {
+    items = items ?? [];
 
     if (content) {
       items.push(
@@ -17,32 +23,31 @@ export class OpenAIChatMessageContent extends ChatMessageContent<'assistant'> {
       );
     }
 
-    if (choice.message.tool_calls) {
-      for (const toolCall of choice.message.tool_calls) {
-        // Only process function calls
-        if (toolCall.type !== 'function') {
-          continue;
-        }
+    super({
+      role,
+      modelId,
+      items,
+    });
+  }
 
-        const functionArguments = JSON.parse(toolCall.function.arguments);
-        const { functionName, pluginName } = FunctionName.parse(toolCall.function.name, OpenAIFunctionNameSeparator);
-
-        items.push(
-          new FunctionCallContent({
-            id: toolCall.id,
-            functionName,
-            pluginName,
-            arguments: new KernelArguments({ arguments: functionArguments }),
-          })
-        );
-      }
-    }
+  public static fromOpenAIChatCompletion({
+    chatCompletion,
+    modelId,
+    items,
+  }: {
+    chatCompletion: OpenAI.ChatCompletion;
+    modelId: string;
+    items?: OpenAIChatMessageContent<'assistant'>['items'];
+  }) {
+    const choice = chatCompletion.choices[0];
+    const content = choice.message.content;
 
     // OpenAI.ChatCompletion's role is always 'assistant'
-    super({
+    return new OpenAIChatMessageContent<'assistant'>({
       role: 'assistant',
-      model: props.model,
-      items,
+      modelId,
+      content,
+      items: items ?? [],
     });
   }
 }

@@ -27,7 +27,7 @@ export const useKernel = (props: useKernelProps) => {
     } else if (props.openAIApiKey && props.openAIModel) {
       sk.addService(
         new OpenAIChatCompletionService({
-          model: props.openAIModel,
+          modelId: props.openAIModel,
           apiKey: props.openAIApiKey,
           organization: props.openAIorganization,
         })

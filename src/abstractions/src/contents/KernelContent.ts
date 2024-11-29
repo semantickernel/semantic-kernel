@@ -21,17 +21,17 @@ export abstract class KernelContent {
   /**
    * The model id used to generate the content.
    */
-  model?: ModelId;
+  modelId?: ModelId;
 
   /**
    * Metadata associated with the content.
    */
   metadata?: { [key: string]: string | number | object | undefined | null };
 
-  public constructor(props?: KernelContent) {
-    this.mimeType = props?.mimeType;
-    this.innerContent = props?.innerContent;
-    this.model = props?.model;
-    this.metadata = props?.metadata;
+  public constructor(props: KernelContent) {
+    this.mimeType = props.mimeType;
+    this.innerContent = props.innerContent;
+    this.modelId = props.modelId;
+    this.metadata = props.metadata;
   }
 }
