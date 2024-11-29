@@ -3,6 +3,7 @@ import { AutoFunctionChoiceBehavior } from './AutoFunctionChoiceBehavior';
 import { FunctionChoiceBehaviorOptions } from './FunctionChoiceBehaviorOptions';
 import { NoneFunctionChoiceBehavior } from './NoneFunctionChoiceBehavior';
 
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class FunctionChoiceBehavior {
   static Auto(functions?: Array<KernelFunction>, autoInvoke: boolean = true, options?: FunctionChoiceBehaviorOptions) {
     return new AutoFunctionChoiceBehavior(functions, autoInvoke, options);

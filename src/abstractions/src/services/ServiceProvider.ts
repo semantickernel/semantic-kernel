@@ -74,7 +74,7 @@ export class MapServiceProvider implements ServiceProvider {
       throw new Error(`Service with key ${serviceKey} does not exist.`);
     }
 
-    return this.services.get(serviceKey)!;
+    return this.services.get(serviceKey) as AIService;
   };
 
   getServices = () => this.services.entries();

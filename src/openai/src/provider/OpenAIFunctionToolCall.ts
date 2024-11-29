@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class OpenAIFunctionToolCall {
   /**
    * Tracks tooling updates from streaming responses.

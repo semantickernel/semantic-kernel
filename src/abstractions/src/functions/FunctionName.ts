@@ -1,6 +1,7 @@
 /**
  * Represents a function name, which may include a plugin name.
  */
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class FunctionName {
   /**
    * The separator used between the plugin name and the function name, if a plugin name is present.
