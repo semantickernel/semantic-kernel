@@ -1,4 +1,4 @@
-import { JsonSchema } from '../jsonSchema';
+import { type JsonSchema } from '../jsonSchema';
 import { KernelFunction, kernelFunction } from './KernelFunction';
 import { KernelPlugin } from './KernelPlugin';
 import { MapKernelPlugins } from './KernelPlugins';

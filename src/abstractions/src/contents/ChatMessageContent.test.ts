@@ -60,7 +60,7 @@ describe('ChatMessageContent', () => {
     it('should be able to create a system chat message', () => {
       // Arrange
       const role = 'system';
-      const items = new TextContent({ text: 'test' });
+      const items = [new TextContent({ text: 'test' })];
 
       // Act
       const result = new ChatMessageContent<typeof role>({
@@ -98,7 +98,7 @@ describe('ChatMessageContent', () => {
     it('should be able to create a tool chat message', () => {
       // Arrange
       const role = 'tool';
-      const items = new TextContent({ text: 'text' });
+      const items = [new TextContent({ text: 'text' })];
 
       // Act
       const result = new ChatMessageContent<typeof role>({
@@ -115,7 +115,7 @@ describe('ChatMessageContent', () => {
     it('should be able to create a tool chat message with metadata', () => {
       // Arrange
       const role = 'tool';
-      const items = new TextContent({ text: 'test' });
+      const items = [new TextContent({ text: 'test' })];
       const metadata = { type: 'test' };
 
       // Act

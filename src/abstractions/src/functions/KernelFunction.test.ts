@@ -29,13 +29,13 @@ describe('kernelFunction', () => {
 
     it('should invoke a function with no params', async () => {
       // Arrange
-      const fn = () => 'testResult';
       const metadata = {
         name: 'testFunction',
       };
+      const fn = kernelFunction(() => 'testResult', metadata);
 
       // Act
-      const result = await kernelFunction(fn, metadata).invoke(sk);
+      const result = await fn.invoke(sk);
 
       // Assert
       expect(result).toEqual({
@@ -229,13 +229,15 @@ describe('kernelFunction', () => {
       const filterCallsHistory: number[] = [];
 
       sk.functionInvocationFilters.push({
-        onFunctionInvocationFilter: () => {
+        onFunctionInvocationFilter: async ({ context, next }) => {
           filterCallsHistory.push(Date.now());
+          await next(context);
         },
       });
       sk.functionInvocationFilters.push({
-        onFunctionInvocationFilter: () => {
+        onFunctionInvocationFilter: async ({ context, next }) => {
           filterCallsHistory.push(Date.now() + 5);
+          await next(context);
         },
       });
 
