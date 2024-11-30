@@ -5,45 +5,42 @@ import { AzureOpenAI } from 'openai';
  * Azure OpenAI provider which provides access to the Azure OpenAI API including chat completions, etc.
  */
 export class AzureOpenAIProvider extends OpenAIProvider {
-  /**
-   * Default Azure OpenAI API version.
-   */
-  private static readonly azureOpenAIVersion = '2024-02-01';
-
   private static readonly deploymentNameKey = 'DeploymentName';
   private readonly deploymentName: string;
 
   /**
-   * Returns a new Azure OpenAI provider.
-   * @param params Azure OpenAI provider parameters.
-   * @param params.model Azure OpenAI model id.
-   * @param params.apiKey Azure OpenAI API key.
-   * @param params.endpoint Azure OpenAI endpoint.
-   * @param params.azureOpenAIClient Azure OpenAI client (optional).
-   * @returns The Azure OpenAI provider.
+   * API Client for interfacing with the Azure OpenAI API.
+   *
+   * @param {string} opts.deploymentName - Model deployment name.
+   * @param {string} opts.apiKey - Azure endpoint API Key.
+   * @param {string} opts.endpoint - Your Azure endpoint, including the resource, e.g. `https://example-resource.azure.openai.com/`
+   * @param {string} opts.apiVersion - Your Azure API version, e.g. `2024-02-01`
+   * @param {AzureOpenAIProvider | undefined} opts.azureOpenAIClient - Azure OpenAI client (optional).
    */
   public constructor({
     deploymentName,
     apiKey,
     endpoint,
+    apiVersion,
     azureOpenAIClient,
   }: {
     deploymentName: string;
     apiKey: string;
     endpoint: string;
+    apiVersion: string;
     azureOpenAIClient?: AzureOpenAI;
   }) {
     super({
       modelId: deploymentName,
-      apiKey: apiKey,
-      endpoint: endpoint,
+      apiKey,
+      endpoint,
       openAIClient:
         azureOpenAIClient ??
         new AzureOpenAI({
-          apiKey: apiKey,
-          apiVersion: AzureOpenAIProvider.azureOpenAIVersion,
+          apiKey,
+          apiVersion,
           deployment: deploymentName,
-          endpoint: endpoint,
+          endpoint,
         }),
     });
 

@@ -8,6 +8,7 @@ describe('AzureOpenAIProvider', () => {
       deploymentName: 'testDeploymentName',
       apiKey: 'testApiKey',
       endpoint: 'testEndpoint',
+      apiVersion: 'testApiVersion',
     });
 
     // Assert

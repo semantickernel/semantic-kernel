@@ -13,7 +13,7 @@ import {
  */
 export class AzureOpenAIChatCompletionService implements ChatCompletionService {
   public readonly serviceType = 'ChatCompletion';
-  public readonly serviceKey = 'azureOpenAIChatCompletion';
+  public readonly serviceKey = 'AzureOpenAIChatCompletion';
   private readonly provider: AzureOpenAIProvider;
 
   /**
@@ -29,14 +29,16 @@ export class AzureOpenAIChatCompletionService implements ChatCompletionService {
     deploymentName,
     apiKey,
     endpoint,
+    apiVersion,
     provider,
   }: {
     deploymentName: string;
     apiKey: string;
     endpoint: string;
+    apiVersion: string;
     provider?: AzureOpenAIProvider;
   }) {
-    this.provider = provider ?? new AzureOpenAIProvider({ deploymentName, apiKey, endpoint });
+    this.provider = provider ?? new AzureOpenAIProvider({ deploymentName, apiKey, endpoint, apiVersion });
   }
 
   public get attributes() {
