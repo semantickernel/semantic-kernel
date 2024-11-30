@@ -26,17 +26,17 @@ export class AzureOpenAIChatCompletionService implements ChatCompletionService {
    * @param params.provider Azure OpenAI provider (optional).
    */
   public constructor({
-    model,
+    deploymentName,
     apiKey,
     endpoint,
     provider,
   }: {
-    model: string;
+    deploymentName: string;
     apiKey: string;
     endpoint: string;
     provider?: AzureOpenAIProvider;
   }) {
-    this.provider = provider ?? new AzureOpenAIProvider({ model, apiKey, endpoint });
+    this.provider = provider ?? new AzureOpenAIProvider({ deploymentName, apiKey, endpoint });
   }
 
   public get attributes() {
@@ -53,7 +53,7 @@ export class AzureOpenAIChatCompletionService implements ChatCompletionService {
     chatHistory?: ChatHistory;
     executionSettings?: PromptExecutionSettings;
     kernel?: Kernel;
-  }): Promise<ChatMessageContent[]> {
+  }) {
     if (prompt) {
       chatHistory = [new ChatMessageContent<'user'>({ role: 'user', items: [new TextContent({ text: prompt })] })];
     }
@@ -63,5 +63,27 @@ export class AzureOpenAIChatCompletionService implements ChatCompletionService {
     }
 
     return this.provider.getChatMessageContents({ chatHistory, executionSettings, kernel });
+  }
+
+  getStreamingChatMessageContents({
+    prompt,
+    chatHistory,
+    executionSettings,
+    kernel,
+  }: {
+    prompt?: string;
+    chatHistory?: ChatHistory;
+    executionSettings?: PromptExecutionSettings;
+    kernel?: Kernel;
+  }) {
+    if (prompt) {
+      chatHistory = [new ChatMessageContent<'user'>({ role: 'user', items: [new TextContent({ text: prompt })] })];
+    }
+
+    if (!chatHistory) {
+      throw new Error('Either prompt or chatHistory is required for chat completion.');
+    }
+
+    return this.provider.getStreamingChatMessageContents({ chatHistory, executionSettings, kernel });
   }
 }
