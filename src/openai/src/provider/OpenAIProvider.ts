@@ -1,5 +1,11 @@
 import { OpenAIChatCompletion, OpenAIChatCompletionParams } from './completion';
-import { EndpointKey, ModelIdKey } from '@semantic-kernel/abstractions';
+import {
+  EndpointKey,
+  ModelIdKey,
+  SemanticKernelUserAgent,
+  SemanticKernelVersionHttpHeaderName,
+  SemanticKernelVersionHttpHeaderValue,
+} from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
 
 /**
@@ -18,14 +24,13 @@ export class OpenAIProvider {
   private readonly OpenAIV1Endpoint = 'https://api.openai.com/v1';
 
   /**
-   * Returns a new OpenAI provider.
-   * @param params OpenAI provider parameters.
-   * @param params.modelId OpenAI model id.
-   * @param params.apiKey OpenAI API key.
-   * @param params.endpoint OpenAI endpoint (optional).
-   * @param params.organization OpenAI organization (optional).
-   * @param params.openAIClient OpenAI client (optional).
-   * @returns The OpenAI provider.
+   * API Client for interfacing with the OpenAI API.
+   *
+   * @param {string} opts.modelId - OpenAI model id.
+   * @param {string} opts.apiKey - OpenAI API key.
+   * @param {string | undefined} opts.endpoint - Your OpenAI endpoint.
+   * @param {string | undefined} opts.organization - OpenAI organization.
+   * @param {OpenAIProvider | undefined} opts.openAIClient - OpenAI Client (optional).
    */
   public constructor({
     modelId: _modelId,
@@ -52,6 +57,10 @@ export class OpenAIProvider {
         apiKey,
         organization,
         baseURL: this.endpoint,
+        defaultHeaders: {
+          'User-Agent': SemanticKernelUserAgent,
+          [SemanticKernelVersionHttpHeaderName]: SemanticKernelVersionHttpHeaderValue,
+        },
       });
 
     this.openAIChatCompletion = new OpenAIChatCompletion(this.openAIClient);
