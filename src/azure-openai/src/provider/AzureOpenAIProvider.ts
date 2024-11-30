@@ -1,3 +1,8 @@
+import {
+  SemanticKernelUserAgent,
+  SemanticKernelVersionHttpHeaderName,
+  SemanticKernelVersionHttpHeaderValue,
+} from '@semantic-kernel/abstractions';
 import { OpenAIProvider } from '@semantic-kernel/openai';
 import { AzureOpenAI } from 'openai';
 
@@ -40,6 +45,10 @@ export class AzureOpenAIProvider extends OpenAIProvider {
           apiKey,
           apiVersion,
           deployment: deploymentName,
+          defaultHeaders: {
+            'User-Agent': SemanticKernelUserAgent,
+            [SemanticKernelVersionHttpHeaderName]: SemanticKernelVersionHttpHeaderValue,
+          },
           endpoint,
         }),
     });
