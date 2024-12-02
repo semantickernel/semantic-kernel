@@ -12,9 +12,9 @@ export const useChat = (props: useChatProps) => {
   useEffect(() => {
     if (!kernel) return;
 
-    const chatCompletionService = kernel.services.getService({
+    const chatCompletionService = kernel.services.trySelectAIService({
       serviceType: 'ChatCompletion',
-    })?.service as ChatCompletionService;
+    })?.service;
 
     if (!chatCompletionService) {
       throw new Error('ChatCompletion service not found');

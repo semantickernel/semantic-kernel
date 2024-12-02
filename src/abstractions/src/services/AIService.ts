@@ -11,11 +11,6 @@ export interface AIService {
   serviceType: AIServiceType;
 
   /**
-   * Unique key of the AI service.
-   */
-  serviceKey: string;
-
-  /**
    * Gets the AI service attributes.
    */
   attributes: ReadonlyMap<string, string | number | null | undefined>;

@@ -1,19 +1,11 @@
 import { AzureOpenAIProvider } from '../provider/AzureOpenAIProvider';
-import {
-  ChatCompletionService,
-  ChatHistory,
-  ChatMessageContent,
-  Kernel,
-  PromptExecutionSettings,
-  TextContent,
-} from '@semantic-kernel/abstractions';
+import { ChatCompletionService, ChatHistory, ChatMessageContent, Kernel, PromptExecutionSettings, TextContent } from '@semantic-kernel/abstractions';
 
 /**
  * Azure OpenAI chat completion service.
  */
 export class AzureOpenAIChatCompletionService implements ChatCompletionService {
-  public readonly serviceType = 'ChatCompletion';
-  public readonly serviceKey = 'AzureOpenAIChatCompletion';
+  readonly serviceType = 'ChatCompletion';
   private readonly provider: AzureOpenAIProvider;
 
   /**
