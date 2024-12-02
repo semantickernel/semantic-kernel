@@ -47,7 +47,7 @@ export class MapServiceProvider implements ServiceProvider {
     const serviceId = this.getServiceId(service);
 
     if (this.hasService(serviceId)) {
-      throw new Error(`${serviceId} is already registered.`);
+      throw new Error(`Service id "${serviceId}" is already registered.`);
     }
 
     this.services.set(serviceId, service);

@@ -1,5 +1,12 @@
 import { AzureOpenAIProvider } from '../provider/AzureOpenAIProvider';
-import { ChatCompletionService, ChatHistory, ChatMessageContent, Kernel, PromptExecutionSettings, TextContent } from '@semantic-kernel/abstractions';
+import {
+  ChatCompletionService,
+  ChatHistory,
+  ChatMessageContent,
+  Kernel,
+  PromptExecutionSettings,
+  TextContent,
+} from '@semantic-kernel/abstractions';
 
 /**
  * Azure OpenAI chat completion service.

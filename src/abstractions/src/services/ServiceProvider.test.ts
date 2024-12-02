@@ -1,34 +1,44 @@
 import { PromptExecutionSettings, ServiceId } from '../AI';
 import { KernelArguments } from '../functions';
-import { AIService, AIServiceType, ModelIdKey } from './AIService';
+import { AIService, ModelIdKey } from './AIService';
 import { MapServiceProvider } from './ServiceProvider';
 
-const MockService = (serviceType?: AIServiceType, serviceKey?: string, modelId?: string): AIService => {
-  return {
-    serviceType: serviceType ?? 'ChatCompletion',
-    serviceKey: serviceKey ?? 'mockService',
-    attributes: new Map([[ModelIdKey, modelId ?? 'mockModel']]),
-  };
-};
+class MockService implements AIService {
+  readonly serviceType = 'ChatCompletion';
+  readonly attributes: Map<string, string> = new Map();
+}
+
+class MockServiceWithModelId implements AIService {
+  readonly serviceType = 'ChatCompletion';
+  readonly attributes: Map<string, string>;
+
+  constructor(modelId: string) {
+    this.attributes = new Map([[ModelIdKey, modelId]]);
+  }
+}
 
 describe('MapServiceProvider', () => {
   describe('addService', () => {
     it('should add a service', () => {
       // Arrange
       const serviceProvider = new MapServiceProvider();
-      const mockService = MockService();
+      const mockService = new MockService();
 
       // Act
       serviceProvider.addService(mockService);
 
       // Assert
-      expect(serviceProvider.getServices().next().value).toEqual(['mockService', mockService]);
+      expect(
+        serviceProvider.trySelectAIService({
+          serviceType: 'ChatCompletion',
+        })?.service
+      ).toEqual(mockService);
     });
 
     it('should not add the same serviceKey twice', () => {
       // Arrange
       const serviceProvider = new MapServiceProvider();
-      const mockService = MockService();
+      const mockService = new MockService();
 
       // Act
       serviceProvider.addService(mockService);
@@ -36,45 +46,19 @@ describe('MapServiceProvider', () => {
       // Assert
       expect(() => {
         serviceProvider.addService(mockService);
-      }).toThrow('Service with key mockService already exists.');
+      }).toThrow('Service id "MockService" is already registered.');
     });
   });
 
-  describe('getServiceByKey', () => {
-    it('should throw an error when service is not defined', () => {
-      // Arrange
-      const serviceProvider = new MapServiceProvider();
-
-      // Act
-      const action = () => serviceProvider.getServiceByKey('ChatCompletion1');
-
-      // Assert
-      expect(action).toThrow('Service with key ChatCompletion1 does not exist.');
-    });
-
-    it('should get a service', () => {
-      // Arrange
-      const serviceProvider = new MapServiceProvider();
-      const mockService = MockService();
-      serviceProvider.addService(mockService);
-
-      // Act
-      const service = serviceProvider.getServiceByKey('mockService');
-
-      // Assert
-      expect(service).toEqual(mockService);
-    });
-  });
-
-  describe('getService', () => {
+  describe('trySelectAIService', () => {
     it('should return undefined when service is not defined', () => {
       // Arrange
       const serviceProvider = new MapServiceProvider();
 
       // Act
-      const service = serviceProvider.getService({
+      const service = serviceProvider.trySelectAIService({
         serviceType: 'ChatCompletion',
-      });
+      })?.service;
 
       // Assert
       expect(service).toBeUndefined();
@@ -83,11 +67,11 @@ describe('MapServiceProvider', () => {
     it('should get a service without ExecutionSettings', () => {
       // Arrange
       const serviceProvider = new MapServiceProvider();
-      const mockService = MockService();
+      const mockService = new MockService();
       serviceProvider.addService(mockService);
 
       // Act
-      const service = serviceProvider.getService({
+      const service = serviceProvider.trySelectAIService({
         serviceType: 'ChatCompletion',
       });
 
@@ -100,7 +84,7 @@ describe('MapServiceProvider', () => {
 
     it('should get a service with KernelArguments.ExecutionSettings and serviceKey', () => {
       // Arrange
-      const stubServiceKey = 'mockService2';
+      const stubServiceKey = 'MockServiceWithModelId';
       const stubPromptExecutionSettings = { modelId: 'gpt' };
       const stubExecutionSettings = new Map<ServiceId, PromptExecutionSettings>();
       stubExecutionSettings.set(stubServiceKey, stubPromptExecutionSettings);
@@ -109,14 +93,14 @@ describe('MapServiceProvider', () => {
 
       const serviceProvider = new MapServiceProvider();
 
-      const mockService1 = MockService('ChatCompletion', 'mockService1');
+      const mockService1 = new MockService();
       serviceProvider.addService(mockService1);
 
-      const mockService2 = MockService('ChatCompletion', stubServiceKey);
+      const mockService2 = new MockServiceWithModelId('MockModelId');
       serviceProvider.addService(mockService2);
 
       // Act
-      const service = serviceProvider.getService({
+      const service = serviceProvider.trySelectAIService({
         serviceType: 'ChatCompletion',
         kernelArguments: stubKernelArguments,
       });
@@ -136,14 +120,14 @@ describe('MapServiceProvider', () => {
 
       const serviceProvider = new MapServiceProvider();
 
-      const mockService1 = MockService('ChatCompletion', 'mockService1');
+      const mockService1 = new MockService();
       serviceProvider.addService(mockService1);
 
-      const mockService2 = MockService('ChatCompletion', 'mockService2', stubPromptExecutionSettings.modelId);
+      const mockService2 = new MockServiceWithModelId(stubPromptExecutionSettings.modelId);
       serviceProvider.addService(mockService2);
 
       // Act
-      const service = serviceProvider.getService({
+      const service = serviceProvider.trySelectAIService({
         serviceType: 'ChatCompletion',
         kernelArguments: stubKernelArguments,
       });
