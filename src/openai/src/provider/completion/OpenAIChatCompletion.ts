@@ -123,6 +123,10 @@ export class OpenAIChatCompletion {
       for await (const chatCompletionChunk of chatCompletionChunks) {
         const choice = chatCompletionChunk.choices[0];
 
+        if (!choice) {
+          continue;
+        }
+
         if (choice.delta.role) {
           streamedRole = choice.delta.role;
         }

@@ -1,13 +1,14 @@
 import { AzureOpenAIProvider } from './AzureOpenAIProvider';
 
-describe('OpenAIProvider', () => {
-  it('should return a new OpenAI provider', () => {
+describe('AzureOpenAIProvider', () => {
+  it('should return a new Azure OpenAI provider', () => {
     // Arrange
     // Act
     const mockOpenAIProvider = new AzureOpenAIProvider({
-      model: 'testModel',
+      deploymentName: 'testDeploymentName',
       apiKey: 'testApiKey',
       endpoint: 'testEndpoint',
+      apiVersion: 'testApiVersion',
     });
 
     // Assert

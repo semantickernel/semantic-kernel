@@ -39,8 +39,11 @@ export class StreamingChatMessageContent<
 
   /**
    * The encoding of the chat message content.
+   *
+   * @todo _encoding property should be private/protected in theory but I had to make it public to avoid the
+   * "Property '_encoding' of exported anonymous class type may not be private or protected.ts(4094)" error.
    */
-  private _encoding?: Encoding;
+  _encoding?: Encoding;
 
   public get encoding(): Encoding | undefined {
     const textContents = this.items.filter((item) => item instanceof StreamingTextContent) as StreamingTextContent[];

@@ -1,5 +1,11 @@
 import { OpenAIChatCompletion, OpenAIChatCompletionParams } from './completion';
-import { EndpointKey, ModelIdKey } from '@semantic-kernel/abstractions';
+import {
+  EndpointKey,
+  ModelIdKey,
+  SemanticKernelUserAgent,
+  SemanticKernelVersionHttpHeaderName,
+  SemanticKernelVersionHttpHeaderValue,
+} from '@semantic-kernel/abstractions';
 import OpenAI from 'openai';
 
 /**
@@ -8,7 +14,7 @@ import OpenAI from 'openai';
 export class OpenAIProvider {
   private readonly openAIClient: OpenAI;
   private readonly openAIChatCompletion: OpenAIChatCompletion;
-  private readonly _modelId: string;
+  private readonly modelId: string;
   private readonly _attributes: Map<string, string> = new Map();
   private readonly endpoint: string;
 
@@ -18,17 +24,16 @@ export class OpenAIProvider {
   private readonly OpenAIV1Endpoint = 'https://api.openai.com/v1';
 
   /**
-   * Returns a new OpenAI provider.
-   * @param params OpenAI provider parameters.
-   * @param params.modelId OpenAI model id.
-   * @param params.apiKey OpenAI API key.
-   * @param params.endpoint OpenAI endpoint (optional).
-   * @param params.organization OpenAI organization (optional).
-   * @param params.openAIClient OpenAI client (optional).
-   * @returns The OpenAI provider.
+   * API Client for interfacing with the OpenAI API.
+   *
+   * @param {string} opts.modelId - OpenAI model id.
+   * @param {string} opts.apiKey - OpenAI API key.
+   * @param {string | undefined} opts.endpoint - Your OpenAI endpoint.
+   * @param {string | undefined} opts.organization - OpenAI organization.
+   * @param {OpenAIProvider | undefined} opts.openAIClient - OpenAI Client (optional).
    */
   public constructor({
-    modelId,
+    modelId: _modelId,
     apiKey,
     endpoint,
     organization,
@@ -40,8 +45,8 @@ export class OpenAIProvider {
     organization?: string;
     openAIClient?: OpenAI;
   }) {
-    this._modelId = modelId;
-    this.addAttribute(ModelIdKey, this._modelId);
+    this.modelId = _modelId;
+    this.addAttribute(ModelIdKey, this.modelId);
 
     this.endpoint = endpoint ?? this.OpenAIV1Endpoint;
     this.addAttribute(EndpointKey, this.endpoint);
@@ -52,30 +57,34 @@ export class OpenAIProvider {
         apiKey,
         organization,
         baseURL: this.endpoint,
+        defaultHeaders: {
+          'User-Agent': SemanticKernelUserAgent,
+          [SemanticKernelVersionHttpHeaderName]: SemanticKernelVersionHttpHeaderValue,
+        },
       });
 
     this.openAIChatCompletion = new OpenAIChatCompletion(this.openAIClient);
   }
 
-  public getChatMessageContents(completionParams: Omit<OpenAIChatCompletionParams, 'modelId'>) {
+  getChatMessageContents(completionParams: Omit<OpenAIChatCompletionParams, 'modelId'>) {
     return this.openAIChatCompletion.getChatMessageContent({
       ...completionParams,
-      modelId: this._modelId,
+      modelId: this.modelId,
     });
   }
 
-  public getStreamingChatMessageContents(completionParams: Omit<OpenAIChatCompletionParams, 'modelId'>) {
+  getStreamingChatMessageContents(completionParams: Omit<OpenAIChatCompletionParams, 'modelId'>) {
     return this.openAIChatCompletion.getChatMessageContentStream({
       ...completionParams,
-      modelId: this._modelId,
+      modelId: this.modelId,
     });
   }
 
-  public get attributes() {
+  get attributes() {
     return this._attributes;
   }
 
-  private addAttribute(key: string, value: string) {
+  protected addAttribute(key: string, value: string) {
     if (!this._attributes.has(key)) {
       this._attributes.set(key, value);
     }

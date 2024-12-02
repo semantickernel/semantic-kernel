@@ -1,5 +1,5 @@
 {
-  "name": "@semantic-kernel/azureopenai",
+  "name": "@semantic-kernel/azure-openai",
   "description": "Semantic Kernel Azure OpenAI",
   "version": "0.1.0",
   "main": "./dist/index.js",
@@ -24,9 +24,14 @@
   },
   "dependencies": {
     "@semantic-kernel/abstractions": "*",
+    "@semantic-kernel/openai": "*",
     "openai": "^4.56.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.9.0",
+    "@types/eslint__js": "^8.42.3",
+    "eslint": "^9.9.0",
+    "typescript-eslint": "^8.2.0",
     "@semantic-kernel/tsconfig": "*",
     "tsup": "^8.2.4",
     "typescript": "^5.5.4"
