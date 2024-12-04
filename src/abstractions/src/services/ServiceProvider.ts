@@ -1,22 +1,18 @@
-import { PromptExecutionSettings, defaultServiceId } from '../AI';
+import { ChatCompletionService, PromptExecutionSettings, defaultServiceId } from '../AI';
 import { KernelFunction } from '../functions';
 import { KernelArguments } from '../functions/KernelArguments';
 import { JsonSchema } from '../jsonSchema';
-import { AIService, getServiceModelId } from './AIService';
+import { AIService, AIServiceType, getServiceModelId } from './AIService';
+
+/**
+ * Maps an AIServiceType to the corresponding service.
+ */
+type ServiceMapping<T> = T extends 'ChatCompletion' ? ChatCompletionService : AIService;
 
 /**
  * Represents a service provider.
  */
 export interface ServiceProvider {
-  /**
-   * Gets a service by key.
-   * @param serviceKey The key of the service.
-   */
-  getServiceByKey(serviceKey: string): AIService;
-  /**
-   * Gets all services.
-   */
-  getServices(): Iterator<[string, AIService]>;
   /**
    * Adds a service.
    * @param service The service to add.
@@ -29,13 +25,13 @@ export interface ServiceProvider {
    * @param params.serviceType The type of service to get.
    * @param params.executionSettings Execution settings for the service.
    */
-  getService(params: {
-    serviceType: AIService['serviceType'];
-    kernelFunction?: KernelFunction<JsonSchema, unknown>;
-    kernelArguments?: KernelArguments<JsonSchema>;
+  trySelectAIService<T extends AIServiceType>(params: {
+    serviceType: T;
+    kernelFunction?: KernelFunction<JsonSchema>;
+    kernelArguments?: KernelArguments<JsonSchema, unknown>;
   }):
     | {
-        service: AIService;
+        service: ServiceMapping<T>;
         executionSettings?: PromptExecutionSettings;
       }
     | undefined;
@@ -47,53 +43,27 @@ export interface ServiceProvider {
 export class MapServiceProvider implements ServiceProvider {
   private readonly services: Map<string, AIService> = new Map();
 
-  private getServiceKey = (service: AIService) => service.serviceKey;
+  addService(service: AIService) {
+    const serviceId = this.getServiceId(service);
 
-  private hasService = (serviceKey: string) => this.services.has(serviceKey);
-
-  private getServicesByType = (serviceType: AIService['serviceType']) => {
-    return Array.from(this.services.values()).filter((service) => service.serviceType === serviceType);
-  };
-
-  addService = (service: AIService) => {
-    const serviceKey = this.getServiceKey(service);
-
-    if (!serviceKey) {
-      throw new Error('Service key is not defined.');
+    if (this.hasService(serviceId)) {
+      throw new Error(`Service id "${serviceId}" is already registered.`);
     }
 
-    if (this.hasService(serviceKey)) {
-      throw new Error(`Service with key ${serviceKey} already exists.`);
-    }
+    this.services.set(serviceId, service);
+  }
 
-    this.services.set(serviceKey, service);
-  };
-
-  getServiceByKey = (serviceKey: string) => {
-    if (!this.services.has(serviceKey)) {
-      throw new Error(`Service with key ${serviceKey} does not exist.`);
-    }
-
-    return this.services.get(serviceKey) as AIService;
-  };
-
-  getServices = () => this.services.entries();
-
-  getService({
+  trySelectAIService<T extends AIServiceType>({
     serviceType,
     kernelFunction,
     kernelArguments,
   }: {
-    serviceType: AIService['serviceType'];
-    kernelFunction?: KernelFunction<JsonSchema, unknown>;
-    kernelArguments?: KernelArguments<JsonSchema>;
-  }):
-    | {
-        service: AIService;
-        executionSettings?: PromptExecutionSettings;
-      }
-    | undefined {
+    serviceType: T;
+    kernelFunction?: KernelFunction<JsonSchema>;
+    kernelArguments?: KernelArguments<JsonSchema, unknown>;
+  }) {
     const executionSettings = kernelFunction?.executionSettings ?? kernelArguments?.executionSettings;
+
     const services = this.getServicesByType(serviceType);
 
     if (!services.length) {
@@ -116,7 +86,7 @@ export class MapServiceProvider implements ServiceProvider {
         defaultExecutionSettings = _executionSettings;
       }
 
-      const service = services.find((s) => s.serviceKey === serviceId);
+      const service = services.find((s) => this.getServiceId(s) === serviceId);
       if (service) {
         return {
           service,
@@ -146,5 +116,19 @@ export class MapServiceProvider implements ServiceProvider {
     }
 
     return undefined;
+  }
+
+  private getServiceId(service: AIService) {
+    return service.constructor.name;
+  }
+
+  private hasService(serviceKey: string) {
+    return this.services.has(serviceKey);
+  }
+
+  private getServicesByType<T extends AIServiceType>(serviceType: T) {
+    return Array.from(this.services.values()).filter((service) => service.serviceType === serviceType) as Array<
+      ServiceMapping<T>
+    >;
   }
 }

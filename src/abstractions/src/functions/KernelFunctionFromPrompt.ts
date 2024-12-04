@@ -143,12 +143,12 @@ export class KernelFunctionFromPrompt extends KernelFunction<
     const promptTemplate = this.getPromptTemplate();
 
     const { service, executionSettings } =
-      kernel.services.getService({
+      kernel.services.trySelectAIService({
         serviceType: 'ChatCompletion',
         kernelFunction: this,
         kernelArguments: args,
       }) ||
-      kernel.services.getService({
+      kernel.services.trySelectAIService({
         serviceType: 'TextCompletion',
         kernelFunction: this,
         kernelArguments: args,

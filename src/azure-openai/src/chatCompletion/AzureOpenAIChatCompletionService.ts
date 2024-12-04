@@ -12,8 +12,7 @@ import {
  * Azure OpenAI chat completion service.
  */
 export class AzureOpenAIChatCompletionService implements ChatCompletionService {
-  public readonly serviceType = 'ChatCompletion';
-  public readonly serviceKey = 'AzureOpenAIChatCompletion';
+  readonly serviceType = 'ChatCompletion';
   private readonly provider: AzureOpenAIProvider;
 
   /**
