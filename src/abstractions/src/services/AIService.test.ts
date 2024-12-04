@@ -1,18 +1,23 @@
 import { AIService, ModelIdKey, getServiceModelId } from './AIService';
 
+class MockService implements AIService {
+  readonly serviceType = 'ChatCompletion';
+  readonly attributes: Map<string, string> = new Map();
+
+  constructor(modelId?: string) {
+    if (modelId) this.attributes.set(ModelIdKey, modelId);
+  }
+}
+
 describe('AIService', () => {
   describe('getServiceModelId', () => {
     it('should return the model ID', () => {
       // Arrange
       const stubModelId = 'mockModel';
-      const service: AIService = {
-        serviceType: 'ChatCompletion',
-        serviceKey: 'mockService',
-        attributes: new Map([[ModelIdKey, stubModelId]]),
-      };
+      const mockService = new MockService(stubModelId);
 
       // Act
-      const result = getServiceModelId(service);
+      const result = getServiceModelId(mockService);
 
       // Assert
       expect(result).toEqual('mockModel');
@@ -20,14 +25,10 @@ describe('AIService', () => {
 
     it('should return undefined when ModelId is not defined', () => {
       // Arrange
-      const service: AIService = {
-        serviceType: 'ChatCompletion',
-        serviceKey: 'mockService',
-        attributes: new Map(),
-      };
+      const mockService = new MockService();
 
       // Act
-      const result = getServiceModelId(service);
+      const result = getServiceModelId(mockService);
 
       // Assert
       expect(result).toBeUndefined();

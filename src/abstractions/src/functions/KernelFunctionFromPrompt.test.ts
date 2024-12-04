@@ -6,7 +6,6 @@ import { KernelFunctionFromPrompt } from './KernelFunctionFromPrompt';
 const getMockChatCompletionService = () => {
   return {
     serviceType: 'ChatCompletion',
-    serviceKey: 'StubChatCompletion',
     attributes: {},
     getChatMessageContents: async ({ prompt }) => {
       const messageContents: ChatMessageContent[] = [];
