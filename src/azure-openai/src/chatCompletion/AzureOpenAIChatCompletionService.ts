@@ -20,24 +20,31 @@ export class AzureOpenAIChatCompletionService implements ChatCompletionService {
    *
    * @param params Chat completion parameters.
    * @param params.model Azure OpenAI model id.
-   * @param params.apiKey Azure OpenAI API key.
    * @param params.endpoint Azure OpenAI endpoint.
+   * @param params.apiKey Azure OpenAI API key (optional).
    * @param params.provider Azure OpenAI provider (optional).
    */
   public constructor({
     deploymentName,
-    apiKey,
     endpoint,
     apiVersion,
+    apiKey,
     provider,
   }: {
     deploymentName: string;
-    apiKey: string;
     endpoint: string;
     apiVersion: string;
+    apiKey?: string;
     provider?: AzureOpenAIProvider;
   }) {
-    this.provider = provider ?? new AzureOpenAIProvider({ deploymentName, apiKey, endpoint, apiVersion });
+    this.provider =
+      provider ??
+      new AzureOpenAIProvider({
+        deploymentName,
+        endpoint,
+        apiVersion,
+        ...(apiKey && { apiKey }),
+      });
   }
 
   public get attributes() {

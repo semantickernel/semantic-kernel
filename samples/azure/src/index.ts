@@ -1,11 +1,11 @@
-import { AzureOpenAIChatCompletionService } from '@semantic-kernel/azureopenai';
+import { AzureOpenAIChatCompletionService } from '@semantic-kernel/azure-openai';
 import { FunctionChoiceBehavior, kernel, kernelFunction } from "semantic-kernel";
 
 const sk = kernel().addService(
     new AzureOpenAIChatCompletionService({
-        apiKey: '1234',
-        endpoint: 'http://localhost:4041',
-        model: 'gpt-4',
+        deploymentName: '<OpenAI model name>',
+        endpoint: '<Azure OpenAI endpoint>',
+        apiVersion: '<OpenAPI version>'
     })
 );
 
