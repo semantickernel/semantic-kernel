@@ -20,7 +20,7 @@ export class AzureOpenAIProvider extends OpenAIProvider {
    * @param {string} opts.deploymentName - Model deployment name.
    * @param {string} opts.endpoint - Your Azure endpoint, including the resource, e.g. `https://example-resource.azure.openai.com/`
    * @param {string} opts.apiVersion - Your Azure API version, e.g. `2024-02-01`
-   * @param {string | undefined} opts.apiKey - Azure endpoint API Key (optional).
+   * @param {string | undefined} opts.apiKey - Azure OpenAI API Key (optional).
    * @param {AzureOpenAIProvider | undefined} opts.azureOpenAIClient - Azure OpenAI client (optional).
    */
   public constructor({
