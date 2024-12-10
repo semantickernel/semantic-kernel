@@ -1,3 +1,4 @@
+import { DefaultAzureCredential, getBearerTokenProvider } from '@azure/identity';
 import {
   SemanticKernelUserAgent,
   SemanticKernelVersionHttpHeaderName,
@@ -17,41 +18,65 @@ export class AzureOpenAIProvider extends OpenAIProvider {
    * API Client for interfacing with the Azure OpenAI API.
    *
    * @param {string} opts.deploymentName - Model deployment name.
-   * @param {string} opts.apiKey - Azure endpoint API Key.
    * @param {string} opts.endpoint - Your Azure endpoint, including the resource, e.g. `https://example-resource.azure.openai.com/`
    * @param {string} opts.apiVersion - Your Azure API version, e.g. `2024-02-01`
+   * @param {string | undefined} opts.apiKey - Azure OpenAI API Key (optional).
    * @param {AzureOpenAIProvider | undefined} opts.azureOpenAIClient - Azure OpenAI client (optional).
    */
   public constructor({
     deploymentName,
-    apiKey,
     endpoint,
     apiVersion,
+    apiKey,
     azureOpenAIClient,
   }: {
     deploymentName: string;
-    apiKey: string;
     endpoint: string;
     apiVersion: string;
+    apiKey?: string;
     azureOpenAIClient?: AzureOpenAI;
   }) {
-    super({
-      modelId: deploymentName,
-      apiKey,
-      endpoint,
-      openAIClient:
-        azureOpenAIClient ??
-        new AzureOpenAI({
-          apiKey,
-          apiVersion,
-          deployment: deploymentName,
-          defaultHeaders: {
-            'User-Agent': SemanticKernelUserAgent,
-            [SemanticKernelVersionHttpHeaderName]: SemanticKernelVersionHttpHeaderValue,
-          },
-          endpoint,
-        }),
-    });
+    if (apiKey) {
+      super({
+        modelId: deploymentName,
+        apiKey,
+        endpoint,
+        openAIClient:
+          azureOpenAIClient ??
+          new AzureOpenAI({
+            apiKey,
+            apiVersion,
+            deployment: deploymentName,
+            defaultHeaders: {
+              'User-Agent': SemanticKernelUserAgent,
+              [SemanticKernelVersionHttpHeaderName]: SemanticKernelVersionHttpHeaderValue,
+            },
+            endpoint,
+          }),
+      });
+    } else {
+      // Used to authenticate with Azure OpenAI using Azure Identity.
+      const credential = new DefaultAzureCredential();
+      const scope = 'https://cognitiveservices.azure.com/.default';
+      const aadProvider = getBearerTokenProvider(credential, scope);
+
+      super({
+        modelId: deploymentName,
+        apiKey: '',
+        endpoint,
+        openAIClient:
+          azureOpenAIClient ??
+          new AzureOpenAI({
+            endpoint: endpoint,
+            apiVersion: apiVersion,
+            azureADTokenProvider: aadProvider,
+            defaultHeaders: {
+              'User-Agent': SemanticKernelUserAgent,
+              [SemanticKernelVersionHttpHeaderName]: SemanticKernelVersionHttpHeaderValue,
+            },
+          }),
+      });
+    }
 
     this.deploymentName = deploymentName;
     this.addAttribute(AzureOpenAIProvider.deploymentNameKey, this.deploymentName);
