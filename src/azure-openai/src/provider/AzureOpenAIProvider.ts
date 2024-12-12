@@ -1,3 +1,4 @@
+import { EMPTY_OPENAI_API_KEY, OPENAI_AAD_SCOPE } from '../constants';
 import { DefaultAzureCredential, getBearerTokenProvider } from '@azure/identity';
 import {
   SemanticKernelUserAgent,
@@ -6,7 +7,6 @@ import {
 } from '@semantic-kernel/abstractions';
 import { OpenAIProvider } from '@semantic-kernel/openai';
 import { AzureOpenAI } from 'openai';
-import { EMPTY_OPENAI_API_KEY, OPENAI_AAD_SCOPE } from '../constants';
 
 /**
  * Azure OpenAI provider which provides access to the Azure OpenAI API including chat completions, etc.
