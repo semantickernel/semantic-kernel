@@ -8,6 +8,11 @@ const nextjsConfigs = {
         destination: '/getting-started/quick-start-guide',
         permanent: true,
       },
+      {
+        source: '/azure',
+        destination: '/getting-started/using-azure',
+        permanent: true,
+      }
     ]
   },
 
