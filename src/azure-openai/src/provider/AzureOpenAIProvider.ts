@@ -1,3 +1,4 @@
+import { EMPTY_OPENAI_API_KEY, OPENAI_AAD_SCOPE } from '../constants';
 import { DefaultAzureCredential, getBearerTokenProvider } from '@azure/identity';
 import {
   SemanticKernelUserAgent,
@@ -55,14 +56,12 @@ export class AzureOpenAIProvider extends OpenAIProvider {
           }),
       });
     } else {
-      // Used to authenticate with Azure OpenAI using Azure Identity.
-      const credential = new DefaultAzureCredential();
-      const scope = 'https://cognitiveservices.azure.com/.default';
-      const aadProvider = getBearerTokenProvider(credential, scope);
+      // EntraIDAuth: get the logged in AD credential and provider
+      const aadProvider = getBearerTokenProvider(new DefaultAzureCredential(), OPENAI_AAD_SCOPE);
 
       super({
         modelId: deploymentName,
-        apiKey: '',
+        apiKey: EMPTY_OPENAI_API_KEY,
         endpoint,
         openAIClient:
           azureOpenAIClient ??
